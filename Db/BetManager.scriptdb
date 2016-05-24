@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ScriptFile="C:\Develop\Playground\BetManager\Db\install.sql" Connection="Data Source=.\sqlexpress;Initial Catalog=BetManager;Integrated Security=True;" TableDisplayName="" InstallIndicies="true" RecreatePK="false" InstallDescription="false" DocumentationFolder="">
+  <BeforeScript />
+  <AfterScript />
+  <Tables>
+    <Table Name="BM_League" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="BM_Section" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="BM_Tip" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="DataXmlExport" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="IF_Bet" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="IF_Bet_History" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="IF_Category" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="IF_Competitor" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="IF_Match" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="IF_Tournament" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="VT_League" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="VT_Section" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="VT_Tip" IsData="false" IsUpdate="false" IsDelete="false" />
+  </Tables>
+  <Procedures>
+    <Procedure Name="BM_Section_COMPOSE" />
+    <Procedure Name="DataXmlExport_NEW" />
+    <Procedure Name="IF_DataXmlExport_IMPORT" />
+    <Procedure Name="IF_Match_ALL" />
+    <Procedure Name="VT_DataXmlExport_IMPORT" />
+  </Procedures>
+  <Functions />
+  <ProcedureTemplates>
+    <ProcedureTemplate FileName="C:\Develop\Skeleton\svn\Other\ScriptDb\bin\Release\ProcedureTemplates\ALL.sql" Type="ALL" />
+    <ProcedureTemplate FileName="C:\Develop\Skeleton\svn\Other\ScriptDb\bin\Release\ProcedureTemplates\DEL.sql" Type="DEL" />
+    <ProcedureTemplate FileName="C:\Develop\Skeleton\svn\Other\ScriptDb\bin\Release\ProcedureTemplates\DETAIL.sql" Type="DETAIL" />
+    <ProcedureTemplate FileName="C:\Develop\Skeleton\svn\Other\ScriptDb\bin\Release\ProcedureTemplates\EDIT.sql" Type="EDIT" />
+    <ProcedureTemplate FileName="C:\Develop\Skeleton\svn\Other\ScriptDb\bin\Release\ProcedureTemplates\NEW.sql" Type="NEW" />
+    <ProcedureTemplate FileName="C:\Develop\Skeleton\svn\Other\ScriptDb\bin\Release\ProcedureTemplates\PERMISSION.sql" Type="PERMISSION" />
+    <ProcedureTemplate FileName="C:\Develop\Skeleton\svn\Other\ScriptDb\bin\Release\ProcedureTemplates\VALIDATE.sql" Type="VALIDATE" />
+  </ProcedureTemplates>
+  <Views />
+  <UserTypes />
+  <IgnoreObjects>
+    <DbObject Type="Table" Name="sysdiagrams" />
+    <DbObject Type="Procedure" Name="sp_alterdiagram" />
+    <DbObject Type="Procedure" Name="sp_creatediagram" />
+    <DbObject Type="Procedure" Name="sp_dropdiagram" />
+    <DbObject Type="Procedure" Name="sp_helpdiagramdefinition" />
+    <DbObject Type="Procedure" Name="sp_helpdiagrams" />
+    <DbObject Type="Procedure" Name="sp_renamediagram" />
+    <DbObject Type="Procedure" Name="sp_upgraddiagrams" />
+    <DbObject Type="Function" Name="fn_diagramobjects" />
+  </IgnoreObjects>
+  <DbValidations NonValidateTableMask="">
+    <DbValidationXml />
+  </DbValidations>
+  <DocumentationTypes>
+    <item>
+      <key>
+        <string>id</string>
+      </key>
+      <value>
+        <string>Číselné ID</string>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string>idvc</string>
+      </key>
+      <value>
+        <string>Textové ID</string>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string>isactive</string>
+      </key>
+      <value>
+        <string>Zda je záznam aktivní</string>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string>bit</string>
+      </key>
+      <value>
+        <string>Logická hodnota (ano/ne)</string>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string>date</string>
+      </key>
+      <value>
+        <string>Datum</string>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string>time</string>
+      </key>
+      <value>
+        <string>Čas</string>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string>datetime</string>
+      </key>
+      <value>
+        <string>Datum a čas</string>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string>int</string>
+      </key>
+      <value>
+        <string>Celé číslo</string>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string>money</string>
+      </key>
+      <value>
+        <string>Částka</string>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string>decimal</string>
+      </key>
+      <value>
+        <string>Desetinné číslo</string>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string>float</string>
+      </key>
+      <value>
+        <string>Desetinné číslo</string>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string>dn</string>
+      </key>
+      <value>
+        <string>Text</string>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string>varchar</string>
+      </key>
+      <value>
+        <string>Text</string>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string>nvarchar</string>
+      </key>
+      <value>
+        <string>Text</string>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string>note</string>
+      </key>
+      <value>
+        <string>Dlouhý text</string>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string>geography</string>
+      </key>
+      <value>
+        <string>GPS pozice</string>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string>hierarchyid</string>
+      </key>
+      <value>
+        <string>Hierarchické ID</string>
+      </value>
+    </item>
+  </DocumentationTypes>
+  <DocumentationSettings>
+    <AddColumns />
+    <SkipColumns />
+    <GenerateClearHtml>false</GenerateClearHtml>
+  </DocumentationSettings>
+</Project>
