@@ -51,7 +51,7 @@ namespace BetManager.Core.Webs
 
         public string DownloadData(string url, Encoding encoding = null)
         {
-            System.Diagnostics.Trace.Write(string.Format("Start downloading {0}", url), "WebDownloader");
+            System.Diagnostics.Trace.WriteLine(string.Format("Start downloading {0}", url), "WebDownloader");
             Client.Headers[HttpRequestHeader.UserAgent] = UserAgent;
             if (url == null)
             {
@@ -66,11 +66,11 @@ namespace BetManager.Core.Webs
             byte[] bytes = Client.DownloadData(url);
             string result = Encoding.UTF8.GetString(bytes);
 
-            System.Diagnostics.Trace.Write(string.Format("Data downloaded - {0} bytes", bytes.Length), "WebDownloader");
+            System.Diagnostics.Trace.WriteLine(string.Format("Data downloaded - {0} bytes", bytes.Length), "WebDownloader");
 
             if (UseDelay)
             {
-                Thread.Sleep(60 + Random.Next(1, 60));
+                Thread.Sleep(1000 + Random.Next(1, 5) * 200);
             }
 
             return result;

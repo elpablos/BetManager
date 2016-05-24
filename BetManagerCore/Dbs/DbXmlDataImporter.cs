@@ -25,7 +25,7 @@ namespace BetManager.Core.Dbs
 
         public int? ImportXmlData(string company, string displayName, string xml)
         {
-            System.Diagnostics.Trace.Write(string.Format("Start importing XML {0}", displayName), "DbXmlImporter");
+            System.Diagnostics.Trace.WriteLine(string.Format("Start importing XML {0}", displayName), "DbXmlImporter");
 
             using (SqlConnection connection = new SqlConnection(
               ConnectionString))
@@ -48,7 +48,7 @@ namespace BetManager.Core.Dbs
                 xmlParam.Value = new SqlXml(XmlReader.Create(new System.IO.StringReader(xml)));
                 command.ExecuteNonQuery();
 
-                System.Diagnostics.Trace.Write(string.Format("Importing finished", displayName), "DbXmlImporter");
+                System.Diagnostics.Trace.WriteLine(string.Format("Importing finished", displayName), "DbXmlImporter");
                 return output.Value as int?;
             }
 
@@ -61,7 +61,7 @@ namespace BetManager.Core.Dbs
         /// <param name="id">id importu</param>
         public void IFortunaImport(int id)
         {
-            System.Diagnostics.Trace.Write(string.Format("Start importing iFortuna {0}", id), "IFortunaImport");
+            System.Diagnostics.Trace.WriteLine(string.Format("Start importing iFortuna {0}", id), "IFortunaImport");
 
             using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
@@ -73,7 +73,7 @@ namespace BetManager.Core.Dbs
                 command.ExecuteNonQuery();
             }
 
-            System.Diagnostics.Trace.Write(string.Format("IFortuna Importing finished", id), "IFortunaImport");
+            System.Diagnostics.Trace.WriteLine(string.Format("IFortuna Importing finished", id), "IFortunaImport");
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace BetManager.Core.Dbs
         /// <param name="id">id importu</param>
         public void VitiImport(int id)
         {
-            System.Diagnostics.Trace.Write(string.Format("Start importing Vitisport {0}", id), "IFortunaImport");
+            System.Diagnostics.Trace.WriteLine(string.Format("Start importing Vitisport {0}", id), "IFortunaImport");
 
             using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
@@ -94,7 +94,7 @@ namespace BetManager.Core.Dbs
                 command.ExecuteNonQuery();
             }
 
-            System.Diagnostics.Trace.Write(string.Format("Viti Importing finished", id), "VitiImport");
+            System.Diagnostics.Trace.WriteLine(string.Format("Viti Importing finished", id), "VitiImport");
         }
     }
 }
