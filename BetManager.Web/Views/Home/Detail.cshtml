@@ -1,0 +1,152 @@
+﻿@model BetManager.Core.DbModels.Tip
+
+@{
+    ViewBag.Title = "Detail";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<div class="form-horizontal">
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4 class="">Základní info</h4>
+        </div>
+        <div class="panel-body">
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="col-sm-5 control-label">@Html.DisplayNameFor(model => model.DisplayName)</label>
+                <div class="col-sm-7">
+                  <p class="form-control-static">@Html.DisplayFor(model => model.DisplayName)</p>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-5 control-label">@Html.DisplayNameFor(model => model.DateStart)</label>
+                <div class="col-sm-7">
+                  <p class="form-control-static">@Html.DisplayFor(model => model.DateStart)</p>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-5 control-label">@Html.DisplayNameFor(model => model.Form)</label>
+                <div class="col-sm-7">
+                  <p class="form-control-static">@Html.DisplayFor(model => model.Form)</p>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-5 control-label">@Html.DisplayNameFor(model => model.Odd)</label>
+                <div class="col-sm-7">
+                  <p class="form-control-static">@Html.DisplayFor(model => model.Odd)</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="col-sm-3 control-label">@Html.DisplayNameFor(model => model.Url)</label>
+                <div class="col-sm-9">
+                  <p class="form-control-static">
+                    <a href="@Html.ValueFor(model => model.Url)" target="_blank">@Html.ValueFor(model => model.Url)</a>
+                </p>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="col-sm-5 control-label">@Html.DisplayNameFor(model => model.FirstValue)</label>
+              <div class="col-sm-7">
+                <p class="form-control-static">@Html.DisplayFor(model => model.FirstValue)</p>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="col-sm-5 control-label">@Html.DisplayNameFor(model => model.Xvalue)</label>
+              <div class="col-sm-7">
+                <p class="form-control-static">@Html.DisplayFor(model => model.Xvalue)</p>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="col-sm-5 control-label">@Html.DisplayNameFor(model => model.SecondValue)</label>
+              <div class="col-sm-7">
+                <p class="form-control-static">@Html.DisplayFor(model => model.SecondValue)</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="">Domácí</h4>
+      </div>
+      <div class="panel-body">
+        <div class="form-group">
+          <label class="col-sm-5 control-label">@Html.DisplayNameFor(model => model.HomeForm)</label>
+          <div class="col-sm-7">
+            <p class="form-control-static">@Html.DisplayFor(model => model.HomeForm)</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-sm-5 control-label">@Html.DisplayNameFor(model => model.HomeGiven)</label>
+          <div class="col-sm-7">
+            <p class="form-control-static">@Html.DisplayFor(model => model.HomeGiven)</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-sm-5 control-label">@Html.DisplayNameFor(model => model.HomeTaken)</label>
+          <div class="col-sm-7">
+            <p class="form-control-static">@Html.DisplayFor(model => model.HomeTaken)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="">Domácí</h4>
+      </div>
+      <div class="panel-body">
+        <div class="form-group">
+          <label class="col-sm-5 control-label">@Html.DisplayNameFor(model => model.AwayForm)</label>
+          <div class="col-sm-7">
+            <p class="form-control-static">@Html.DisplayFor(model => model.AwayForm)</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-sm-5 control-label">@Html.DisplayNameFor(model => model.AwayGiven)</label>
+          <div class="col-sm-7">
+            <p class="form-control-static">@Html.DisplayFor(model => model.AwayGiven)</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-sm-5 control-label">@Html.DisplayNameFor(model => model.AwayTaken)</label>
+          <div class="col-sm-7">
+            <p class="form-control-static">@Html.DisplayFor(model => model.AwayTaken)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<p>
+  @Html.ActionLink("Zpět na tipy", "Index")
+</p>
