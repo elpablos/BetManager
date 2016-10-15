@@ -1,5 +1,6 @@
 ﻿using BetManager.Core.Exports.SofascoreExport;
-using xxx;
+using BetManager.Core.SofaScoreBasicExport.Teams;
+using BetManager.Core.SofaScoreBasicExport.Tournaments;
 using BetManager.Core.Utils;
 using BetManager.Core.Webs;
 using HtmlAgilityPack;
@@ -15,10 +16,13 @@ namespace BetManager.Core.Processors
 {
     public class SofascoreBasicDataProcessor : BaseProcessor
     {
+        private bool isTest = false;
 
         public SofascoreBasicDataProcessor(IWebDownloader webDownloader, string url)
             : base(webDownloader, url)
-        { }
+        {
+            webDownloader.TryTempData = true;
+        }
 
         public override string Process()
         {
@@ -26,24 +30,75 @@ namespace BetManager.Core.Processors
 
             IEnumerable<SofaScoreTeam> teams = new List<SofaScoreTeam>();
 
-            teams = teams.Union(ParseSportData("football"));
-            teams = teams.Union(ParseSportData("tennis"));
-            teams = teams.Union(ParseSportData("ice-hockey"));
-            teams = teams.Union(ParseSportData("basketball"));
+            //teams = teams.Union(ParseSportData2("football"));
+            teams = teams.Union(ParseSportData2("tennis"));
+            //teams = teams.Union(ParseSportData2("ice-hockey"));
+            //teams = teams.Union(ParseSportData2("basketball"));
 
             try
             {
+                System.Diagnostics.Trace.WriteLine(string.Format("Save json.."), "Processor");
                 // pojistka
                 string x = JsonConvert.SerializeObject(teams.ToArray());
                 System.IO.File.WriteAllText("Data/SofaScoreBasicData.json", x);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                System.Diagnostics.Trace.WriteLine(string.Format("Save json failed {0}", e.Message), "Processor");
             }
 
+            System.Diagnostics.Trace.WriteLine(string.Format("Save XML.."), "Processor");
             ret = XmlHelper.Serializable<SofaScoreTeam[]>(teams.ToArray());
-
             return ret;
+        }
+
+        public IEnumerable<SofaScoreTeam> ParseSportData2(string sportSlug)
+        {
+            List<SofaScoreTeam> teams = new List<SofaScoreTeam>();
+            List<SofaScoreTournament> tournamentLists = new List<SofaScoreTournament>();
+
+            string categoryUrl = string.Format("http://www.sofascore.com/esi/categories/{0}", sportSlug);
+
+            var categories = ParseCategories(categoryUrl);
+            foreach (var category in categories)
+            {
+                // Href - např. /football/albania
+                string tournamentUrl = string.Format("http://www.sofascore.com/list/category{0}/tournaments/json", category.Href);
+                var tournament = ParseTournament(tournamentUrl);
+                tournamentLists.Add(tournament);
+            }
+
+            foreach (var tournamentList in tournamentLists)
+            {
+                // http://www.sofascore.com/tournament/2891//standings/tables/json
+                // http://www.sofascore.com/u-tournament/720/season//json
+
+                IEnumerable<SofaScoreBasicExport.Tournaments.Tournament> list = new List<SofaScoreBasicExport.Tournaments.Tournament>();
+                if (tournamentList.tournaments.list != null)
+                    list = list.Union(tournamentList.tournaments.list);
+                if (tournamentList.tournaments.Sections != null)
+                    list = list.Union(tournamentList.tournaments.Sections.SelectMany(x => x.Value.tournaments));
+
+                foreach (var tournament in list)
+                {
+                    string teamsUrl = string.Format("http://www.sofascore.com/u-tournament/{0}/season/{1}/json", tournament.uniqueId, string.Empty);
+                    try
+                    {
+                        var team = ParseTeam(teamsUrl);
+                        teams.Add(team);
+
+                        if (isTest)
+                            break;
+                    }
+                    catch (Exception)
+                    {
+                        System.Diagnostics.Trace.WriteLine(string.Format("Parse problem", teamsUrl), "Processor");
+                        System.Threading.Thread.Sleep(2000);
+                    }
+                }
+            }
+
+            return teams;
         }
 
         public IEnumerable<SofaScoreTeam> ParseSportData(string sportSlug)
@@ -70,6 +125,9 @@ namespace BetManager.Core.Processors
                 string tournamentUrl = string.Format("http://www.sofascore.com/list/category{0}/tournaments/json", category.Href);
                 var tournament = ParseTournament(tournamentUrl);
                 tournamentLists.Add(tournament);
+
+                if (isTest)
+                    break;
             }
 
             foreach (var tournamentList in tournamentLists)
@@ -77,11 +135,17 @@ namespace BetManager.Core.Processors
                 // http://www.sofascore.com/tournament/2891//standings/tables/json
                 // http://www.sofascore.com/u-tournament/720/season//json
 
-                foreach (var tournament in tournamentList.tournaments.list)
+                if (tournamentList.tournaments.list != null)
                 {
-                    string teamsUrl = string.Format("http://www.sofascore.com/tournament/{0}//standings/tables/json", tournament.uniqueId);
-                    var team = ParseTeam(teamsUrl);
-                    teams.Add(team);
+                    foreach (var tournament in tournamentList.tournaments.list)
+                    {
+                        string teamsUrl = string.Format("http://www.sofascore.com/tournament/{0}//standings/tables/json", tournament.uniqueId);
+                        var team = ParseTeam(teamsUrl);
+                        teams.Add(team);
+
+                        if (isTest)
+                            break;
+                    }
                 }
             }
 
@@ -99,23 +163,29 @@ namespace BetManager.Core.Processors
                 var body = Document.DocumentNode.SelectSingleNode("//div[@class='leagues']");
                 if (body != null)
                 {
-                    var ulNode = body.SelectSingleNode("//ul");
-                    var liNodes = ulNode.Descendants("li");
-                    foreach (HtmlNode liNode in liNodes)
+                    var ulNodes = body.Descendants("ul");
+                    foreach (var ulNode in ulNodes)
                     {
-                        var aNode = liNode.Descendants("a").FirstOrDefault();
-                        if (aNode != null)
+                        var liNodes = ulNode.Descendants("li");
+                        foreach (HtmlNode liNode in liNodes)
                         {
-                            if (!aNode.Attributes.Contains("data-id")) continue;
-
-                            int id = int.Parse(aNode.Attributes["data-id"].Value);
-
-                            categories.Add(new SofaScoreCategory()
+                            var aNode = liNode.Descendants("a").FirstOrDefault();
+                            if (aNode != null)
                             {
-                                ID = id,
-                                DisplayName = aNode.InnerText.Trim(),
-                                Href = aNode.Attributes["href"].Value
-                            });
+                                if (!aNode.Attributes.Contains("data-id")) continue;
+
+                                int id = int.Parse(aNode.Attributes["data-id"].Value);
+
+                                categories.Add(new SofaScoreCategory()
+                                {
+                                    ID = id,
+                                    DisplayName = aNode.InnerText.Trim(),
+                                    Href = aNode.Attributes["href"].Value
+                                });
+
+                                if (isTest)
+                                    break;
+                            }
                         }
                     }
                 }
@@ -147,83 +217,17 @@ namespace BetManager.Core.Processors
         public string Href { get; set; }
 
     }
-
-    #region Tournament
-
-    public class SofaScoreTournament
-    {
-        public Sport sport { get; set; }
-        public Category category { get; set; }
-        public Tournaments tournaments { get; set; }
-    }
-
-    public class Sport
-    {
-        public string name { get; set; }
-        public string slug { get; set; }
-        public int id { get; set; }
-    }
-
-    public class Category
-    {
-        public string name { get; set; }
-        public string slug { get; set; }
-        public int priority { get; set; }
-        public int id { get; set; }
-        public string flag { get; set; }
-    }
-
-    public class Tournaments
-    {
-        public string type { get; set; }
-        public List[] list { get; set; }
-    }
-
-    public class List
-    {
-        public int id { get; set; }
-        public int order { get; set; }
-        public string name { get; set; }
-        public string slug { get; set; }
-        public string uniqueName { get; set; }
-        public bool hasEventPlayerStatistics { get; set; }
-        public bool hasEventPlayerHeatMap { get; set; }
-        public bool isActive { get; set; }
-        public int uniqueId { get; set; }
-    }
-
-
-    #endregion
-
-
 }
 
-namespace xxx
+namespace BetManager.Core.SofaScoreBasicExport.Teams
 {
 
     public class SofaScoreTeam
     {
+        #region Help
+
         private string EmptyJsonArray = "[]";
         private TeamEventPair[] teamEventsList;
-
-        public Standingstable[] standingsTables { get; set; }
-
-        [XmlIgnore]
-        public Dictionary<int, Teamevent> TeamEvents
-        {
-            get
-            {
-                var json = this.teamEventsJson.ToString();
-                if (json.Trim() == EmptyJsonArray)
-                {
-                    return new Dictionary<int, Teamevent>();
-                }
-                else
-                {
-                    return JsonConvert.DeserializeObject<Dictionary<int, Teamevent>>(json);
-                }
-            }
-        }
 
         [XmlIgnore]
         [JsonProperty(PropertyName = "teamEvents")]
@@ -243,6 +247,27 @@ namespace xxx
                 }).ToArray();
             }
             set { teamEventsList = value; }
+        }
+
+        #endregion
+
+        public Standingstable[] standingsTables { get; set; }
+
+        [XmlIgnore]
+        public Dictionary<int, Teamevent> TeamEvents
+        {
+            get
+            {
+                var json = this.teamEventsJson.ToString();
+                if (json.Trim() == EmptyJsonArray)
+                {
+                    return new Dictionary<int, Teamevent>();
+                }
+                else
+                {
+                    return JsonConvert.DeserializeObject<Dictionary<int, Teamevent>>(json);
+                }
+            }
         }
     }
 
@@ -420,8 +445,8 @@ namespace xxx
         public int? id { get; set; }
         public int? uniqueId { get; set; }
         public string uniqueName { get; set; }
-        public bool hasEventPlayerStatistics { get; set; }
-        public bool hasEventPlayerHeatMap { get; set; }
+        public bool? hasEventPlayerStatistics { get; set; }
+        public bool? hasEventPlayerHeatMap { get; set; }
     }
 
     public class Totaltablekeys
@@ -612,6 +637,593 @@ namespace xxx
         public string goalsTotalAway { get; set; }
         public string goalDiffAway { get; set; }
         public string pointsAway { get; set; }
+    }
+
+}
+
+
+namespace BetManager.Core.SofaScoreBasicExport.Tournaments
+{
+    public class SofaScoreTournament
+    {
+        public Sport sport { get; set; }
+        public Category category { get; set; }
+        public Tournaments tournaments { get; set; }
+    }
+
+    public class Sport
+    {
+        public string name { get; set; }
+        public string slug { get; set; }
+        public int id { get; set; }
+    }
+
+    public class Category
+    {
+        public string name { get; set; }
+        public string slug { get; set; }
+        public int priority { get; set; }
+        public int id { get; set; }
+        public string flag { get; set; }
+    }
+
+    public class Tournaments
+    {
+        private string EmptyJsonArray = "[]";
+
+        public string type { get; set; }
+        public int? goToItem { get; set; }
+
+        public Tournament[] list { get; set; }
+
+        [XmlIgnore]
+        public Dictionary<int, Section> Sections
+        {
+            get
+            {
+                if (sectionsJson == null) return new Dictionary<int, Section>();
+                var json = this.sectionsJson.ToString();
+                if (json.Trim() == EmptyJsonArray)
+                {
+                    return new Dictionary<int, Section>();
+                }
+                else
+                {
+                    return JsonConvert.DeserializeObject<Dictionary<int, Section>>(json);
+                }
+            }
+        }
+
+        [XmlIgnore]
+        [JsonProperty(PropertyName = "sections")]
+        public object sectionsJson { get; set; }
+
+        private SectionPair[] sectionsList;
+        [XmlArray("Sections")]
+        public SectionPair[] SectionsList
+        {
+            get
+            {
+
+
+                return Sections.Select(x => new SectionPair()
+                {
+                    ID = x.Key,
+                    Section = x.Value
+                }).ToArray();
+            }
+            set { sectionsList = value; }
+        }
+    }
+
+    public class SectionPair
+    {
+        public int ID { get; set; }
+        public Section Section { get; set; }
+    }
+
+    public class Section
+    {
+        public string title { get; set; }
+        public Tournament[] tournaments { get; set; }
+    }
+
+    public class Tournament
+    {
+        public int id { get; set; }
+        public int? order { get; set; }
+        public string name { get; set; }
+        public string slug { get; set; }
+        public string uniqueName { get; set; }
+        public bool? hasEventPlayerStatistics { get; set; }
+        public bool? hasEventPlayerHeatMap { get; set; }
+        public bool? isActive { get; set; }
+        public int uniqueId { get; set; }
+    }
+}
+
+namespace xxx
+{
+
+    public class Rootobject
+    {
+        public object[] standingsTables { get; set; }
+        public Category category { get; set; }
+        public Sport sport { get; set; }
+        public Uniquetournament uniqueTournament { get; set; }
+        public object[] teamEvents { get; set; }
+        public object season { get; set; }
+        public Events events { get; set; }
+    }
+
+    public class Category
+    {
+        public string name { get; set; }
+        public string slug { get; set; }
+        public int priority { get; set; }
+        public int id { get; set; }
+        public string flag { get; set; }
+    }
+
+    public class Sport
+    {
+        public string name { get; set; }
+        public string slug { get; set; }
+        public int id { get; set; }
+    }
+
+    public class Uniquetournament
+    {
+        public string name { get; set; }
+        public string slug { get; set; }
+        public int id { get; set; }
+    }
+
+    public class Events
+    {
+        public Week[] weeks { get; set; }
+        public Weekmatches weekMatches { get; set; }
+        public bool hasRounds { get; set; }
+        public Round[] rounds { get; set; }
+        public Roundmatches roundMatches { get; set; }
+    }
+
+    public class Weekmatches
+    {
+        public Data data { get; set; }
+        public Tournament[] tournaments { get; set; }
+        public Sport1 sport { get; set; }
+    }
+
+    public class Data
+    {
+        public int index { get; set; }
+        public int weekStartDate { get; set; }
+        public int weekEndDate { get; set; }
+    }
+
+    public class Sport1
+    {
+        public string name { get; set; }
+        public string slug { get; set; }
+        public int id { get; set; }
+    }
+
+    public class Tournament
+    {
+        public Tournament1 tournament { get; set; }
+        public Category1 category { get; set; }
+        public Season season { get; set; }
+        public bool? hasEventPlayerStatistics { get; set; }
+        public bool? hasEventPlayerHeatMap { get; set; }
+        public Event[] events { get; set; }
+    }
+
+    public class Tournament1
+    {
+        public string name { get; set; }
+        public string slug { get; set; }
+        public int id { get; set; }
+        public int uniqueId { get; set; }
+        public string uniqueName { get; set; }
+        public bool? hasEventPlayerStatistics { get; set; }
+        public bool? hasEventPlayerHeatMap { get; set; }
+    }
+
+    public class Category1
+    {
+        public string name { get; set; }
+        public string slug { get; set; }
+        public int priority { get; set; }
+        public int id { get; set; }
+        public string flag { get; set; }
+    }
+
+    public class Season
+    {
+        public string name { get; set; }
+        public string slug { get; set; }
+        public string year { get; set; }
+        public int id { get; set; }
+    }
+
+    public class Event
+    {
+        public Sport2 sport { get; set; }
+        public Odds odds { get; set; }
+        public Roundinfo roundInfo { get; set; }
+        public string customId { get; set; }
+        public Status status { get; set; }
+        public int winnerCode { get; set; }
+        public Hometeam homeTeam { get; set; }
+        public Awayteam awayTeam { get; set; }
+        public Homescore homeScore { get; set; }
+        public Awayscore awayScore { get; set; }
+        public object[] time { get; set; }
+        public Changes changes { get; set; }
+        public bool hasHighlights { get; set; }
+        public bool hasHighlightsStream { get; set; }
+        public int id { get; set; }
+        public bool hasDraw { get; set; }
+        public bool hasStatistics { get; set; }
+        public Periods periods { get; set; }
+        public string lastPeriod { get; set; }
+        public string name { get; set; }
+        public string startTime { get; set; }
+        public string formatedStartDate { get; set; }
+        public int startTimestamp { get; set; }
+        public string statusDescription { get; set; }
+        public string slug { get; set; }
+        public int uniqueTournamentId { get; set; }
+        public bool hasLineups { get; set; }
+        public bool hasLineupsList { get; set; }
+        public bool hasOdds { get; set; }
+        public bool hasLiveOdds { get; set; }
+        public bool hasSubScore { get; set; }
+        public bool hasAggregatedScore { get; set; }
+        public bool hasFirstToServe { get; set; }
+        public bool votingEnabled { get; set; }
+        public bool hasTime { get; set; }
+        public bool isSyncable { get; set; }
+    }
+
+    public class Sport2
+    {
+        public string name { get; set; }
+        public string slug { get; set; }
+        public int id { get; set; }
+    }
+
+    public class Odds
+    {
+        public int id { get; set; }
+        public Fulltimeodds fullTimeOdds { get; set; }
+    }
+
+    public class Fulltimeodds
+    {
+        public Regular regular { get; set; }
+        public int type { get; set; }
+        public string sourceId { get; set; }
+        public Live live { get; set; }
+    }
+
+    public class Regular
+    {
+        public _1 _1 { get; set; }
+        public _2 _2 { get; set; }
+    }
+
+    public class _1
+    {
+        public string initialDecimalValue { get; set; }
+        public string initialFractionalValue { get; set; }
+        public string initialAmericanValue { get; set; }
+        public string decimalValue { get; set; }
+        public string fractionalValue { get; set; }
+        public string americanValue { get; set; }
+        public string betSlipLink { get; set; }
+        public int change { get; set; }
+        public string sourceId { get; set; }
+        public bool winning { get; set; }
+    }
+
+    public class _2
+    {
+        public string initialDecimalValue { get; set; }
+        public string initialFractionalValue { get; set; }
+        public string initialAmericanValue { get; set; }
+        public string decimalValue { get; set; }
+        public string fractionalValue { get; set; }
+        public string americanValue { get; set; }
+        public string betSlipLink { get; set; }
+        public int change { get; set; }
+        public string sourceId { get; set; }
+        public bool winning { get; set; }
+    }
+
+    public class Live
+    {
+        public _11 _1 { get; set; }
+        public _21 _2 { get; set; }
+    }
+
+    public class _11
+    {
+        public string decimalValue { get; set; }
+        public string fractionalValue { get; set; }
+        public string americanValue { get; set; }
+        public string betSlipLink { get; set; }
+        public string sourceId { get; set; }
+    }
+
+    public class _21
+    {
+        public string decimalValue { get; set; }
+        public string fractionalValue { get; set; }
+        public string americanValue { get; set; }
+        public string betSlipLink { get; set; }
+        public string sourceId { get; set; }
+    }
+
+    public class Roundinfo
+    {
+        public int round { get; set; }
+        public string name { get; set; }
+    }
+
+    public class Status
+    {
+        public int code { get; set; }
+        public string type { get; set; }
+    }
+
+    public class Hometeam
+    {
+        public string name { get; set; }
+        public string slug { get; set; }
+        public string gender { get; set; }
+        public int id { get; set; }
+    }
+
+    public class Awayteam
+    {
+        public string name { get; set; }
+        public string slug { get; set; }
+        public string gender { get; set; }
+        public int id { get; set; }
+    }
+
+    public class Homescore
+    {
+        public int current { get; set; }
+        public int period1 { get; set; }
+        public int period2 { get; set; }
+        public int period3 { get; set; }
+        public int normaltime { get; set; }
+        public int overtime { get; set; }
+        public int penalties { get; set; }
+    }
+
+    public class Awayscore
+    {
+        public int current { get; set; }
+        public int period1 { get; set; }
+        public int period2 { get; set; }
+        public int period3 { get; set; }
+        public int normaltime { get; set; }
+        public int overtime { get; set; }
+        public int penalties { get; set; }
+    }
+
+    public class Changes
+    {
+        public DateTime changeDate { get; set; }
+        public string[] changes { get; set; }
+        public int changeTimestamp { get; set; }
+        public bool hasExpired { get; set; }
+        public bool hasHomeChanges { get; set; }
+        public bool hasAwayChanges { get; set; }
+    }
+
+    public class Periods
+    {
+        public string current { get; set; }
+        public string period1 { get; set; }
+        public string period2 { get; set; }
+        public string period3 { get; set; }
+        public string overtime { get; set; }
+        public string penalties { get; set; }
+    }
+
+    public class Roundmatches
+    {
+        public Data1 data { get; set; }
+        public Tournament2[] tournaments { get; set; }
+        public Sport3 sport { get; set; }
+    }
+
+    public class Data1
+    {
+        public int index { get; set; }
+        public string roundName { get; set; }
+        public int roundPositionIndex { get; set; }
+    }
+
+    public class Sport3
+    {
+        public string name { get; set; }
+        public string slug { get; set; }
+        public int id { get; set; }
+    }
+
+    public class Tournament2
+    {
+        public Tournament3 tournament { get; set; }
+        public Category2 category { get; set; }
+        public Season1 season { get; set; }
+        public bool? hasEventPlayerStatistics { get; set; }
+        public bool? hasEventPlayerHeatMap { get; set; }
+        public Event1[] events { get; set; }
+    }
+
+    public class Tournament3
+    {
+        public string name { get; set; }
+        public string slug { get; set; }
+        public int id { get; set; }
+        public int uniqueId { get; set; }
+        public string uniqueName { get; set; }
+        public bool? hasEventPlayerStatistics { get; set; }
+        public bool? hasEventPlayerHeatMap { get; set; }
+    }
+
+    public class Category2
+    {
+        public string name { get; set; }
+        public string slug { get; set; }
+        public int priority { get; set; }
+        public int id { get; set; }
+        public string flag { get; set; }
+    }
+
+    public class Season1
+    {
+        public string name { get; set; }
+        public string slug { get; set; }
+        public string year { get; set; }
+        public int id { get; set; }
+    }
+
+    public class Event1
+    {
+        public Sport4 sport { get; set; }
+        public Odds1 odds { get; set; }
+        public Roundinfo1 roundInfo { get; set; }
+        public string customId { get; set; }
+        public Status1 status { get; set; }
+        public int winnerCode { get; set; }
+        public Hometeam1 homeTeam { get; set; }
+        public Awayteam1 awayTeam { get; set; }
+        public Homescore1 homeScore { get; set; }
+        public Awayscore1 awayScore { get; set; }
+        public object[] time { get; set; }
+        public Changes1 changes { get; set; }
+        public bool hasHighlights { get; set; }
+        public bool hasHighlightsStream { get; set; }
+        public int id { get; set; }
+        public bool hasDraw { get; set; }
+        public bool hasStatistics { get; set; }
+        public Periods1 periods { get; set; }
+        public string lastPeriod { get; set; }
+        public string name { get; set; }
+        public string startTime { get; set; }
+        public string formatedStartDate { get; set; }
+        public int startTimestamp { get; set; }
+        public string statusDescription { get; set; }
+        public string slug { get; set; }
+        public int uniqueTournamentId { get; set; }
+        public bool hasLineups { get; set; }
+        public bool hasLineupsList { get; set; }
+        public bool hasOdds { get; set; }
+        public bool hasLiveOdds { get; set; }
+        public bool hasSubScore { get; set; }
+        public bool hasAggregatedScore { get; set; }
+        public bool hasFirstToServe { get; set; }
+        public bool votingEnabled { get; set; }
+        public bool hasTime { get; set; }
+        public bool isSyncable { get; set; }
+    }
+
+    public class Sport4
+    {
+        public string name { get; set; }
+        public string slug { get; set; }
+        public int id { get; set; }
+    }
+
+    public class Odds1
+    {
+        public int id { get; set; }
+    }
+
+    public class Roundinfo1
+    {
+        public int round { get; set; }
+        public string name { get; set; }
+    }
+
+    public class Status1
+    {
+        public int code { get; set; }
+        public string type { get; set; }
+    }
+
+    public class Hometeam1
+    {
+        public string name { get; set; }
+        public string slug { get; set; }
+        public string gender { get; set; }
+        public int id { get; set; }
+    }
+
+    public class Awayteam1
+    {
+        public string name { get; set; }
+        public string slug { get; set; }
+        public string gender { get; set; }
+        public int id { get; set; }
+    }
+
+    public class Homescore1
+    {
+        public int current { get; set; }
+        public int period1 { get; set; }
+        public int period2 { get; set; }
+        public int period3 { get; set; }
+        public int normaltime { get; set; }
+    }
+
+    public class Awayscore1
+    {
+        public int current { get; set; }
+        public int period1 { get; set; }
+        public int period2 { get; set; }
+        public int period3 { get; set; }
+        public int normaltime { get; set; }
+    }
+
+    public class Changes1
+    {
+        public string[] changes { get; set; }
+        public int changeTimestamp { get; set; }
+        public bool hasExpired { get; set; }
+        public bool hasHomeChanges { get; set; }
+        public bool hasAwayChanges { get; set; }
+        public DateTime changeDate { get; set; }
+    }
+
+    public class Periods1
+    {
+        public string current { get; set; }
+        public string period1 { get; set; }
+        public string period2 { get; set; }
+        public string period3 { get; set; }
+        public string overtime { get; set; }
+        public string penalties { get; set; }
+    }
+
+    public class Week
+    {
+        public int weekIndex { get; set; }
+        public int weekStartDate { get; set; }
+        public int weekEndDate { get; set; }
+    }
+
+    public class Round
+    {
+        public int round { get; set; }
+        public string name { get; set; }
     }
 
 }

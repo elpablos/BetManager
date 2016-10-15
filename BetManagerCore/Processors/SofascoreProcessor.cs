@@ -56,8 +56,16 @@ namespace BetManager.Core.Processors
 
         private void ProcessData(ICollection<SofaSport> sports, string url)
         {
-            string json = WebDownloader.DownloadData(url);
-            sports.Add(JsonConvert.DeserializeObject<SofaSport>(json));
+            try
+            {
+                string json = WebDownloader.DownloadData(url);
+                sports.Add(JsonConvert.DeserializeObject<SofaSport>(json));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.WriteLine(string.Format("Err: {0}", ex.Message), "SofascoreProcessor");
+            }
+
         }
     }
 }

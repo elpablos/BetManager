@@ -41,8 +41,8 @@ namespace BetManager.Core.Exports.SofascoreExport
         public TournamentDetail tournament { get; set; }
         public Category category { get; set; }
         public Season season { get; set; }
-        public bool hasEventPlayerStatistics { get; set; }
-        public bool hasEventPlayerHeatMap { get; set; }
+        public bool? hasEventPlayerStatistics { get; set; }
+        public bool? hasEventPlayerHeatMap { get; set; }
         public Event[] events { get; set; }
     }
 
@@ -110,8 +110,8 @@ namespace BetManager.Core.Exports.SofascoreExport
         public Changesdata changesData { get; set; }
 
         // fotbal
-        public bool hasEventPlayerStatistics { get; set; }
-        public bool hasEventPlayerHeatMap { get; set; }
+        public bool? hasEventPlayerStatistics { get; set; }
+        public bool? hasEventPlayerHeatMap { get; set; }
         public int aggregatedWinnerCode { get; set; }
     }
 

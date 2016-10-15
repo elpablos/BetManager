@@ -26,6 +26,9 @@ namespace BetManager.ConsoleApp
             // postahuju existujici XML
             using (IWebDownloader webDownloader = new WebDownloader())
             {
+                webDownloader.TryTempData = true;
+                webDownloader.UseTime = true;
+
                 if (canImportFortuna)
                 {
                     // export

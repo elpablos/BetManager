@@ -24,7 +24,9 @@ namespace BetManager.Core.Webs
         public Random Random { get; private set; }
 
         public bool IsDisposed { get; set; }
-        
+
+        public bool TryTempData { get; set; }
+
         public string UserAgent
         {
             get { return _userAgent; }
@@ -32,6 +34,8 @@ namespace BetManager.Core.Webs
         }
 
         public bool UseDelay { get; set; }
+
+        public bool UseTime { get; set; }
 
         #endregion
 
@@ -51,28 +55,68 @@ namespace BetManager.Core.Webs
 
         public string DownloadData(string url, Encoding encoding = null)
         {
-            System.Diagnostics.Trace.WriteLine(string.Format("Start downloading {0}", url), "WebDownloader");
-            Client.Headers[HttpRequestHeader.UserAgent] = UserAgent;
-            if (url == null)
+            // generate filename
+            string path = url.ToLower().Replace("http://", string.Empty).Replace("https://", string.Empty).Replace("/", "-").Replace("?", "-");
+            if (path.EndsWith("json")) { path += ".json"; }
+            else if (path.EndsWith("xml")) { path += ".xml"; }
+            else { path += ".htm"; }
+
+            if (UseTime)
             {
-                throw new ArgumentNullException("url");
+                path = string.Format("{0}-{1:00}_{2}", DateTime.Now.ToString("yyyy-MM-dd_hh"), (DateTime.Now.Minute / 15) * 15, path);
             }
 
+            path = "Data/Temp/" + path;
+
+            // encoding
             if (encoding == null)
             {
                 encoding = Encoding.UTF8;
             }
 
-            byte[] bytes = Client.DownloadData(url);
-            string result = Encoding.UTF8.GetString(bytes);
-
-            System.Diagnostics.Trace.WriteLine(string.Format("Data downloaded - {0} bytes", bytes.Length), "WebDownloader");
-
-            if (UseDelay)
+            // reading
+            string result = null;
+            if (TryTempData && System.IO.File.Exists(path))
             {
-                Thread.Sleep(1000 + Random.Next(1, 5) * 200);
+                System.Diagnostics.Trace.WriteLine(string.Format(" {0}", url), "WebDownloader");
+                result = System.IO.File.ReadAllText(path, encoding);
             }
+            else
+            {
+                System.Diagnostics.Trace.WriteLine(string.Format("Start downloading {0}", url), "WebDownloader");
+                Client.Headers[HttpRequestHeader.UserAgent] = UserAgent;
+                if (url == null)
+                {
+                    throw new ArgumentNullException("url");
+                }
 
+                try
+                {
+                    byte[] bytes = Client.DownloadData(url);
+                    result = Encoding.UTF8.GetString(bytes);
+
+                    System.Diagnostics.Trace.WriteLine(string.Format("Data downloaded - {0} bytes", bytes.Length), "WebDownloader");
+                }
+                catch (Exception)
+                {
+                    result = string.Empty;
+                    System.Diagnostics.Trace.WriteLine(string.Format("Data downloaded failed"), "WebDownloader");
+                }
+
+                if (TryTempData)
+                {
+                    System.IO.File.WriteAllText(path, result, encoding);
+                }
+
+                // delay
+                if (UseDelay)
+                {
+                    Thread.Sleep(1000 + Random.Next(1, 5) * 200);
+                }
+
+                
+            }
+            
             return result;
         }
 
