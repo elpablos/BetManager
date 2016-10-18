@@ -1,0 +1,1623 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>BetManagerDevel</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+<style type="text/css">
+<!--
+  * {
+    font-family: Tahoma;
+    font-size: 11pt;
+	}
+	
+	TH {
+	  text-align: left;
+	  background-color: #F0F0F0;
+	} 
+
+  TABLE {
+    border: 0px;
+    border-left: 1px solid #F0F0F0;
+    border-top: 1px solid #F0F0F0;
+  }
+    
+  TD, TH {
+    border: 0px;
+    border-right: 1px solid #F0F0F0;
+    border-bottom: 1px solid #F0F0F0;
+    padding: 3px;
+  }
+  
+  H1 {
+    font-size: 16pt;
+  } 
+
+  H2 {
+    font-size: 14pt;
+  } 
+
+  H3 {
+    font-size: 13pt;
+  }
+  
+  TR:hover {
+    background-color: #F5F5F5;
+  } 
+//-->
+</style>
+<h1>Databáze: BetManagerDevel</h1>
+<p>datum vygenerování: 18.10.2016 10:14:25</p>
+<h2>Seznam tabulek</h2>
+<ul>
+<li><a href="#BM_Category">BM_Category</a></li>
+<li><a href="#BM_Event">BM_Event</a></li>
+<li><a href="#BM_ImportData">BM_ImportData</a></li>
+<li><a href="#BM_ImportDataOld">BM_ImportDataOld</a></li>
+<li><a href="#BM_OddsRegular">BM_OddsRegular</a></li>
+<li><a href="#BM_Score">BM_Score</a></li>
+<li><a href="#BM_Season">BM_Season</a></li>
+<li><a href="#BM_Sport">BM_Sport</a></li>
+<li><a href="#BM_Status">BM_Status</a></li>
+<li><a href="#BM_Team">BM_Team</a></li>
+<li><a href="#BM_Tip">BM_Tip</a></li>
+<li><a href="#BM_Tournament">BM_Tournament</a></li>
+</ul>
+<a name="BM_Category"></a>
+<h3>Tabulka: BM_Category</h3>
+<table cellspacing="0">
+<tr>
+<th>Vlastnost</th>
+<th>Typ</th>
+<th>Povinný</th>
+<th>Popis</th>
+</tr>
+<tr>
+<td><strong>ID</strong></td>
+<td>bigint</td>
+<td>ano</td>
+<td>Jedinečné ID kategorie</td>
+</tr>
+<tr>
+<td>DisplayName</td>
+<td>Text</td>
+<td>ano</td>
+<td>Název</td>
+</tr>
+<tr>
+<td>Slug</td>
+<td>Text</td>
+<td>ano</td>
+<td>Zkratka</td>
+</tr>
+<tr>
+<td>IsActive</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ano</td>
+<td>Zda je aktivní</td>
+</tr>
+<tr>
+<td><a href="#BM_Sport" title="FK_BM_Category_BM_Sport (BM_Sport.ID)">ID_Sport</a></td>
+<td>Celé číslo</td>
+<td>ano</td>
+<td>Sport</td>
+</tr>
+<tr>
+<td>DateCreated</td>
+<td>Datum a čas</td>
+<td>ano</td>
+<td>Datum vytvoření</td>
+</tr>
+<tr>
+<td>DateUpdated</td>
+<td>Datum a čas</td>
+<td>ne</td>
+<td>Datum úpravy</td>
+</tr>
+</table>
+<a name="BM_Event"></a>
+<h3>Tabulka: BM_Event</h3>
+<table cellspacing="0">
+<tr>
+<th>Vlastnost</th>
+<th>Typ</th>
+<th>Povinný</th>
+<th>Popis</th>
+</tr>
+<tr>
+<td><strong>ID</strong></td>
+<td>bigint</td>
+<td>ano</td>
+<td>Jedinečné ID zápasu</td>
+</tr>
+<tr>
+<td>DisplayName</td>
+<td>Text</td>
+<td>ano</td>
+<td>Název</td>
+</tr>
+<tr>
+<td>Slug</td>
+<td>Text</td>
+<td>ano</td>
+<td>Zkratka</td>
+</tr>
+<tr>
+<td>IsActive</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ano</td>
+<td>Zda je aktivní</td>
+</tr>
+<tr>
+<td>CustomId</td>
+<td>Text</td>
+<td>ano</td>
+<td>Jiné ID</td>
+</tr>
+<tr>
+<td>FirstToServe</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ne</td>
+<td>Zda první podává (tenis)</td>
+</tr>
+<tr>
+<td>HasDraw</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ne</td>
+<td>Zda byla plichta</td>
+</tr>
+<tr>
+<td>WinnerCode</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td>Kód vítěze</td>
+</tr>
+<tr>
+<td>DateStart</td>
+<td>Datum a čas</td>
+<td>ano</td>
+<td>Začátek zápasu</td>
+</tr>
+<tr>
+<td>Changes</td>
+<td>Datum a čas</td>
+<td>ne</td>
+<td>Datum poslední změny</td>
+</tr>
+<tr>
+<td><a href="#BM_Team" title="FK_BM_Event_BM_TeamHome (BM_Team.ID)">ID_HomeTeam</a></td>
+<td>bigint</td>
+<td>ano</td>
+<td>Domácí</td>
+</tr>
+<tr>
+<td><a href="#BM_Team" title="FK_BM_Event_BM_TeamAway (BM_Team.ID)">ID_AwayTeam</a></td>
+<td>bigint</td>
+<td>ano</td>
+<td>Hosté</td>
+</tr>
+<tr>
+<td><a href="#BM_Tournament" title="FK_BM_Event_BM_Tournament (BM_Tournament.ID)">ID_Tournament</a></td>
+<td>bigint</td>
+<td>ano</td>
+<td>Turnaj</td>
+</tr>
+<tr>
+<td><a href="#BM_Season" title="FK_BM_Event_BM_Season (BM_Season.ID)">ID_Season</a></td>
+<td>bigint</td>
+<td>ne</td>
+<td>Sezóna</td>
+</tr>
+<tr>
+<td><a href="#BM_Category" title="FK_BM_Event_BM_Category (BM_Category.ID)">ID_Category</a></td>
+<td>bigint</td>
+<td>ano</td>
+<td>Kategorie</td>
+</tr>
+<tr>
+<td><a href="#BM_Status" title="FK_BM_Event_BM_Status (BM_Status.ID)">ID_Status</a></td>
+<td>Celé číslo</td>
+<td>ano</td>
+<td>Status</td>
+</tr>
+<tr>
+<td>StatusDescription</td>
+<td>Text</td>
+<td>ne</td>
+<td>Popis statusu</td>
+</tr>
+<tr>
+<td>HomeScoreCurrent</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td>Domácí - skóre</td>
+</tr>
+<tr>
+<td>AwayScoreCurrent</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td>Hosté - skóre</td>
+</tr>
+<tr>
+<td>DateCreated</td>
+<td>Datum a čas</td>
+<td>ano</td>
+<td>Datum vytvoření</td>
+</tr>
+<tr>
+<td>DateUpdated</td>
+<td>Datum a čas</td>
+<td>ne</td>
+<td>Datum úpravy</td>
+</tr>
+</table>
+<a name="BM_ImportData"></a>
+<h3>Tabulka: BM_ImportData</h3>
+<table cellspacing="0">
+<tr>
+<th>Vlastnost</th>
+<th>Typ</th>
+<th>Povinný</th>
+<th>Popis</th>
+</tr>
+<tr>
+<td>Date</td>
+<td>Datum a čas</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>SportName</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>SportSlug</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>SportId</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>TournamentName</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>TournamentSlug</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>TournamentId</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>TournamentUniqueId</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>CategoryName</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>CategorySlug</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>CategoryId</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>SeasonName</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>SeasonSlug</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>SeasonId</td>
+<td>bigint</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>SeasonYear</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>EventId</td>
+<td>bigint</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>EventCustomId</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>EventFirstToServe</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>EventHasDraw</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>EventWinnerCode</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>EventName</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>EventSlug</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>EventStartDate</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>EventStartTime</td>
+<td>Čas</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>EventChanges</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>StatusCode</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>StatusType</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>StatusDescription</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeTeamId</td>
+<td>bigint</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeTeamName</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeTeamSlug</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeTeamGender</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeScoreCurrent</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeScorePeriod1</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeScorePeriod2</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeScorePeriod3</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeScoreNormaltime</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeScoreOvertime</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeScorePenalties</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayTeamId</td>
+<td>bigint</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayTeamName</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayTeamSlug</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayTeamGender</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScoreCurrent</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScorePeriod1</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScorePeriod2</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScorePeriod3</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScoreNormaltime</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScoreOvertime</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScorePenalties</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsRegularFirstSourceId</td>
+<td>bigint</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsRegularFirstValue</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsRegularFirstWining</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsRegularXSourceId</td>
+<td>bigint</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsRegularXValue</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsRegularXWining</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsRegularSecondSourceId</td>
+<td>bigint</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsRegularSecondValue</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsRegularSecondWining</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsDoubleChangeFirstXSourceId</td>
+<td>bigint</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsDoubleChangeFirstXValue</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsDoubleChangeFirstXWining</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsDoubleChangeXSecondSourceId</td>
+<td>bigint</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsDoubleChangeXSecondValue</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsDoubleChangeXSecondWining</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsDoubleChangeFirstSecondSourceId</td>
+<td>bigint</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsDoubleChangeFirstSecondValue</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsDoubleChangeFirstSecondWining</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>ID</td>
+<td>Celé číslo</td>
+<td>ano</td>
+<td></td>
+</tr>
+<tr>
+<td>IsProcessed</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ano</td>
+<td></td>
+</tr>
+</table>
+<a name="BM_ImportDataOld"></a>
+<h3>Tabulka: BM_ImportDataOld</h3>
+<table cellspacing="0">
+<tr>
+<th>Vlastnost</th>
+<th>Typ</th>
+<th>Povinný</th>
+<th>Popis</th>
+</tr>
+<tr>
+<td>Date</td>
+<td>Datum a čas</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>SportName</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>SportSlug</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>SportId</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>TournamentName</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>TournamentSlug</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>TournamentId</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>TournamentUniqueId</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>CategoryName</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>CategorySlug</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>CategoryId</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>SeasonName</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>SeasonSlug</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>SeasonId</td>
+<td>bigint</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>SeasonYear</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>EventId</td>
+<td>bigint</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>EventCustomId</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>EventFirstToServe</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>EventHasDraw</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>EventWinnerCode</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>EventName</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>EventSlug</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>EventStartDate</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>EventStartTime</td>
+<td>Čas</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>EventChanges</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>StatusCode</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>StatusType</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>StatusDescription</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeTeamId</td>
+<td>bigint</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeTeamName</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeTeamSlug</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeTeamGender</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeScoreCurrent</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeScorePeriod1</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeScorePeriod2</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeScorePeriod3</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeScoreNormaltime</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeScoreOvertime</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeScorePenalties</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayTeamId</td>
+<td>bigint</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayTeamName</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayTeamSlug</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayTeamGender</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScoreCurrent</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScorePeriod1</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScorePeriod2</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScorePeriod3</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScoreNormaltime</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScoreOvertime</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScorePenalties</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsRegularFirstSourceId</td>
+<td>bigint</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsRegularFirstValue</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsRegularFirstWining</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsRegularXSourceId</td>
+<td>bigint</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsRegularXValue</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsRegularXWining</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsRegularSecondSourceId</td>
+<td>bigint</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsRegularSecondValue</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsRegularSecondWining</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsDoubleChangeFirstXSourceId</td>
+<td>bigint</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsDoubleChangeFirstXValue</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsDoubleChangeFirstXWining</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsDoubleChangeXSecondSourceId</td>
+<td>bigint</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsDoubleChangeXSecondValue</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsDoubleChangeXSecondWining</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsDoubleChangeFirstSecondSourceId</td>
+<td>bigint</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsDoubleChangeFirstSecondValue</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>OddsDoubleChangeFirstSecondWining</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>ID</td>
+<td>Celé číslo</td>
+<td>ano</td>
+<td></td>
+</tr>
+<tr>
+<td>IsProcessed</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ano</td>
+<td></td>
+</tr>
+</table>
+<a name="BM_OddsRegular"></a>
+<h3>Tabulka: BM_OddsRegular</h3>
+<table cellspacing="0">
+<tr>
+<th>Vlastnost</th>
+<th>Typ</th>
+<th>Povinný</th>
+<th>Popis</th>
+</tr>
+<tr>
+<td><a href="#BM_Event" title="FK_OddsRegular_BM_Event (BM_Event.ID)"><strong>ID_Event</strong></a></td>
+<td>bigint</td>
+<td>ano</td>
+<td>Jedinečné ID zápasu</td>
+</tr>
+<tr>
+<td>Type</td>
+<td>Text</td>
+<td>ano</td>
+<td>Typ</td>
+</tr>
+<tr>
+<td>FirstId</td>
+<td>bigint</td>
+<td>ne</td>
+<td>ID kurzu - domácí</td>
+</tr>
+<tr>
+<td>FirstValue</td>
+<td>Desetinné číslo</td>
+<td>ne</td>
+<td>Kurz - domácí</td>
+</tr>
+<tr>
+<td>HasFirstWin</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ne</td>
+<td>Zda domácí vyhráli</td>
+</tr>
+<tr>
+<td>XId</td>
+<td>bigint</td>
+<td>ne</td>
+<td>ID kurzu - remíza</td>
+</tr>
+<tr>
+<td>XValue</td>
+<td>Desetinné číslo</td>
+<td>ne</td>
+<td>Kurz - remíza</td>
+</tr>
+<tr>
+<td>HasXWin</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ne</td>
+<td>Zda byla remíza</td>
+</tr>
+<tr>
+<td>SecondId</td>
+<td>bigint</td>
+<td>ne</td>
+<td>ID kurzu - hosté</td>
+</tr>
+<tr>
+<td>SecondValue</td>
+<td>Desetinné číslo</td>
+<td>ne</td>
+<td>Kurz - hosté</td>
+</tr>
+<tr>
+<td>HasSecondWin</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ne</td>
+<td>Zda hosté vyhráli</td>
+</tr>
+<tr>
+<td>DateCreated</td>
+<td>Datum a čas</td>
+<td>ano</td>
+<td>Datum vytvoření</td>
+</tr>
+<tr>
+<td>DateUpdated</td>
+<td>Datum a čas</td>
+<td>ne</td>
+<td>Datum úpravy</td>
+</tr>
+</table>
+<a name="BM_Score"></a>
+<h3>Tabulka: BM_Score</h3>
+<table cellspacing="0">
+<tr>
+<th>Vlastnost</th>
+<th>Typ</th>
+<th>Povinný</th>
+<th>Popis</th>
+</tr>
+<tr>
+<td><a href="#BM_Event" title="FK_BM_Score_BM_Event (BM_Event.ID)"><strong>ID_Event</strong></a></td>
+<td>bigint</td>
+<td>ano</td>
+<td>Jedinečné ID zápasu</td>
+</tr>
+<tr>
+<td>HomeScoreCurrent</td>
+<td>Celé číslo</td>
+<td>ano</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeScorePeriod1</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeScorePeriod2</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeScorePeriod3</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeScoreNormaltime</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeScoreOvertime</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeScorePenalties</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScoreCurrent</td>
+<td>Celé číslo</td>
+<td>ano</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScorePeriod1</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScorePeriod2</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScorePeriod3</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScoreNormaltime</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScoreOvertime</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayScorePenalties</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>DateCreated</td>
+<td>Datum a čas</td>
+<td>ano</td>
+<td>Datum vytvoření</td>
+</tr>
+<tr>
+<td>DateUpdated</td>
+<td>Datum a čas</td>
+<td>ne</td>
+<td>Datum úpravy</td>
+</tr>
+</table>
+<a name="BM_Season"></a>
+<h3>Tabulka: BM_Season</h3>
+<table cellspacing="0">
+<tr>
+<th>Vlastnost</th>
+<th>Typ</th>
+<th>Povinný</th>
+<th>Popis</th>
+</tr>
+<tr>
+<td><strong>ID</strong></td>
+<td>bigint</td>
+<td>ano</td>
+<td>Jedinečné ID sezóny</td>
+</tr>
+<tr>
+<td>DisplayName</td>
+<td>Text</td>
+<td>ano</td>
+<td>Název</td>
+</tr>
+<tr>
+<td>Slug</td>
+<td>Text</td>
+<td>ano</td>
+<td>Zkratka</td>
+</tr>
+<tr>
+<td>IsActive</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ano</td>
+<td>Zda je aktivní</td>
+</tr>
+<tr>
+<td>Year</td>
+<td>Text</td>
+<td>ano</td>
+<td>Rok</td>
+</tr>
+<tr>
+<td>DateCreated</td>
+<td>Datum a čas</td>
+<td>ano</td>
+<td>Datum vytvoření</td>
+</tr>
+<tr>
+<td>DateUpdated</td>
+<td>Datum a čas</td>
+<td>ne</td>
+<td>Datum úpravy</td>
+</tr>
+</table>
+<a name="BM_Sport"></a>
+<h3>Tabulka: BM_Sport</h3>
+<table cellspacing="0">
+<tr>
+<th>Vlastnost</th>
+<th>Typ</th>
+<th>Povinný</th>
+<th>Popis</th>
+</tr>
+<tr>
+<td><strong>ID</strong></td>
+<td>Celé číslo</td>
+<td>ano</td>
+<td>Jedinečné ID sportu</td>
+</tr>
+<tr>
+<td>DisplayName</td>
+<td>Text</td>
+<td>ano</td>
+<td>Název</td>
+</tr>
+<tr>
+<td>Slug</td>
+<td>Text</td>
+<td>ano</td>
+<td>Zkratka</td>
+</tr>
+<tr>
+<td>IsActive</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ano</td>
+<td>Zda je aktivní</td>
+</tr>
+<tr>
+<td>DateCreated</td>
+<td>Datum a čas</td>
+<td>ano</td>
+<td>Datum vytvoření</td>
+</tr>
+<tr>
+<td>DateUpdated</td>
+<td>Datum a čas</td>
+<td>ne</td>
+<td>Datum úpravy</td>
+</tr>
+</table>
+<a name="BM_Status"></a>
+<h3>Tabulka: BM_Status</h3>
+<table cellspacing="0">
+<tr>
+<th>Vlastnost</th>
+<th>Typ</th>
+<th>Povinný</th>
+<th>Popis</th>
+</tr>
+<tr>
+<td><strong>ID</strong></td>
+<td>Celé číslo</td>
+<td>ano</td>
+<td>Jedinečné ID statusu</td>
+</tr>
+<tr>
+<td>DisplayName</td>
+<td>Text</td>
+<td>ano</td>
+<td>Název/Typ</td>
+</tr>
+<tr>
+<td>Description</td>
+<td>Text</td>
+<td>ne</td>
+<td>Popis</td>
+</tr>
+<tr>
+<td>IsActive</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ano</td>
+<td>Zda je aktivní</td>
+</tr>
+<tr>
+<td>DateCreated</td>
+<td>Datum a čas</td>
+<td>ano</td>
+<td>Datum vytvoření</td>
+</tr>
+<tr>
+<td>DateUpdated</td>
+<td>Datum a čas</td>
+<td>ne</td>
+<td>Datum úpravy</td>
+</tr>
+</table>
+<a name="BM_Team"></a>
+<h3>Tabulka: BM_Team</h3>
+<table cellspacing="0">
+<tr>
+<th>Vlastnost</th>
+<th>Typ</th>
+<th>Povinný</th>
+<th>Popis</th>
+</tr>
+<tr>
+<td><strong>ID</strong></td>
+<td>bigint</td>
+<td>ano</td>
+<td>Jedinečné ID týmu</td>
+</tr>
+<tr>
+<td>DisplayName</td>
+<td>Text</td>
+<td>ano</td>
+<td>Název</td>
+</tr>
+<tr>
+<td>Slug</td>
+<td>Text</td>
+<td>ano</td>
+<td>Zkratka</td>
+</tr>
+<tr>
+<td>IsActive</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ano</td>
+<td>Zda je aktivní</td>
+</tr>
+<tr>
+<td>Gender</td>
+<td>Text</td>
+<td>ne</td>
+<td>Pohlaví</td>
+</tr>
+<tr>
+<td>DateCreated</td>
+<td>Datum a čas</td>
+<td>ano</td>
+<td>Datum vytvoření</td>
+</tr>
+<tr>
+<td>DateUpdated</td>
+<td>Datum a čas</td>
+<td>ne</td>
+<td>Datum úpravy</td>
+</tr>
+</table>
+<a name="BM_Tip"></a>
+<h3>Tabulka: BM_Tip</h3>
+<table cellspacing="0">
+<tr>
+<th>Vlastnost</th>
+<th>Typ</th>
+<th>Povinný</th>
+<th>Popis</th>
+</tr>
+<tr>
+<td>ID</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeForm</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeGiven</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>HomeTaken</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayForm</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayGiven</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>AwayTaken</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+</table>
+<a name="BM_Tournament"></a>
+<h3>Tabulka: BM_Tournament</h3>
+<table cellspacing="0">
+<tr>
+<th>Vlastnost</th>
+<th>Typ</th>
+<th>Povinný</th>
+<th>Popis</th>
+</tr>
+<tr>
+<td><strong>ID</strong></td>
+<td>bigint</td>
+<td>ano</td>
+<td>Jedinečné ID turnaje</td>
+</tr>
+<tr>
+<td>DisplayName</td>
+<td>Text</td>
+<td>ano</td>
+<td>Název</td>
+</tr>
+<tr>
+<td>Slug</td>
+<td>Text</td>
+<td>ano</td>
+<td>Zkratka</td>
+</tr>
+<tr>
+<td>IsActive</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ano</td>
+<td>Zda je aktivní</td>
+</tr>
+<tr>
+<td>UniqueID</td>
+<td>Celé číslo</td>
+<td>ne</td>
+<td>Unikátní ID</td>
+</tr>
+<tr>
+<td><a href="#BM_Category" title="FK_BM_Tournament_BM_Category (BM_Category.ID)">ID_Category</a></td>
+<td>bigint</td>
+<td>ne</td>
+<td>Kategorie</td>
+</tr>
+<tr>
+<td>DateCreated</td>
+<td>Datum a čas</td>
+<td>ano</td>
+<td>Datum vytvoření</td>
+</tr>
+<tr>
+<td>DateUpdated</td>
+<td>Datum a čas</td>
+<td>ne</td>
+<td>Datum úpravy</td>
+</tr>
+</table>
+<p>vygenerováno aplikací ScriptDb - <a href="http://skeleton.cz">Skeleton Software</a></p>
+</body>
+</html>

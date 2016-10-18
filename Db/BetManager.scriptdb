@@ -1,30 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ScriptFile="C:\Develop\Playground\BetManager\Db\install.sql" Connection="Data Source=.\sqlexpress;Initial Catalog=BetManager;Integrated Security=True;" TableDisplayName="" InstallIndicies="true" RecreatePK="false" InstallDescription="false" DocumentationFolder="">
+<Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ScriptFile="C:\Develop\BitBucket\betmanager\Db\install.sql" Connection="data source=.\sqlexpress;initial catalog=BetManagerDevel;integrated security=True;" TableDisplayName="" InstallIndicies="true" RecreatePK="false" InstallDescription="true" DocumentationFolder="C:\Develop\BitBucket\betmanager\Db">
   <BeforeScript />
   <AfterScript />
   <Tables>
-    <Table Name="BM_League" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="BM_Section" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="BM_Category" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="BM_Event" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="BM_ImportData" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="BM_ImportDataOld" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="BM_OddsRegular" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="BM_Score" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="BM_Season" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="BM_Sport" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="BM_Status" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="BM_Team" IsData="false" IsUpdate="false" IsDelete="false" />
     <Table Name="BM_Tip" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="DataXmlExport" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="IF_Bet" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="IF_Bet_History" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="IF_Category" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="IF_Competitor" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="IF_Match" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="IF_Tournament" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="VT_League" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="VT_Section" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="VT_Tip" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="BM_Tournament" IsData="false" IsUpdate="false" IsDelete="false" />
   </Tables>
   <Procedures>
-    <Procedure Name="BM_Section_COMPOSE" />
-    <Procedure Name="DataXmlExport_NEW" />
-    <Procedure Name="IF_DataXmlExport_IMPORT" />
-    <Procedure Name="IF_Match_ALL" />
-    <Procedure Name="VT_DataXmlExport_IMPORT" />
+    <Procedure Name="BM_Event_ALL_Tournament" />
+    <Procedure Name="BM_Event_ALL_Tournament_Extend" />
+    <Procedure Name="BM_Event_ALL_Tournament_ExtendUnique" />
+    <Procedure Name="BM_Event_ALL_Tournament_Score" />
+    <Procedure Name="BM_ImportData_IMPORT" />
+    <Procedure Name="BM_ImportData_OLD" />
+    <Procedure Name="BM_Tip_ALL" />
+    <Procedure Name="BM_Tip_DETAIL" />
+    <Procedure Name="BM_Tip_GENERATE" />
+    <Procedure Name="BM_Tip_GENERATE_Old" />
   </Procedures>
-  <Functions />
+  <Functions>
+    <Function Name="BM_Event_DETAIL_LastEvent" InstallBeforeView="false" />
+    <Function Name="BM_Event_DETAIL_TeamForm" InstallBeforeView="false" />
+    <Function Name="BM_Event_DETAIL_TeamScoreGiven" InstallBeforeView="false" />
+    <Function Name="BM_Event_DETAIL_TeamScoreTaken" InstallBeforeView="false" />
+  </Functions>
   <ProcedureTemplates>
     <ProcedureTemplate FileName="C:\Develop\Skeleton\svn\Other\ScriptDb\bin\Release\ProcedureTemplates\ALL.sql" Type="ALL" />
     <ProcedureTemplate FileName="C:\Develop\Skeleton\svn\Other\ScriptDb\bin\Release\ProcedureTemplates\DEL.sql" Type="DEL" />
@@ -34,10 +43,12 @@
     <ProcedureTemplate FileName="C:\Develop\Skeleton\svn\Other\ScriptDb\bin\Release\ProcedureTemplates\PERMISSION.sql" Type="PERMISSION" />
     <ProcedureTemplate FileName="C:\Develop\Skeleton\svn\Other\ScriptDb\bin\Release\ProcedureTemplates\VALIDATE.sql" Type="VALIDATE" />
   </ProcedureTemplates>
-  <Views />
+  <Views>
+    <View Name="BM_EventView" />
+    <View Name="BM_ImportDataView" />
+  </Views>
   <UserTypes />
   <IgnoreObjects>
-    <DbObject Type="Table" Name="sysdiagrams" />
     <DbObject Type="Procedure" Name="sp_alterdiagram" />
     <DbObject Type="Procedure" Name="sp_creatediagram" />
     <DbObject Type="Procedure" Name="sp_dropdiagram" />
@@ -46,6 +57,7 @@
     <DbObject Type="Procedure" Name="sp_renamediagram" />
     <DbObject Type="Procedure" Name="sp_upgraddiagrams" />
     <DbObject Type="Function" Name="fn_diagramobjects" />
+    <DbObject Type="Table" Name="sysdiagrams" />
   </IgnoreObjects>
   <DbValidations NonValidateTableMask="">
     <DbValidationXml />
