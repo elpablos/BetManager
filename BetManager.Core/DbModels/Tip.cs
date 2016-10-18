@@ -11,8 +11,23 @@ namespace BetManager.Core.DbModels
     {
         public int ID { get; set; }
 
+        [Display(Name = "Kód vítěze")]
+        public int WinnerCode { get; set; }
+
         [Display(Name = "Název")]
         public string DisplayName { get; set; }
+
+        [Display(Name = "Sezóna")]
+        public string Season { get; set; }
+
+        [Display(Name = "Kategorie")]
+        public string Category { get; set; }
+
+        [Display(Name = "Domácí")]
+        public string HomeTeam { get; set; }
+
+        [Display(Name = "Hosté")]
+        public string AwayTeam { get; set; }
 
         [Display(Name = "Datum")]
         public DateTime DateStart { get; set; }
@@ -20,29 +35,53 @@ namespace BetManager.Core.DbModels
         [Display(Name = "Url")]
         public string Url { get; set; }
 
-        [Display(Name = "Forma")]
+        [Display(Name = "Rozdíl forem")]
         public int Form { get; set; }
 
         [Display(Name = "Kurz")]
         public decimal Odd { get; set; }
 
-        [Display(Name = "Domácí - forma")]
-        public int HomeForm { get; set; }
+        [Display(Name = "Forma")]
+        public int HomeLastForm { get; set; }
 
-        [Display(Name = "Domácí - Střelené góly")]
-        public int HomeGiven { get; set; }
+        [Display(Name = "Střelené góly")]
+        public int HomeLastGiven { get; set; }
 
-        [Display(Name = "Domácí - Obdržené góly")]
-        public int HomeTaken { get; set; }
+        [Display(Name = "Obdržené góly")]
+        public int HomeLastTaken { get; set; }
 
-        [Display(Name = "Hosté - forma")]
-        public int AwayForm { get; set; }
+        [Display(Name = "Forma")]
+        public int AwayLastForm { get; set; }
 
-        [Display(Name = "Hosté - Střelené góly")]
-        public int AwayGiven { get; set; }
+        [Display(Name = "Střelené góly")]
+        public int AwayLastGiven { get; set; }
 
-        [Display(Name = "Hosté - Obdržené góly")]
-        public int AwayTaken { get; set; }
+        [Display(Name = "Obdržené góly")]
+        public int AwayLastTaken { get; set; }
+
+        [Display(Name = "Forma")]
+        public int HomeSeasonForm { get; set; }
+
+        [Display(Name = "Střelené góly")]
+        public int HomeSeasonGiven { get; set; }
+
+        [Display(Name = "Obdržené góly")]
+        public int HomeSeasonTaken { get; set; }
+
+        [Display(Name = "Kolo")]
+        public int HomeSeasonCount { get; set; }
+
+        [Display(Name = "Forma")]
+        public int AwaySeasonForm { get; set; }
+
+        [Display(Name = "Střelené góly")]
+        public int AwaySeasonGiven { get; set; }
+
+        [Display(Name = "Obdržené góly")]
+        public int AwaySeasonTaken { get; set; }
+
+        [Display(Name = "Kolo")]
+        public int AwaySeasonCount { get; set; }
 
         [Display(Name = "Kurz - domácí")]
         public decimal FirstValue { get; set; }

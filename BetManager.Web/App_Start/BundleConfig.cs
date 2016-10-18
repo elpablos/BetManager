@@ -26,10 +26,16 @@ namespace BetManager.Web
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
                       "~/Scripts/bootstrap.js",
+                      "~/Scripts/moment.js",
+                      "~/Scripts/moment-with-locales.js",
+                      "~/Scripts/bootstrap-datetimepicker.js",
                       "~/Scripts/respond.js"));
+
+            // CSS
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
+                      "~/Content/bootstrap-datetimepicker.css",
                       "~/Content/site.css"));
 
             bundles.Add(new StyleBundle("~/Content/datatables").Include(
@@ -38,6 +44,9 @@ namespace BetManager.Web
                  "~/Content/DataTables-1.10.12/extensions/Responsive/css/responsive.dataTables.css",
                  "~/Content/DataTables-1.10.12/extensions/Responsive/css/responsive.bootstrap.css"
                  ));
+
+            bundles.Add(new StyleBundle("~/Content/font-awesome").Include(
+                      "~/Content/font-awesome.css"));
         }
     }
 }

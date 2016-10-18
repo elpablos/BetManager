@@ -17,10 +17,14 @@ namespace BetManager.Web.Controllers
         }
 
         // GET: Tip
-        public ActionResult Index()
+        public ActionResult Index(DateTime? dateFrom, decimal? formFrom)
         {
-            var tips = _tipManager.GetAll();
+            dateFrom = dateFrom ?? DateTime.Now;
+            formFrom = formFrom ?? 30;
 
+            var tips = _tipManager.GetAll(new { @DateFrom = dateFrom, @Form = formFrom });
+            ViewBag.DateFrom = dateFrom;
+            ViewBag.FormFrom = formFrom;
             return View(tips);
         }
 
@@ -28,6 +32,7 @@ namespace BetManager.Web.Controllers
         public ActionResult Detail(int id)
         {
             var tip = _tipManager.GetById(id);
+            ViewBag.Title = "Tip :: " + tip.DisplayName;
             return View(tip);
         }
     }

@@ -33,6 +33,7 @@
     <Function Name="BM_Event_DETAIL_TeamForm" InstallBeforeView="false" />
     <Function Name="BM_Event_DETAIL_TeamScoreGiven" InstallBeforeView="false" />
     <Function Name="BM_Event_DETAIL_TeamScoreTaken" InstallBeforeView="false" />
+    <Function Name="BM_Event_DETAIL_SeasonEvent" InstallBeforeView="false" />
   </Functions>
   <ProcedureTemplates>
     <ProcedureTemplate FileName="C:\Develop\Skeleton\svn\Other\ScriptDb\bin\Release\ProcedureTemplates\ALL.sql" Type="ALL" />

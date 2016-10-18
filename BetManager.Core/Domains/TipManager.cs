@@ -12,12 +12,12 @@ namespace BetManager.Core.Domains
 {
     public class TipManager : ITipManager
     {
-        public virtual ICollection<Tip> GetAll()
+        public virtual ICollection<Tip> GetAll(object input)
         {
             ICollection<Tip> tips = null;
             using (var conn = ConnectionFactory.GetConnection("DbModel"))
             {
-                tips = conn.Query<Tip>("BM_Tip_ALL", commandType: CommandType.StoredProcedure).ToList();
+                tips = conn.Query<Tip>("BM_Tip_ALL", input, commandType: CommandType.StoredProcedure).ToList();
                 conn.Close();
             }
             return tips;

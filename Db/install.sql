@@ -1,5 +1,5 @@
 -- Database: BetManagerDevel
--- Date: 18.10.2016 10:14:22
+-- Date: 18.10.2016 21:47:43
 
 print 'CurrentTime: START - ' + convert(varchar, getdate(), 120)
 
@@ -1850,45 +1850,101 @@ else
 
 GO
 
-if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='HomeForm')
-	alter table [BM_Tip] add [HomeForm] int NULL
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='HomeLastForm')
+	alter table [BM_Tip] add [HomeLastForm] int NULL
 else
-	alter table [BM_Tip] alter column [HomeForm] int NULL
+	alter table [BM_Tip] alter column [HomeLastForm] int NULL
 
 GO
 
-if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='HomeGiven')
-	alter table [BM_Tip] add [HomeGiven] int NULL
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='HomeLastGiven')
+	alter table [BM_Tip] add [HomeLastGiven] int NULL
 else
-	alter table [BM_Tip] alter column [HomeGiven] int NULL
+	alter table [BM_Tip] alter column [HomeLastGiven] int NULL
 
 GO
 
-if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='HomeTaken')
-	alter table [BM_Tip] add [HomeTaken] int NULL
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='HomeLastTaken')
+	alter table [BM_Tip] add [HomeLastTaken] int NULL
 else
-	alter table [BM_Tip] alter column [HomeTaken] int NULL
+	alter table [BM_Tip] alter column [HomeLastTaken] int NULL
 
 GO
 
-if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='AwayForm')
-	alter table [BM_Tip] add [AwayForm] int NULL
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='HomeSeasonForm')
+	alter table [BM_Tip] add [HomeSeasonForm] int NULL
 else
-	alter table [BM_Tip] alter column [AwayForm] int NULL
+	alter table [BM_Tip] alter column [HomeSeasonForm] int NULL
 
 GO
 
-if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='AwayGiven')
-	alter table [BM_Tip] add [AwayGiven] int NULL
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='HomeSeasonGiven')
+	alter table [BM_Tip] add [HomeSeasonGiven] int NULL
 else
-	alter table [BM_Tip] alter column [AwayGiven] int NULL
+	alter table [BM_Tip] alter column [HomeSeasonGiven] int NULL
 
 GO
 
-if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='AwayTaken')
-	alter table [BM_Tip] add [AwayTaken] int NULL
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='HomeSeasonTaken')
+	alter table [BM_Tip] add [HomeSeasonTaken] int NULL
 else
-	alter table [BM_Tip] alter column [AwayTaken] int NULL
+	alter table [BM_Tip] alter column [HomeSeasonTaken] int NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='HomeSeasonCount')
+	alter table [BM_Tip] add [HomeSeasonCount] int NULL
+else
+	alter table [BM_Tip] alter column [HomeSeasonCount] int NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='AwayLastForm')
+	alter table [BM_Tip] add [AwayLastForm] int NULL
+else
+	alter table [BM_Tip] alter column [AwayLastForm] int NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='AwayLastGiven')
+	alter table [BM_Tip] add [AwayLastGiven] int NULL
+else
+	alter table [BM_Tip] alter column [AwayLastGiven] int NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='AwayLastTaken')
+	alter table [BM_Tip] add [AwayLastTaken] int NULL
+else
+	alter table [BM_Tip] alter column [AwayLastTaken] int NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='AwaySeasonForm')
+	alter table [BM_Tip] add [AwaySeasonForm] int NULL
+else
+	alter table [BM_Tip] alter column [AwaySeasonForm] int NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='AwaySeasonGiven')
+	alter table [BM_Tip] add [AwaySeasonGiven] int NULL
+else
+	alter table [BM_Tip] alter column [AwaySeasonGiven] int NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='AwaySeasonTaken')
+	alter table [BM_Tip] add [AwaySeasonTaken] int NULL
+else
+	alter table [BM_Tip] alter column [AwaySeasonTaken] int NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='AwaySeasonCount')
+	alter table [BM_Tip] add [AwaySeasonCount] int NULL
+else
+	alter table [BM_Tip] alter column [AwaySeasonCount] int NULL
 
 GO
 
@@ -2173,6 +2229,49 @@ BEGIN
 	RETURN @goal
 
 END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Event_DETAIL_SeasonEvent')
+begin
+  drop function BM_Event_DETAIL_SeasonEvent
+end
+
+GO
+
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 18.10.2016
+-- Description:	Dopočítání formy, střelený a obdržený branky
+-- =============================================
+CREATE FUNCTION [dbo].[BM_Event_DETAIL_SeasonEvent]
+(	
+	@ID_Event int,
+	@ID_Team int
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+	-- Add the SELECT statement with parameter references here
+	select LastEvent.ID, IsNull(((100.0/count(*)) * sum(LastEvent.Form)),0) as Form, IsNull(sum(LastEvent.Given),0) as Given, IsNull(sum(LastEvent.Taken),0) as Taken, count(*) as [Count] from 
+	(
+		select BM_EventOriginal.ID, 
+		(case when BM_Event.ID_AwayTeam=@ID_Team then BM_Event.AwayScore else BM_Event.HomeScore end) as Form, 
+		(case when BM_Event.ID_AwayTeam=@ID_Team then BM_Event.AwayScoreCurrent else BM_Event.HomeScoreCurrent end) as Given,
+		(case when BM_Event.ID_AwayTeam=@ID_Team then BM_Event.HomeScoreCurrent else BM_Event.AwayScoreCurrent end) as Taken
+		from BM_Event BM_EventOriginal
+			cross join BM_EventView BM_Event
+		where BM_EventOriginal.ID=@ID_Event 
+			and BM_Event.ID_Season=BM_EventOriginal.ID_Season
+			and BM_Event.ID_Tournament=BM_EventOriginal.ID_Tournament
+			and BM_Event.ID_Status >= 90
+			and (BM_Event.ID_AwayTeam=@ID_Team OR BM_Event.ID_HomeTeam=@ID_Team)
+	) LastEvent
+	group by LastEvent.ID
+)
 
 
 GO
@@ -4463,20 +4562,29 @@ BEGIN
 		'Url'='http://www.sofascore.com/'+BM_Event.Slug+'/'+BM_Event.CustomId,
 		BM_Event.DisplayName,
 		BM_Event.DateStart,
-		(case when HomeForm > AwayForm then (HomeForm - AwayForm) else (AwayForm - HomeForm) * -1 end) as Form,
-		(case when HomeForm > AwayForm then FirstValue else SecondValue end) as Odd,
+		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwayLastForm)) 
+			else ((AwayLastForm + AwayLastForm) - (HomeLastForm + HomeSeasonForm)) * -1 end) as Form,
+		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) as Odd,
 		BM_Event.WinnerCode,
 		BM_Event.ID_Status,
+        BM_Tip.[HomeLastForm],
+        BM_Tip.[HomeLastGiven],
+        BM_Tip.[HomeLastTaken],
+        BM_Tip.[HomeSeasonForm],
+        BM_Tip.[HomeSeasonGiven],
+        BM_Tip.[HomeSeasonTaken],
+		BM_Tip.[HomeSeasonCount],
+        BM_Tip.[AwayLastForm],
+        BM_Tip.[AwayLastGiven],
+        BM_Tip.[AwayLastTaken],
+        BM_Tip.[AwaySeasonForm],
+        BM_Tip.[AwaySeasonGiven],
+        BM_Tip.[AwaySeasonTaken],
+		BM_Tip.[AwaySeasonCount],
 		'ID_Category'=BM_Category.ID,
 		'Category'=BM_Category.DisplayName,
 		'ID_Season'=BM_Season.ID,
 		'Season'=BM_Season.DisplayName,
-		BM_Tip.HomeForm,
-		BM_Tip.HomeGiven,
-		BM_Tip.HomeTaken,
-		BM_Tip.AwayForm,
-		BM_Tip.AwayGiven,
-		BM_Tip.AwayTaken,
 		BM_OddsRegular.FirstValue,
 		BM_OddsRegular.XValue,
 		BM_OddsRegular.SecondValue
@@ -4485,11 +4593,11 @@ BEGIN
 	inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
 	left join BM_Category on BM_Category.ID=BM_Event.ID_Category
 	left join BM_Season on BM_Season.ID=BM_Event.ID_Season
-	where (case when HomeForm > AwayForm then (HomeForm - AwayForm) else (AwayForm - HomeForm)  end)>=@Form
-		AND (case when HomeForm > AwayForm then FirstValue else SecondValue end) > @Odd
+	where (case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwayLastForm)) 
+			else ((AwayLastForm + AwayLastForm) - (HomeLastForm + HomeSeasonForm)) * -1 end) >= @Form
+		AND (case when HomeLastForm > AwayLastForm then FirstValue else SecondValue end) > @Odd
 		and (@DateFrom is null or BM_Event.DateStart >= @DateFrom)
-	order by BM_Event.DateStart, 
-	(case when HomeForm > AwayForm then (HomeForm - AwayForm) else (AwayForm - HomeForm) end) desc
+	order by BM_Event.DateStart
 END
 
 
@@ -4516,28 +4624,41 @@ BEGIN
 		'Url'='http://www.sofascore.com/'+BM_Event.Slug+'/'+BM_Event.CustomId,
 		BM_Event.DisplayName,
 		BM_Event.DateStart,
-		(case when HomeForm > AwayForm then (HomeForm - AwayForm) else (AwayForm - HomeForm) * -1 end) as Form,
-		(case when HomeForm > AwayForm then FirstValue else SecondValue end) as Odd,
+		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwayLastForm)) 
+			else ((AwayLastForm + AwayLastForm) - (HomeLastForm + HomeSeasonForm)) * -1 end) as Form,
+		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) as Odd,
 		BM_Event.WinnerCode,
 		BM_Event.ID_Status,
 		'ID_Category'=BM_Category.ID,
 		'Category'=BM_Category.DisplayName,
 		'ID_Season'=BM_Season.ID,
 		'Season'=BM_Season.DisplayName,
+		'HomeTeam'=BM_HomeTeam.DisplayName,
+		'AwayTeam'=BM_AwayTeam.DisplayName,
 		BM_Event.HomeScoreCurrent,
 		BM_Event.AwayScoreCurrent,
-		BM_Tip.HomeForm,
-		BM_Tip.HomeGiven,
-		BM_Tip.HomeTaken,
-		BM_Tip.AwayForm,
-		BM_Tip.AwayGiven,
-		BM_Tip.AwayTaken,
+        BM_Tip.[HomeLastForm],
+        BM_Tip.[HomeLastGiven],
+        BM_Tip.[HomeLastTaken],
+        BM_Tip.[HomeSeasonForm],
+        BM_Tip.[HomeSeasonGiven],
+        BM_Tip.[HomeSeasonTaken],
+		BM_Tip.[HomeSeasonCount],
+        BM_Tip.[AwayLastForm],
+        BM_Tip.[AwayLastGiven],
+        BM_Tip.[AwayLastTaken],
+        BM_Tip.[AwaySeasonForm],
+        BM_Tip.[AwaySeasonGiven],
+        BM_Tip.[AwaySeasonTaken],
+		BM_Tip.[AwaySeasonCount],
 		BM_OddsRegular.FirstValue,
 		BM_OddsRegular.XValue,
 		BM_OddsRegular.SecondValue
 	from BM_Tip
 	inner join BM_Event on BM_Event.ID=BM_Tip.ID
 	inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
+	inner join BM_Team BM_HomeTeam on BM_HomeTeam.ID=BM_Event.ID_HomeTeam
+	inner join BM_Team BM_AwayTeam on BM_AwayTeam.ID=BM_Event.ID_AwayTeam
 	left join BM_Category on BM_Category.ID=BM_Event.ID_Category
 	left join BM_Season on BM_Season.ID=BM_Event.ID_Season
 	where BM_Event.ID=@ID
@@ -4562,63 +4683,90 @@ CREATE PROCEDURE [dbo].[BM_Tip_GENERATE]
 AS
 BEGIN
 
-	declare @FootballTournament table (ID int, HomeForm int, HomeGiven int, HomeTaken int, AwayForm int, AwayGiven int, AwayTaken int)
+	declare @FootballTournament table (ID int, HomeLastForm int, HomeLastGiven int, HomeLastTaken int, HomeSeasonForm int, HomeSeasonGiven int, HomeSeasonTaken int, HomeSeasonCount int,  
+				AwayLastForm int, AwayLastGiven int, AwayLastTaken int, AwaySeasonForm int, AwaySeasonGiven int, AwaySeasonTaken int, AwaySeasonCount int)
+
 	DECLARE @ID int, @ID_HomeTeam int, @ID_AwayTeam int
 
-	DECLARE db_cursor CURSOR FOR  
-	select BM_Event.ID 
+	DECLARE db_cursor CURSOR FORWARD_ONLY FOR  
+	select BM_Event.ID, BM_Event.ID_HomeTeam, BM_Event.ID_AwayTeam
 	from BM_Event
 	inner join BM_Category on BM_Category.ID=BM_Event.ID_Category
 	inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
 	where BM_Category.ID_Sport=1
-		and DateStart >= getdate()
+		and DateStart >= CAST(GETDATE() AS DATE)
 	order by BM_Event.DateStart
 
 	OPEN db_cursor   
-	FETCH NEXT FROM db_cursor INTO @ID   
+	FETCH NEXT FROM db_cursor INTO @ID, @ID_HomeTeam, @ID_AwayTeam
 
 	WHILE @@FETCH_STATUS = 0   
 	BEGIN   
-			declare @HomeForm int, @HomeGiven int,@HomeTaken int, @AwayForm int, @AwayGiven int, @AwayTaken int
-			select @ID_AwayTeam=ID_AwayTeam, @ID_HomeTeam=ID_HomeTeam from BM_Event where ID=@ID
+		insert into @FootballTournament (ID, HomeLastForm, HomeLastGiven, HomeLastTaken, HomeSeasonForm, HomeSeasonGiven, HomeSeasonTaken, HomeSeasonCount,
+			AwayLastForm, AwayLastGiven, AwayLastTaken, AwaySeasonForm, AwaySeasonGiven, AwaySeasonTaken, AwaySeasonCount)
+		select 
+			@ID,
+			-- domaci
+			HomeLastEvent.Form, 
+			HomeLastEvent.Given,
+			HomeLastEvent.Taken,
+			HomeSeasonEvent.Form,
+			HomeSeasonEvent.Given,
+			HomeSeasonEvent.Taken,
+			HomeSeasonEvent.[Count],
+			-- hoste
+			AwayLastEvent.Form, 
+			AwayLastEvent.Given,
+			AwayLastEvent.Taken,
+			AwaySeasonEvent.Form,
+			AwaySeasonEvent.Given,
+			AwaySeasonEvent.Taken,
+			AwaySeasonEvent.[Count]
+		from [dbo].[BM_Event_DETAIL_LastEvent](@ID, @ID_HomeTeam) HomeLastEvent
+		outer apply [dbo].[BM_Event_DETAIL_LastEvent](@ID, @ID_AwayTeam) AwayLastEvent
+		outer apply [dbo].[BM_Event_DETAIL_SeasonEvent](@ID, @ID_HomeTeam) HomeSeasonEvent
+		outer apply [dbo].[BM_Event_DETAIL_SeasonEvent](@ID, @ID_AwayTeam) AwaySeasonEvent
 
-			select 
-				@HomeForm=LastEvent.Form, 
-				@HomeGiven=LastEvent.Given,
-				@HomeTaken=LastEvent.Taken
-			from [dbo].[BM_Event_DETAIL_LastEvent](@ID, @ID_HomeTeam) LastEvent
-
-			select 
-				@AwayForm=LastEvent.Form, 
-				@AwayGiven=LastEvent.Given,
-				@AwayTaken=LastEvent.Taken
-			from [dbo].[BM_Event_DETAIL_LastEvent](@ID, @ID_AwayTeam) LastEvent
-
-			insert into @FootballTournament values (@ID, @HomeForm, @HomeGiven, @HomeTaken, @AwayForm, @AwayGiven, @AwayTaken)
-
-			FETCH NEXT FROM db_cursor INTO @ID   
+		FETCH NEXT FROM db_cursor INTO @ID, @ID_HomeTeam, @ID_AwayTeam
 	END   
 
 	CLOSE db_cursor   
 	DEALLOCATE db_cursor
 
+	--SELECT *
+	--INTO BM_Tip
+	--FROM @FootballTournament
+
 	MERGE [dbo].[BM_Tip] AS [target]
 	USING 
 	(
-		select ID, HomeForm, HomeGiven, HomeTaken, AwayForm, AwayGiven, AwayTaken from @FootballTournament
-	) AS [source] (ID, HomeForm, HomeGiven, HomeTaken, AwayForm, AwayGiven, AwayTaken )
+		select ID, HomeLastForm, HomeLastGiven, HomeLastTaken, HomeSeasonForm, HomeSeasonGiven, HomeSeasonTaken, HomeSeasonCount,
+			AwayLastForm, AwayLastGiven, AwayLastTaken, AwaySeasonForm, AwaySeasonGiven, AwaySeasonTaken, AwaySeasonCount from @FootballTournament
+	) AS [source]
 	ON ([target].ID = [source].ID)
 	WHEN matched THEN
 		UPDATE SET 
-			[target].HomeForm=[source].HomeForm,
-			[target].HomeGiven=[source].HomeGiven,
-			[target].HomeTaken=[source].HomeTaken,
-			[target].AwayForm=[source].AwayForm,
-			[target].AwayGiven=[source].AwayGiven,
-			[target].AwayTaken=[source].AwayTaken
+			[target].HomeLastForm=[source].HomeLastForm,
+			[target].HomeLastGiven=[source].HomeLastGiven,
+			[target].HomeLastTaken=[source].HomeLastTaken,
+			[target].HomeSeasonForm=[source].HomeSeasonForm,
+			[target].HomeSeasonGiven=[source].HomeSeasonGiven,
+			[target].HomeSeasonTaken=[source].HomeSeasonTaken,
+			[target].HomeSeasonCount=[source].HomeSeasonCount,
+
+			[target].AwayLastForm=[source].AwayLastForm,
+			[target].AwayLastGiven=[source].AwayLastGiven,
+			[target].AwayLastTaken=[source].AwayLastTaken,
+			[target].AwaySeasonForm=[source].AwaySeasonForm,
+			[target].AwaySeasonGiven=[source].AwaySeasonGiven,
+			[target].AwaySeasonTaken=[source].AwaySeasonTaken,
+			[target].AwaySeasonCount=[source].AwaySeasonCount
 	when not matched then
-		INSERT (ID, HomeForm, HomeGiven, HomeTaken, AwayForm, AwayGiven, AwayTaken )
-		VALUES ([source].ID, [source].HomeForm, [source].HomeGiven, [source].HomeTaken, [source].AwayForm, [source].AwayGiven, [source].AwayTaken);
+		INSERT (ID, HomeLastForm, HomeLastGiven, HomeLastTaken, HomeSeasonForm, HomeSeasonGiven, HomeSeasonTaken, HomeSeasonCount, 
+				AwayLastForm, AwayLastGiven, AwayLastTaken, AwaySeasonForm, AwaySeasonGiven, AwaySeasonTaken, AwaySeasonCount)
+		VALUES ([source].ID, [source].HomeLastForm, [source].HomeLastGiven, [source].HomeLastTaken, [source].HomeSeasonForm, 
+				[source].HomeSeasonGiven, [source].HomeSeasonTaken, [source].HomeSeasonCount, [source].AwayLastForm, [source].AwayLastGiven, [source].AwayLastTaken, 
+				[source].AwaySeasonForm, [source].AwaySeasonGiven, [source].AwaySeasonTaken, [source].AwaySeasonCount);
 END
 
 
@@ -4637,66 +4785,94 @@ GO
 -- Description:	<Description,,>
 -- =============================================
 CREATE PROCEDURE [dbo].[BM_Tip_GENERATE_Old]
+	@DateStart datetime = '2016-10-01'
 AS
 BEGIN
 
-	declare @FootballTournament table (ID int, HomeForm int, HomeGiven int, HomeTaken int, AwayForm int, AwayGiven int, AwayTaken int)
+	declare @FootballTournament table (ID int, HomeLastForm int, HomeLastGiven int, HomeLastTaken int, HomeSeasonForm int, HomeSeasonGiven int, HomeSeasonTaken int, HomeSeasonCount int,  
+				AwayLastForm int, AwayLastGiven int, AwayLastTaken int, AwaySeasonForm int, AwaySeasonGiven int, AwaySeasonTaken int, AwaySeasonCount int)
+
 	DECLARE @ID int, @ID_HomeTeam int, @ID_AwayTeam int
 
-	DECLARE db_cursor CURSOR FOR  
-	select BM_Event.ID 
+	DECLARE db_cursor CURSOR FORWARD_ONLY FOR  
+	select BM_Event.ID, BM_Event.ID_HomeTeam, BM_Event.ID_AwayTeam
 	from BM_Event
 	inner join BM_Category on BM_Category.ID=BM_Event.ID_Category
 	inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
 	where BM_Category.ID_Sport=1
-		and DateStart >= '2016-01-01'
+		and DateStart >=@DateStart and DateStart < '2016-10-01'
 	order by BM_Event.DateStart
 
 	OPEN db_cursor   
-	FETCH NEXT FROM db_cursor INTO @ID   
+	FETCH NEXT FROM db_cursor INTO @ID, @ID_HomeTeam, @ID_AwayTeam
 
 	WHILE @@FETCH_STATUS = 0   
 	BEGIN   
-			declare @HomeForm int, @HomeGiven int,@HomeTaken int, @AwayForm int, @AwayGiven int, @AwayTaken int
-			select @ID_AwayTeam=ID_AwayTeam, @ID_HomeTeam=ID_HomeTeam from BM_Event where ID=@ID
+		insert into @FootballTournament (ID, HomeLastForm, HomeLastGiven, HomeLastTaken, HomeSeasonForm, HomeSeasonGiven, HomeSeasonTaken, HomeSeasonCount,
+			AwayLastForm, AwayLastGiven, AwayLastTaken, AwaySeasonForm, AwaySeasonGiven, AwaySeasonTaken, AwaySeasonCount)
+		select 
+			@ID,
+			-- domaci
+			HomeLastEvent.Form, 
+			HomeLastEvent.Given,
+			HomeLastEvent.Taken,
+			HomeSeasonEvent.Form,
+			HomeSeasonEvent.Given,
+			HomeSeasonEvent.Taken,
+			HomeSeasonEvent.[Count],
+			-- hoste
+			AwayLastEvent.Form, 
+			AwayLastEvent.Given,
+			AwayLastEvent.Taken,
+			AwaySeasonEvent.Form,
+			AwaySeasonEvent.Given,
+			AwaySeasonEvent.Taken,
+			AwaySeasonEvent.[Count]
+		from [dbo].[BM_Event_DETAIL_LastEvent](@ID, @ID_HomeTeam) HomeLastEvent
+		outer apply [dbo].[BM_Event_DETAIL_LastEvent](@ID, @ID_AwayTeam) AwayLastEvent
+		outer apply [dbo].[BM_Event_DETAIL_SeasonEvent](@ID, @ID_HomeTeam) HomeSeasonEvent
+		outer apply [dbo].[BM_Event_DETAIL_SeasonEvent](@ID, @ID_AwayTeam) AwaySeasonEvent
 
-			select 
-				@HomeForm=LastEvent.Form, 
-				@HomeGiven=LastEvent.Given,
-				@HomeTaken=LastEvent.Taken
-			from [dbo].[BM_Event_DETAIL_LastEvent](@ID, @ID_HomeTeam) LastEvent
-
-			select 
-				@AwayForm=LastEvent.Form, 
-				@AwayGiven=LastEvent.Given,
-				@AwayTaken=LastEvent.Taken
-			from [dbo].[BM_Event_DETAIL_LastEvent](@ID, @ID_AwayTeam) LastEvent
-
-			insert into @FootballTournament values (@ID, @HomeForm, @HomeGiven, @HomeTaken, @AwayForm, @AwayGiven, @AwayTaken)
-
-			FETCH NEXT FROM db_cursor INTO @ID   
+		FETCH NEXT FROM db_cursor INTO @ID, @ID_HomeTeam, @ID_AwayTeam
 	END   
 
 	CLOSE db_cursor   
 	DEALLOCATE db_cursor
 
+	--SELECT *
+	--INTO BM_Tip
+	--FROM @FootballTournament
+
 	MERGE [dbo].[BM_Tip] AS [target]
 	USING 
 	(
-		select ID, HomeForm, HomeGiven, HomeTaken, AwayForm, AwayGiven, AwayTaken from @FootballTournament
-	) AS [source] (ID, HomeForm, HomeGiven, HomeTaken, AwayForm, AwayGiven, AwayTaken )
+		select ID, HomeLastForm, HomeLastGiven, HomeLastTaken, HomeSeasonForm, HomeSeasonGiven, HomeSeasonTaken, HomeSeasonCount,
+			AwayLastForm, AwayLastGiven, AwayLastTaken, AwaySeasonForm, AwaySeasonGiven, AwaySeasonTaken, AwaySeasonCount from @FootballTournament
+	) AS [source]
 	ON ([target].ID = [source].ID)
 	WHEN matched THEN
 		UPDATE SET 
-			[target].HomeForm=[source].HomeForm,
-			[target].HomeGiven=[source].HomeGiven,
-			[target].HomeTaken=[source].HomeTaken,
-			[target].AwayForm=[source].AwayForm,
-			[target].AwayGiven=[source].AwayGiven,
-			[target].AwayTaken=[source].AwayTaken
+			[target].HomeLastForm=[source].HomeLastForm,
+			[target].HomeLastGiven=[source].HomeLastGiven,
+			[target].HomeLastTaken=[source].HomeLastTaken,
+			[target].HomeSeasonForm=[source].HomeSeasonForm,
+			[target].HomeSeasonGiven=[source].HomeSeasonGiven,
+			[target].HomeSeasonTaken=[source].HomeSeasonTaken,
+			[target].HomeSeasonCount=[source].HomeSeasonCount,
+
+			[target].AwayLastForm=[source].AwayLastForm,
+			[target].AwayLastGiven=[source].AwayLastGiven,
+			[target].AwayLastTaken=[source].AwayLastTaken,
+			[target].AwaySeasonForm=[source].AwaySeasonForm,
+			[target].AwaySeasonGiven=[source].AwaySeasonGiven,
+			[target].AwaySeasonTaken=[source].AwaySeasonTaken,
+			[target].AwaySeasonCount=[source].AwaySeasonCount
 	when not matched then
-		INSERT (ID, HomeForm, HomeGiven, HomeTaken, AwayForm, AwayGiven, AwayTaken )
-		VALUES ([source].ID, [source].HomeForm, [source].HomeGiven, [source].HomeTaken, [source].AwayForm, [source].AwayGiven, [source].AwayTaken);
+		INSERT (ID, HomeLastForm, HomeLastGiven, HomeLastTaken, HomeSeasonForm, HomeSeasonGiven, HomeSeasonTaken, HomeSeasonCount, 
+				AwayLastForm, AwayLastGiven, AwayLastTaken, AwaySeasonForm, AwaySeasonGiven, AwaySeasonTaken, AwaySeasonCount)
+		VALUES ([source].ID, [source].HomeLastForm, [source].HomeLastGiven, [source].HomeLastTaken, [source].HomeSeasonForm, 
+				[source].HomeSeasonGiven, [source].HomeSeasonTaken, [source].HomeSeasonCount, [source].AwayLastForm, [source].AwayLastGiven, [source].AwayLastTaken, 
+				[source].AwaySeasonForm, [source].AwaySeasonGiven, [source].AwaySeasonTaken, [source].AwaySeasonCount);
 END
 
 
@@ -4707,6 +4883,22 @@ print 'CurrentTime: Procedures - ' + convert(varchar, getdate(), 120)
 GO
 
 -- Create indices
+
+if not exists(select * from sys.indexes where name='IX_BM_Event_Status' and is_primary_key=0)
+begin
+    create  nonclustered index IX_BM_Event_Status on [BM_Event] ([ID_Status] ASC)
+  INCLUDE ([WinnerCode], [ID_HomeTeam], [ID_AwayTeam], [ID_Tournament], [ID_Season], [HomeScoreCurrent], [AwayScoreCurrent])
+end
+
+GO
+
+if not exists(select * from sys.indexes where name='IX_BM_Event_Whole' and is_primary_key=0)
+begin
+    create  nonclustered index IX_BM_Event_Whole on [BM_Event] ([ID_Tournament] ASC, [ID_Season] ASC, [ID_Status] ASC)
+  INCLUDE ([WinnerCode], [ID_HomeTeam], [ID_AwayTeam], [HomeScoreCurrent], [AwayScoreCurrent])
+end
+
+GO
 
 print 'CurrentTime: Indices - ' + convert(varchar, getdate(), 120)
 
@@ -4891,7 +5083,7 @@ from
     inner join sys.tables on sys.tables.object_id=sys.columns.object_id 
 where 
     sys.tables.name='BM_Tip' 
-    and sys.columns.name not in ('ID', 'HomeForm', 'HomeGiven', 'HomeTaken', 'AwayForm', 'AwayGiven', 'AwayTaken') 
+    and sys.columns.name not in ('ID', 'HomeLastForm', 'HomeLastGiven', 'HomeLastTaken', 'HomeSeasonForm', 'HomeSeasonGiven', 'HomeSeasonTaken', 'HomeSeasonCount', 'AwayLastForm', 'AwayLastGiven', 'AwayLastTaken', 'AwaySeasonForm', 'AwaySeasonGiven', 'AwaySeasonTaken', 'AwaySeasonCount') 
 
 if @Message<>'' 
 begin 
