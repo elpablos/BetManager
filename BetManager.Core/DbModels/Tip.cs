@@ -30,6 +30,7 @@ namespace BetManager.Core.DbModels
         public string AwayTeam { get; set; }
 
         [Display(Name = "Datum")]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd HH:mm}", ApplyFormatInEditMode = true)]
         public DateTime DateStart { get; set; }
 
         [Display(Name = "Url")]
