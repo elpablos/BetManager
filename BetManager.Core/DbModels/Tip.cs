@@ -45,7 +45,7 @@ namespace BetManager.Core.DbModels
         [Display(Name = "Forma")]
         public int HomeLastForm { get; set; }
 
-        [Display(Name = "Střelené góly")]
+        [Display(Name = "Vstřelené góly")]
         public int HomeLastGiven { get; set; }
 
         [Display(Name = "Obdržené góly")]
@@ -63,7 +63,7 @@ namespace BetManager.Core.DbModels
         [Display(Name = "Forma")]
         public int HomeSeasonForm { get; set; }
 
-        [Display(Name = "Střelené góly")]
+        [Display(Name = "Vstřelené góly")]
         public int HomeSeasonGiven { get; set; }
 
         [Display(Name = "Obdržené góly")]
@@ -75,7 +75,7 @@ namespace BetManager.Core.DbModels
         [Display(Name = "Forma")]
         public int AwaySeasonForm { get; set; }
 
-        [Display(Name = "Střelené góly")]
+        [Display(Name = "Vstřelené góly")]
         public int AwaySeasonGiven { get; set; }
 
         [Display(Name = "Obdržené góly")]
