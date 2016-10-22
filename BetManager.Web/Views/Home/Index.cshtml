@@ -14,7 +14,7 @@
       </div>
       <div id="panel-filter" class="panel-body panel-collapse collapse in">
         <div class="row">
-          <div class="col-md-4">
+          <div class="col-md-3">
             <div class="form-group">
               <label class="control-label" for="datepickerFrom">Datum od</label>
               <div class="input-group date" id="datepickerFrom">
@@ -25,11 +25,22 @@
               </div>
             </div>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
+            <div class="form-group">
+              <label class="control-label" for="datepickerTo">Datum do</label>
+              <div class="input-group date" id="datepickerTo">
+                @Html.TextBox("DateTo", null, new { @class = "form-control" })
+                <span class="input-group-addon">
+                  <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
             <label for="FormFrom">Forma od</label>
             @Html.TextBox("FormFrom", null, new { @class = "form-control" })
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label for="FormFrom">Kurz od</label>
             @Html.TextBox("OddFrom", null, new { @class = "form-control" })
           </div>
@@ -94,6 +105,11 @@
       $(document).ready(function () {
 
           $('#datepickerFrom').datetimepicker({
+              locale: 'cs',
+              format: 'L'
+          });
+
+          $('#datepickerTo').datetimepicker({
               locale: 'cs',
               format: 'L'
           });
