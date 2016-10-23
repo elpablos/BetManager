@@ -1,108 +1,42 @@
-﻿@model IEnumerable<BetManager.Core.DbModels.Tip>
+﻿@model BetManager.Web.Controllers.Tips.List.TipListViewModel
 
 @{
-    ViewBag.Title = "Tipy";
+    ViewBag.Title = "Dashboard";
 }
 
-<h2>@ViewBag.Title</h2>
+@Styles.Render("~/Content/morris")
 
-@using (Html.BeginForm())
-{
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <a data-toggle="collapse" href="#panel-filter">Filtry</a>
-      </div>
-      <div id="panel-filter" class="panel-body panel-collapse collapse in">
-        <div class="row">
-          <div class="col-md-3">
-            <div class="form-group">
-              <label class="control-label" for="datepickerFrom">Datum od</label>
-              <div class="input-group date" id="datepickerFrom">
-                @Html.TextBox("DateFrom", null, new { @class = "form-control" })
-                <span class="input-group-addon">
-                  <span class="glyphicon glyphicon-calendar"></span>
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="form-group">
-              <label class="control-label" for="datepickerTo">Datum do</label>
-              <div class="input-group date" id="datepickerTo">
-                @Html.TextBox("DateTo", null, new { @class = "form-control" })
-                <span class="input-group-addon">
-                  <span class="glyphicon glyphicon-calendar"></span>
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <label for="FormFrom">Forma od</label>
-            @Html.TextBox("FormFrom", null, new { @class = "form-control" })
-          </div>
-          <div class="col-md-3">
-            <label for="FormFrom">Kurz od</label>
-            @Html.TextBox("OddFrom", null, new { @class = "form-control" })
-          </div>
-        </div>
-        <button type="submit" class="btn btn-primary">Hledat</button>
-      </div>
+<div class="row">
+  <h2>@ViewBag.Title</h2>
+</div>
+
+<div class="row">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <i class="fa fa-bar-chart-o fa-fw"></i> Zisk algoritmu
     </div>
-}
+    <!-- /.panel-heading -->
+    <div class="panel-body">
+      <div id="morris-area-chart"></div>
+    </div>
+    <!-- /.panel-body -->
+  </div>
+</div>
 
-<table id="example" class="table table-striped table-bordered table-hover table-responsive">
-  <thead>
-    <tr>
-      <td>
-        @Html.DisplayNameFor(model => model.DisplayName)
-      </td>
-      <td>
-        @Html.DisplayNameFor(model => model.DateStart)
-      </td>
-      <td>
-        @Html.DisplayNameFor(model => model.Form)
-      </td>
-      <td>
-        @Html.DisplayNameFor(model => model.Odd)
-      </td>
-      <td>
-        @Html.DisplayNameFor(model => model.WinnerCode)
-      </td>
-      <td></td>
-    </tr>
+@Html.Partial("~/Views/Tip/_IndexFilter.cshtml", Model.Filter)
 
-  </thead>
-  <tbody>
-    @foreach (var item in Model)
-    {
-    <tr>
-      <td>
-        @Html.DisplayFor(modelItem => item.DisplayName)
-      </td>
-      <td>
-        @Html.DisplayFor(modelItem => item.DateStart)
-      </td>
-      <td>
-        @Html.DisplayFor(modelItem => item.Form)
-      </td>
-      <td>
-        @Html.DisplayFor(modelItem => item.Odd)
-      </td>
-      <td>
-        @Html.DisplayFor(modelItem => item.WinnerCode)
-      </td>
-      <td>
-        @Html.ActionLink("Detail", "Detail", new { id = item.ID }, new { @class= "btn" })
-      </td>
-    </tr>
+@Html.Partial("~/Views/Tip/_IndexList.cshtml", Model.Rows)
 
-    }
-  <tbody>
-</table>
 
 @section scripts {
+  @Scripts.Render("~/bundles/morris")
+
   <script type="text/javascript">
       $(document).ready(function () {
+
+          function changeDate(date) {
+              return date.split(".").reverse().join("-");
+          }
 
           $('#datepickerFrom').datetimepicker({
               locale: 'cs',
@@ -114,15 +48,68 @@
               format: 'L'
           });
 
-          $('#example').DataTable({
-              order: [[1, "asc"]],
-              responsive: true,
+          window.graphDate = changeDate($("#DateTo").val());
+
+          var datatable = $('#example').DataTable({
+              "serverSide": true,
+              "processing": true,
+              "ajax": {
+                  url: "/api/tip",
+                  type: "POST",
+                  dataSrc: "",
+                  data: function() {
+                      return {
+                          DateFrom: window.graphDate,
+                          DateTo: window.graphDate,
+                          Form: $("#Form").val(),
+                          Odd: $("#Odd").val()
+                      }},
+              },
+              "columns": [
+                { "data": "DisplayName" },
+                { "data": "DateStart" },
+                { "data": "Form" },
+                { "data": "Odd" },
+                { "data": "WinnerCode" },
+                { "data": "ID" },
+              ],
+              "order": [[1, "asc"]],
               createdRow: function (row, data, dataIndex) {
-                  
-                  if ((data[4] == 1 && data[2] > 20) || (data[4] == 2 && data[2] < -20) || (data[4] == 3 && data[2] >= -20 && data[2] <= 20)) {
+                  console.log(data);
+                  if ((data.WinnerCode == 1 && data.Form > 20) || (data.WinnerCode == 2 && data.Form < -20) || (data.WinnerCode == 3 && data.Form >= -20 && data.Form <= 20)) {
                       $(row).addClass('success');
-                  } else if (data[4] > 0) {
+                  } else if (data.WinnerCode > 0) {
                       $(row).addClass('danger');
+                  }
+              }
+          });
+
+          var chart = Morris.Line({
+              element: 'morris-area-chart',
+              xkey: 'DateStart',
+              ykeys: ['Total', 'Correct', 'Price'],
+              labels: ['Tipů', 'Odhadnuto', 'Zisk'],
+              pointSize: 2,
+              hideHover: 'auto',
+              resize: true
+          }).on('click', function (i, row) {
+              window.graphDate = row.DateStart;
+              datatable.ajax.reload();
+          });
+
+          $.ajax({
+              type: "POST",
+              url: "/api/graphtip",
+              
+              data: {
+                  DateFrom: changeDate($("#DateFrom").val()),
+                  DateTo: changeDate($("#DateTo").val()),
+                  Form: $("#Form").val(),
+                  Odd: $("#Odd").val()
+              },
+              success: function (data) {
+                  if (data) {
+                      chart.setData(data);
                   }
               }
           });

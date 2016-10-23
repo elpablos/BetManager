@@ -1,0 +1,59 @@
+﻿@model BetManager.Web.Controllers.Tips.List.TipListFilterViewModel
+
+<div class="row">
+  @using (Html.BeginForm())
+  {
+      @Html.AntiForgeryToken()
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <a data-toggle="collapse" href="#panel-filter">Filtry</a>
+        </div>
+        <div id="panel-filter" class="panel-body panel-collapse collapse in">
+          @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                @Html.LabelFor(model => model.DateFrom, htmlAttributes: new { @class = "control-label" })
+                <div class="input-group date" id="datepickerFrom">
+                  @Html.EditorFor(model => model.DateFrom, new { htmlAttributes = new { @class = "form-control" } })
+                  <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                </div>
+                @Html.ValidationMessageFor(model => model.DateFrom, "", new { @class = "text-danger" })
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                @Html.LabelFor(model => model.DateTo, htmlAttributes: new { @class = "control-label" })
+                <div class="input-group date" id="datepickerTo">
+                  @Html.EditorFor(model => model.DateTo, new { htmlAttributes = new { @class = "form-control" } })
+                  <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                </div>
+                @Html.ValidationMessageFor(model => model.DateFrom, "", new { @class = "text-danger" })
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                @Html.LabelFor(model => model.Odd, htmlAttributes: new { @class = "control-label" })
+                @Html.EditorFor(model => model.Odd, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Odd, "", new { @class = "text-danger" })
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                @Html.LabelFor(model => model.Form, htmlAttributes: new { @class = "control-label" })
+                @Html.EditorFor(model => model.Form, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Form, "", new { @class = "text-danger" })
+              </div>
+            </div>
+          </div>
+          <input type="submit" value="Hledat" class="btn btn-primary" />
+        </div>
+      </div>
+  }
+</div>

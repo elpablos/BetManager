@@ -31,6 +31,19 @@ namespace BetManager.Web
                       "~/Scripts/bootstrap-datetimepicker.js",
                       "~/Scripts/respond.js"));
 
+            bundles.Add(new ScriptBundle("~/bundles/metisMenu").Include(
+                        "~/Scripts/metisMenu.js"
+                ));
+
+            bundles.Add(new ScriptBundle("~/bundles/morris").Include(
+                        "~/Scripts/raphael.js",
+                        "~/Scripts/morris.js"
+                ));
+
+            bundles.Add(new ScriptBundle("~/bundles/sb").Include(
+                        "~/Scripts/sb-admin-2.js"
+                ));
+
             // CSS
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
@@ -47,6 +60,15 @@ namespace BetManager.Web
 
             bundles.Add(new StyleBundle("~/Content/font-awesome").Include(
                       "~/Content/font-awesome.css"));
+
+            bundles.Add(new StyleBundle("~/Content/metisMenu").Include(
+                      "~/Content/metisMenu.css"));
+
+            bundles.Add(new StyleBundle("~/Content/morris").Include(
+                      "~/Content/morris.css"));
+
+            bundles.Add(new StyleBundle("~/Content/sb").Include(
+                      "~/Content/sb-admin-2.css"));
         }
     }
 }

@@ -1,0 +1,42 @@
+﻿@model BetManager.Web.Controllers.Tips.List.TipListViewModel
+
+@{
+    ViewBag.Title = "Tipy";
+}
+
+<div class="row">
+  <h2>@ViewBag.Title</h2>
+</div>
+@Html.Partial("_IndexFilter", Model.Filter)
+
+@Html.Partial("_IndexList", Model.Rows)
+
+@section scripts {
+  <script type="text/javascript">
+      $(document).ready(function () {
+
+          $('#datepickerFrom').datetimepicker({
+              locale: 'cs',
+              format: 'L'
+          });
+
+          $('#datepickerTo').datetimepicker({
+              locale: 'cs',
+              format: 'L'
+          });
+
+          $('#example').DataTable({
+              order: [[1, "asc"]],
+              responsive: true,
+              createdRow: function (row, data, dataIndex) {
+
+                  if ((data[4] == 1 && data[2] > 20) || (data[4] == 2 && data[2] < -20) || (data[4] == 3 && data[2] >= -20 && data[2] <= 20)) {
+                      $(row).addClass('success');
+                  } else if (data[4] > 0) {
+                      $(row).addClass('danger');
+                  }
+              }
+          });
+      });
+  </script>
+}

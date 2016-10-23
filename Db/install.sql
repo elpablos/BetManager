@@ -1,5 +1,5 @@
 -- Database: BetManagerDevel
--- Date: 18.10.2016 21:47:43
+-- Date: 23.10.2016 20:21:41
 
 print 'CurrentTime: START - ' + convert(varchar, getdate(), 120)
 
@@ -49,7 +49,7 @@ from
 where sysindexes.indid <> 0
 and (sysindexes.status & 64 = 0)
 and (sysindexes.status & 2048 = 0) -- not primary key
-and object_name(sysobjects.id) in ('BM_Category', 'BM_Event', 'BM_ImportData', 'BM_ImportDataOld', 'BM_OddsRegular', 'BM_Score', 'BM_Season', 'BM_Sport', 'BM_Status', 'BM_Team', 'BM_Tip', 'BM_Tournament')
+and object_name(sysobjects.id) in ('BM_Category', 'BM_Event', 'BM_ImportData', 'BM_ImportDataOld', 'BM_OddsRegular', 'BM_Score', 'BM_Season', 'BM_Sport', 'BM_Status', 'BM_Team', 'BM_Tip', 'BM_Tournament', 'CR_User')
 
 open tbl_Indexy
 fetch next from tbl_Indexy into @drop
@@ -238,6 +238,16 @@ begin
 	CREATE TABLE [BM_Tournament]
 	(
 		[ID] bigint  NOT NULL
+	)
+end
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME='CR_User')
+begin
+	CREATE TABLE [CR_User]
+	(
+		[ID] int IDENTITY NOT NULL
 	)
 end
 
@@ -2005,6 +2015,67 @@ else
 
 GO
 
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='IsActive')
+	alter table [CR_User] add [IsActive] bit NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='IsActive' and IS_NULLABLE='YES')
+	alter table [CR_User] alter column [IsActive] bit NULL
+else
+	alter table [CR_User] alter column [IsActive] bit NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='UserName')
+	alter table [CR_User] add [UserName] nvarchar(255) NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='UserName' and IS_NULLABLE='YES')
+	alter table [CR_User] alter column [UserName] nvarchar(255) NULL
+else
+	alter table [CR_User] alter column [UserName] nvarchar(255) NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='Password')
+	alter table [CR_User] add [Password] varchar(255) NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='Password' and IS_NULLABLE='YES')
+	alter table [CR_User] alter column [Password] varchar(255) NULL
+else
+	alter table [CR_User] alter column [Password] varchar(255) NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='Salt')
+	alter table [CR_User] add [Salt] varchar(255) NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='Salt' and IS_NULLABLE='YES')
+	alter table [CR_User] alter column [Salt] varchar(255) NULL
+else
+	alter table [CR_User] alter column [Salt] varchar(255) NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='LastLogin')
+	alter table [CR_User] add [LastLogin] datetime NULL
+else
+	alter table [CR_User] alter column [LastLogin] datetime NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='DateCreated')
+	alter table [CR_User] add [DateCreated] datetime NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='DateCreated' and IS_NULLABLE='YES')
+	alter table [CR_User] alter column [DateCreated] datetime NULL
+else
+	alter table [CR_User] alter column [DateCreated] datetime NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='DateUpdated')
+	alter table [CR_User] add [DateUpdated] datetime NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='DateUpdated' and IS_NULLABLE='YES')
+	alter table [CR_User] alter column [DateUpdated] datetime NULL
+else
+	alter table [CR_User] alter column [DateUpdated] datetime NOT NULL
+
+GO
+
 print 'CurrentTime: Columns - ' + convert(varchar, getdate(), 120)
 
 GO
@@ -2430,6 +2501,30 @@ update [BM_Tournament] set [IsActive]=((1)) where [IsActive] is null
 
 GO
 
+alter table [CR_User] ADD CONSTRAINT [DF_CR_User_DateCreated] DEFAULT ((getdate())) FOR [DateCreated]
+
+GO
+
+update [CR_User] set [DateCreated]=(getdate()) where [DateCreated] is null
+
+GO
+
+alter table [CR_User] ADD CONSTRAINT [DF_CR_User_DateUpdated] DEFAULT ((getdate())) FOR [DateUpdated]
+
+GO
+
+update [CR_User] set [DateUpdated]=(getdate()) where [DateUpdated] is null
+
+GO
+
+alter table [CR_User] ADD CONSTRAINT [DF_CR_User_IsActive] DEFAULT (((1))) FOR [IsActive]
+
+GO
+
+update [CR_User] set [IsActive]=((1)) where [IsActive] is null
+
+GO
+
 print 'CurrentTime: Constraints: Default - ' + convert(varchar, getdate(), 120)
 
 GO
@@ -2704,6 +2799,41 @@ if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tourname
 
 GO
 
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='ID' and IS_NULLABLE='YES')
+    alter table [CR_User] alter column [ID] int NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='IsActive' and IS_NULLABLE='YES')
+    alter table [CR_User] alter column [IsActive] bit NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='UserName' and IS_NULLABLE='YES')
+    alter table [CR_User] alter column [UserName] nvarchar(255) NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='Password' and IS_NULLABLE='YES')
+    alter table [CR_User] alter column [Password] varchar(255) NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='Salt' and IS_NULLABLE='YES')
+    alter table [CR_User] alter column [Salt] varchar(255) NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='DateCreated' and IS_NULLABLE='YES')
+    alter table [CR_User] alter column [DateCreated] datetime NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='DateUpdated' and IS_NULLABLE='YES')
+    alter table [CR_User] alter column [DateUpdated] datetime NOT NULL
+
+GO
+
 print 'CurrentTime: Constraints: NotNull - ' + convert(varchar, getdate(), 120)
 
 GO
@@ -2715,6 +2845,11 @@ GO
 
 if not exists(select * from sys.indexes where name='PK_BM_Event' and is_primary_key=1)
   alter table [BM_Event] ADD CONSTRAINT [PK_BM_Event] PRIMARY KEY ([ID])
+
+GO
+
+if not exists(select * from sys.indexes where name='PK_CR_User' and is_primary_key=1)
+  alter table [CR_User] ADD CONSTRAINT [PK_CR_User] PRIMARY KEY ([ID])
 
 GO
 
@@ -3468,6 +3603,78 @@ if exists(select *
     EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Datum úpravy' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Tournament', @level2type=N'COLUMN',@level2name=N'DateUpdated'
 else
     EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Datum úpravy' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Tournament', @level2type=N'COLUMN',@level2name=N'DateUpdated'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'CR_User' and c.name = 'ID')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Jedinečné ID uživatele' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'CR_User', @level2type=N'COLUMN',@level2name=N'ID'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Jedinečné ID uživatele' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'CR_User', @level2type=N'COLUMN',@level2name=N'ID'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'CR_User' and c.name = 'IsActive')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Zda je aktivní' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'CR_User', @level2type=N'COLUMN',@level2name=N'IsActive'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Zda je aktivní' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'CR_User', @level2type=N'COLUMN',@level2name=N'IsActive'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'CR_User' and c.name = 'UserName')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Uživatelské jméno' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'CR_User', @level2type=N'COLUMN',@level2name=N'UserName'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Uživatelské jméno' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'CR_User', @level2type=N'COLUMN',@level2name=N'UserName'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'CR_User' and c.name = 'Password')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Heslo' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'CR_User', @level2type=N'COLUMN',@level2name=N'Password'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Heslo' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'CR_User', @level2type=N'COLUMN',@level2name=N'Password'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'CR_User' and c.name = 'Salt')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Sůl' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'CR_User', @level2type=N'COLUMN',@level2name=N'Salt'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Sůl' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'CR_User', @level2type=N'COLUMN',@level2name=N'Salt'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'CR_User' and c.name = 'LastLogin')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Datum posledního přihlášení' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'CR_User', @level2type=N'COLUMN',@level2name=N'LastLogin'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Datum posledního přihlášení' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'CR_User', @level2type=N'COLUMN',@level2name=N'LastLogin'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'CR_User' and c.name = 'DateCreated')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Datum vytvoření' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'CR_User', @level2type=N'COLUMN',@level2name=N'DateCreated'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Datum vytvoření' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'CR_User', @level2type=N'COLUMN',@level2name=N'DateCreated'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'CR_User' and c.name = 'DateUpdated')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Datum úpravy' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'CR_User', @level2type=N'COLUMN',@level2name=N'DateUpdated'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Datum úpravy' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'CR_User', @level2type=N'COLUMN',@level2name=N'DateUpdated'
 
 GO
 
@@ -4554,7 +4761,8 @@ GO
 CREATE PROCEDURE [dbo].[BM_Tip_ALL]
 	@Form int = 30,
 	@Odd decimal(9,2) = 2.0,
-	@DateFrom date = null
+	@DateFrom date = null,
+	@DateTo date = null
 AS
 BEGIN
 	select 
@@ -4562,8 +4770,8 @@ BEGIN
 		'Url'='http://www.sofascore.com/'+BM_Event.Slug+'/'+BM_Event.CustomId,
 		BM_Event.DisplayName,
 		BM_Event.DateStart,
-		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwayLastForm)) 
-			else ((AwayLastForm + AwayLastForm) - (HomeLastForm + HomeSeasonForm)) * -1 end) as Form,
+		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
+			else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) * -1 end) as Form,
 		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) as Odd,
 		BM_Event.WinnerCode,
 		BM_Event.ID_Status,
@@ -4593,10 +4801,11 @@ BEGIN
 	inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
 	left join BM_Category on BM_Category.ID=BM_Event.ID_Category
 	left join BM_Season on BM_Season.ID=BM_Event.ID_Season
-	where (case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwayLastForm)) 
-			else ((AwayLastForm + AwayLastForm) - (HomeLastForm + HomeSeasonForm)) * -1 end) >= @Form
-		AND (case when HomeLastForm > AwayLastForm then FirstValue else SecondValue end) > @Odd
+	where (case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
+			else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) end) >= @Form
+		AND (case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) > @Odd
 		and (@DateFrom is null or BM_Event.DateStart >= @DateFrom)
+		and (@DateTo is null or BM_Event.DateStart < dateadd(day, 1, @DateTo))
 	order by BM_Event.DateStart
 END
 
@@ -4624,8 +4833,8 @@ BEGIN
 		'Url'='http://www.sofascore.com/'+BM_Event.Slug+'/'+BM_Event.CustomId,
 		BM_Event.DisplayName,
 		BM_Event.DateStart,
-		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwayLastForm)) 
-			else ((AwayLastForm + AwayLastForm) - (HomeLastForm + HomeSeasonForm)) * -1 end) as Form,
+		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
+			else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) * -1 end) as Form,
 		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) as Odd,
 		BM_Event.WinnerCode,
 		BM_Event.ID_Status,
@@ -4800,7 +5009,7 @@ BEGIN
 	inner join BM_Category on BM_Category.ID=BM_Event.ID_Category
 	inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
 	where BM_Category.ID_Sport=1
-		and DateStart >=@DateStart and DateStart < '2016-10-01'
+		and DateStart >=@DateStart and DateStart < getdate()
 	order by BM_Event.DateStart
 
 	OPEN db_cursor   
@@ -4873,6 +5082,261 @@ BEGIN
 		VALUES ([source].ID, [source].HomeLastForm, [source].HomeLastGiven, [source].HomeLastTaken, [source].HomeSeasonForm, 
 				[source].HomeSeasonGiven, [source].HomeSeasonTaken, [source].HomeSeasonCount, [source].AwayLastForm, [source].AwayLastGiven, [source].AwayLastTaken, 
 				[source].AwaySeasonForm, [source].AwaySeasonGiven, [source].AwaySeasonTaken, [source].AwaySeasonCount);
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Tip_DETAIL_Graph')
+begin
+  drop procedure BM_Tip_DETAIL_Graph
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 23.10.2016
+-- Description:	Graf ziskovosti
+-- =============================================
+CREATE PROCEDURE [dbo].[BM_Tip_DETAIL_Graph]
+	@Limit int = 30,
+	@Odd decimal(9,2) = 2.0,
+	@DateFrom date = '2016-10-01',
+	@DateTo date = '2016-10-23',
+	@Form int = 50,
+	@price decimal = 100
+AS
+BEGIN
+select DateStart, count(*) as Total, sum(GoodBet) as Correct, avg(Odd) as AverageOdd, sum(Price) as Price,
+cast(cast(sum(GoodBet) as decimal(9,2))/cast(count(*) as decimal(9,2)) * 100 as decimal(9,2)) as Percentile from
+(
+select Form, DisplayName, GoodBet, Odd,
+	(case when GoodBet=1 then @price*Odd else 0 end) - @price as Price, DateStart
+from
+(
+select ID, DisplayName, Form, Odd, WinnerCode, 
+	case when WinnerCode=
+	(case when Form >= @Limit then 1 else case when Form <= -@Limit then 2 else 3 end end)
+	then 1 else 0 end as GoodBet,
+	--round(abs(Form), -1) as [Group]
+	CAST(DateStart AS DATE) as DateStart
+from 
+(
+	select 
+		BM_Event.ID,
+		'Url'='http://www.sofascore.com/'+BM_Event.Slug+'/'+BM_Event.CustomId,
+		BM_Event.DisplayName,
+		BM_Event.DateStart,
+		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
+			else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) * -1 end) as Form,
+		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) as Odd,
+		BM_Event.WinnerCode,
+		BM_Event.ID_Status,
+        BM_Tip.[HomeLastForm],
+        BM_Tip.[HomeLastGiven],
+        BM_Tip.[HomeLastTaken],
+        BM_Tip.[HomeSeasonForm],
+        BM_Tip.[HomeSeasonGiven],
+        BM_Tip.[HomeSeasonTaken],
+		BM_Tip.[HomeSeasonCount],
+        BM_Tip.[AwayLastForm],
+        BM_Tip.[AwayLastGiven],
+        BM_Tip.[AwayLastTaken],
+        BM_Tip.[AwaySeasonForm],
+        BM_Tip.[AwaySeasonGiven],
+        BM_Tip.[AwaySeasonTaken],
+		BM_Tip.[AwaySeasonCount],
+		'ID_Category'=BM_Category.ID,
+		'Category'=BM_Category.DisplayName,
+		'ID_Season'=BM_Season.ID,
+		'Season'=BM_Season.DisplayName,
+		BM_OddsRegular.FirstValue,
+		BM_OddsRegular.XValue,
+		BM_OddsRegular.SecondValue
+	from BM_Tip
+	inner join BM_Event on BM_Event.ID=BM_Tip.ID
+	inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
+	left join BM_Category on BM_Category.ID=BM_Event.ID_Category
+	left join BM_Season on BM_Season.ID=BM_Event.ID_Season
+	where (case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
+			else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) end) >= @Limit
+		AND (case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) > @Odd
+		and (@DateFrom is null or BM_Event.DateStart >= @DateFrom)
+		and (@DateTo is null or BM_Event.DateStart < dateadd(day, 1, @DateTo))
+) Tips
+) Bet
+where abs(Form) >= @Form
+) x
+group by DateStart
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Tip_DETAIL_Income')
+begin
+  drop procedure BM_Tip_DETAIL_Income
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 20.10.2016
+-- Description:	Zisk z tipů při dané konfiguraci
+-- =============================================
+CREATE PROCEDURE BM_Tip_DETAIL_Income
+@Form int = 0,
+	@Odd decimal(9,2) = 2.0,
+	@DateFrom date = '2016-10-01',
+	@DateTo date = '2016-10-20',
+	@limit int = 50,
+	@price decimal = 100
+AS
+BEGIN
+
+select count(*) as Total, sum(GoodBet) as Correct, avg(Odd) as AverageOdd, sum(Price) as Price,
+cast(cast(sum(GoodBet) as decimal(9,2))/cast(count(*) as decimal(9,2)) * 100 as decimal(9,2)) as Percentile from
+(
+select [Group], DisplayName, GoodBet, Odd,
+	(case when GoodBet=1 then @price*Odd else 0 end) - @price as Price
+from
+(
+select ID, DisplayName, Form, Odd, WinnerCode, 
+	case when WinnerCode=
+	(case when Form > @limit then 1 else case when Form < -@limit then 2 else 3 end end)
+	then 1 else 0 end as GoodBet,
+	--round(abs(Form), -1) as [Group]
+	abs(Form)/10*10 as [Group]
+from 
+(
+	select 
+		BM_Event.ID,
+		'Url'='http://www.sofascore.com/'+BM_Event.Slug+'/'+BM_Event.CustomId,
+		BM_Event.DisplayName,
+		BM_Event.DateStart,
+		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
+			else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) * -1 end) as Form,
+		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) as Odd,
+		BM_Event.WinnerCode,
+		BM_Event.ID_Status,
+        BM_Tip.[HomeLastForm],
+        BM_Tip.[HomeLastGiven],
+        BM_Tip.[HomeLastTaken],
+        BM_Tip.[HomeSeasonForm],
+        BM_Tip.[HomeSeasonGiven],
+        BM_Tip.[HomeSeasonTaken],
+		BM_Tip.[HomeSeasonCount],
+        BM_Tip.[AwayLastForm],
+        BM_Tip.[AwayLastGiven],
+        BM_Tip.[AwayLastTaken],
+        BM_Tip.[AwaySeasonForm],
+        BM_Tip.[AwaySeasonGiven],
+        BM_Tip.[AwaySeasonTaken],
+		BM_Tip.[AwaySeasonCount],
+		'ID_Category'=BM_Category.ID,
+		'Category'=BM_Category.DisplayName,
+		'ID_Season'=BM_Season.ID,
+		'Season'=BM_Season.DisplayName,
+		BM_OddsRegular.FirstValue,
+		BM_OddsRegular.XValue,
+		BM_OddsRegular.SecondValue
+	from BM_Tip
+	inner join BM_Event on BM_Event.ID=BM_Tip.ID
+	inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
+	left join BM_Category on BM_Category.ID=BM_Event.ID_Category
+	left join BM_Season on BM_Season.ID=BM_Event.ID_Season
+	where (case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
+			else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) end) >= @Form
+		AND (case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) > @Odd
+		and (@DateFrom is null or BM_Event.DateStart >= @DateFrom)
+		and (@DateTo is null or BM_Event.DateStart < @DateTo)
+) Tips
+) Bet
+where [Group] > @limit
+) x
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Tip_DETAIL_Rozlozeni')
+begin
+  drop procedure BM_Tip_DETAIL_Rozlozeni
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 20.10.2016
+-- Description:	Rozlozeni uspesnosti dle limitu
+-- =============================================
+CREATE PROCEDURE BM_Tip_DETAIL_Rozlozeni
+		@Form int = 0,
+		@Odd decimal(9,2) = 2.0,
+		@DateFrom date = '2016-01-01',
+		@DateTo date = '2016-10-20',
+		@limit int = 20
+AS
+BEGIN
+
+	select [Group], count(*) as Total, sum(GoodBet) as Correct, 
+	cast(cast(sum(GoodBet) as decimal(9,2))/cast(count(*) as decimal(9,2)) * 100 as decimal(9,2)) as Percentile from
+	(
+	select ID, DisplayName, Form, WinnerCode, 
+		case when WinnerCode=
+		(case when Form > @limit then 1 else case when Form < -@limit then 2 else 3 end end)
+		then 1 else 0 end as GoodBet,
+		--round(abs(Form), -1) as [Group]
+		abs(Form)/10*10 as [Group]
+	from 
+	(
+		select 
+			BM_Event.ID,
+			'Url'='http://www.sofascore.com/'+BM_Event.Slug+'/'+BM_Event.CustomId,
+			BM_Event.DisplayName,
+			BM_Event.DateStart,
+			(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
+				else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) * -1 end) as Form,
+			(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) as Odd,
+			BM_Event.WinnerCode,
+			BM_Event.ID_Status,
+			BM_Tip.[HomeLastForm],
+			BM_Tip.[HomeLastGiven],
+			BM_Tip.[HomeLastTaken],
+			BM_Tip.[HomeSeasonForm],
+			BM_Tip.[HomeSeasonGiven],
+			BM_Tip.[HomeSeasonTaken],
+			BM_Tip.[HomeSeasonCount],
+			BM_Tip.[AwayLastForm],
+			BM_Tip.[AwayLastGiven],
+			BM_Tip.[AwayLastTaken],
+			BM_Tip.[AwaySeasonForm],
+			BM_Tip.[AwaySeasonGiven],
+			BM_Tip.[AwaySeasonTaken],
+			BM_Tip.[AwaySeasonCount],
+			'ID_Category'=BM_Category.ID,
+			'Category'=BM_Category.DisplayName,
+			'ID_Season'=BM_Season.ID,
+			'Season'=BM_Season.DisplayName,
+			BM_OddsRegular.FirstValue,
+			BM_OddsRegular.XValue,
+			BM_OddsRegular.SecondValue
+		from BM_Tip
+		inner join BM_Event on BM_Event.ID=BM_Tip.ID
+		inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
+		left join BM_Category on BM_Category.ID=BM_Event.ID_Category
+		left join BM_Season on BM_Season.ID=BM_Event.ID_Season
+		where (case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
+				else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) end) >= @Form
+			AND (case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) > @Odd
+			and (@DateFrom is null or BM_Event.DateStart >= @DateFrom)
+			and (@DateTo is null or BM_Event.DateStart < @DateTo)
+	) Tips
+	) Bet
+	group by [Group]
 END
 
 
@@ -5105,6 +5569,23 @@ where
 if @Message<>'' 
 begin 
     set @Message = 'Tabulka BM_Tournament obsahuje navíc sloupce: ' + substring(@Message, 1, len(@Message)-1) 
+    raiserror (@Message, 16, 1) 
+end
+
+GO
+
+declare @Message nvarchar(500) = '' 
+select @Message = @Message + sys.columns.name + ', ' 
+from 
+    sys.columns 
+    inner join sys.tables on sys.tables.object_id=sys.columns.object_id 
+where 
+    sys.tables.name='CR_User' 
+    and sys.columns.name not in ('ID', 'IsActive', 'UserName', 'Password', 'Salt', 'LastLogin', 'DateCreated', 'DateUpdated') 
+
+if @Message<>'' 
+begin 
+    set @Message = 'Tabulka CR_User obsahuje navíc sloupce: ' + substring(@Message, 1, len(@Message)-1) 
     raiserror (@Message, 16, 1) 
 end
 

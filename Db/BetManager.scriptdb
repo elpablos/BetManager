@@ -3,18 +3,19 @@
   <BeforeScript />
   <AfterScript />
   <Tables>
-    <Table Name="BM_Category" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="BM_Event" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="BM_ImportData" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="BM_ImportDataOld" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="BM_OddsRegular" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="BM_Score" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="BM_Season" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="BM_Sport" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="BM_Status" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="BM_Team" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="BM_Tip" IsData="false" IsUpdate="false" IsDelete="false" />
-    <Table Name="BM_Tournament" IsData="false" IsUpdate="false" IsDelete="false" />
+    <Table Name="BM_Category" IsData="false" IsUpdate="false" IsDelete="false" IsBase="false" />
+    <Table Name="BM_Event" IsData="false" IsUpdate="false" IsDelete="false" IsBase="false" />
+    <Table Name="BM_ImportData" IsData="false" IsUpdate="false" IsDelete="false" IsBase="false" />
+    <Table Name="BM_ImportDataOld" IsData="false" IsUpdate="false" IsDelete="false" IsBase="false" />
+    <Table Name="BM_OddsRegular" IsData="false" IsUpdate="false" IsDelete="false" IsBase="false" />
+    <Table Name="BM_Score" IsData="false" IsUpdate="false" IsDelete="false" IsBase="false" />
+    <Table Name="BM_Season" IsData="false" IsUpdate="false" IsDelete="false" IsBase="false" />
+    <Table Name="BM_Sport" IsData="false" IsUpdate="false" IsDelete="false" IsBase="false" />
+    <Table Name="BM_Status" IsData="false" IsUpdate="false" IsDelete="false" IsBase="false" />
+    <Table Name="BM_Team" IsData="false" IsUpdate="false" IsDelete="false" IsBase="false" />
+    <Table Name="BM_Tip" IsData="false" IsUpdate="false" IsDelete="false" IsBase="false" />
+    <Table Name="BM_Tournament" IsData="false" IsUpdate="false" IsDelete="false" IsBase="false" />
+    <Table Name="CR_User" IsData="false" IsUpdate="false" IsDelete="false" IsBase="false" />
   </Tables>
   <Procedures>
     <Procedure Name="BM_Event_ALL_Tournament" />
@@ -27,6 +28,9 @@
     <Procedure Name="BM_Tip_DETAIL" />
     <Procedure Name="BM_Tip_GENERATE" />
     <Procedure Name="BM_Tip_GENERATE_Old" />
+    <Procedure Name="BM_Tip_DETAIL_Graph" />
+    <Procedure Name="BM_Tip_DETAIL_Income" />
+    <Procedure Name="BM_Tip_DETAIL_Rozlozeni" />
   </Procedures>
   <Functions>
     <Function Name="BM_Event_DETAIL_LastEvent" InstallBeforeView="false" />
@@ -35,6 +39,7 @@
     <Function Name="BM_Event_DETAIL_TeamScoreTaken" InstallBeforeView="false" />
     <Function Name="BM_Event_DETAIL_SeasonEvent" InstallBeforeView="false" />
   </Functions>
+  <BaseTables />
   <ProcedureTemplates>
     <ProcedureTemplate FileName="C:\Develop\Skeleton\svn\Other\ScriptDb\bin\Release\ProcedureTemplates\ALL.sql" Type="ALL" />
     <ProcedureTemplate FileName="C:\Develop\Skeleton\svn\Other\ScriptDb\bin\Release\ProcedureTemplates\DEL.sql" Type="DEL" />

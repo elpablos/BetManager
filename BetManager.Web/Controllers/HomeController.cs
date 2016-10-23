@@ -1,4 +1,5 @@
-﻿using BetManager.Core.Domains;
+﻿using BetManager.Core.Domains.Tips;
+using BetManager.Web.Controllers.Tips.List;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Web.Mvc;
 
 namespace BetManager.Web.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ITipManager _tipManager;
@@ -17,20 +19,18 @@ namespace BetManager.Web.Controllers
         }
 
         // GET: Tip
-        public ActionResult Index(DateTime? dateFrom, DateTime? dateTo, decimal? formFrom, double? oddFrom)
+        public ActionResult Index(TipListFilterViewModel filter)
         {
-            dateFrom = dateFrom ?? DateTime.Now;
-            dateTo = dateTo ?? DateTime.Now;
-            formFrom = formFrom ?? 30;
-            oddFrom = oddFrom ?? 2.0;
+            var vm = new TipListViewModel();
 
-            var tips = _tipManager.GetAll(new { @DateFrom = dateFrom, @DateTo= dateTo, @Form = formFrom, @Odd = oddFrom });
-            ViewBag.DateFrom = dateFrom;
-            ViewBag.DateTo = dateTo;
-            ViewBag.FormFrom = formFrom;
-            ViewBag.OddFrom = oddFrom;
+            if (filter.DateFrom == null && filter.DateTo == null)
+            {
+                filter.SetDefaultDashboard();
+            }
 
-            return View(tips);
+            vm.Filter = filter;
+
+            return View(vm);
         }
 
         // GET: Tip/Details/5
