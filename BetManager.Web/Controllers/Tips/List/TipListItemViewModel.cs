@@ -17,7 +17,7 @@ namespace BetManager.Web.Controllers.Tips.List
         public string DisplayName { get; set; }
 
         [Display(Name = "Datum")]
-        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd hh:mm}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd HH:mm}", ApplyFormatInEditMode = true)]
         public DateTime DateStart { get; set; }
 
         [Display(Name = "Rozdíl forem")]
