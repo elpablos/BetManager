@@ -27,5 +27,25 @@ namespace BetManager.Web.ApiControllers
 
             return (int)result.Data;
         }
+
+        [HttpPost]
+        public int Post(ImportDataImportFilterViewModel model)
+        {
+            var result = Handler.Get<ImportDataImportHandler>().Handle(model);
+
+            return (int)result.Data;
+        }
+
+        [Authorize]
+        [HttpGet]
+        [Route("api/ImportData/Yesterday")]
+        public int Yesterday()
+        {
+            var vm = new ImportDataImportFilterViewModel();
+            vm.Date = DateTime.Now.AddDays(1);
+            var result = Handler.Get<ImportDataImportHandler>().Handle(vm);
+
+            return (int)result.Data;
+        }
     }
 }

@@ -62,7 +62,7 @@
                           DateFrom: window.graphDate,
                           DateTo: window.graphDate,
                           Form: $("#Form").val(),
-                          Odd: $("#Odd").val()
+                          Odd: $("#Odd").val().replace(",", ".")
                       }
                   },
               },
@@ -106,7 +106,7 @@
                   DateFrom: changeDate($("#DateFrom").val()),
                   DateTo: changeDate($("#DateTo").val()),
                   Form: $("#Form").val(),
-                  Odd: $("#Odd").val()
+                  Odd: $("#Odd").val().replace(",", ".")
               },
               success: function (data) {
                   if (data) {
