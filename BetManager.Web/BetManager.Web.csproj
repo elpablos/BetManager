@@ -186,8 +186,15 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Mvc\BaseController.cs" />
     <Compile Include="Mvc\Common\IModelBuilder.cs" />
     <Compile Include="Mvc\Common\IModelHandler.cs" />
+    <Compile Include="Mvc\Filters\HttpContextSessionWrapper.cs" />
+    <Compile Include="Mvc\Filters\ISessionWrapper.cs" />
+    <Compile Include="Mvc\Filters\PersistInSessionAttribute.cs" />
+    <Compile Include="Mvc\Filters\SessionHelper.cs" />
+    <Compile Include="Mvc\Filters\SessionSearchValueProvider.cs" />
+    <Compile Include="Mvc\Filters\SessionSearchValueProviderFactory.cs" />
     <Compile Include="Mvc\Handler.cs" />
     <Compile Include="Mvc\ModelBuilderResult.cs" />
     <Compile Include="Mvc\ModelHandlerResult.cs" />

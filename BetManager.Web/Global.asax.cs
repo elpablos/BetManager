@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BetManager.Web.Mvc.Filters;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -18,6 +19,8 @@ namespace BetManager.Web
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            ValueProviderFactories.Factories.Add(new SessionSearchValueProviderFactory());
         }
     }
 }

@@ -51,7 +51,7 @@
           window.graphDate = changeDate($("#DateTo").val());
 
           var datatable = $('#example').DataTable({
-              "serverSide": true,
+              "serverSide": false,
               "processing": true,
               "ajax": {
                   url: "/api/tip",

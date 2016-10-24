@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BetManager.Web.Mvc.Filters;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -11,15 +12,19 @@ namespace BetManager.Web.Controllers.Tips.List
     /// </summary>
     public class TipListFilterViewModel
     {
+        [PersistInSession]
         [Display(Name = "Datum od")]
         public DateTime? DateFrom { get; set; }
 
+        [PersistInSession]
         [Display(Name = "Datum do")]
         public DateTime? DateTo { get; set; }
 
+        [PersistInSession]
         [Display(Name = "Kurz")]
         public double Odd { get; set; }
 
+        [PersistInSession]
         [Display(Name = "Forma")]
         public int Form { get; set; }
 

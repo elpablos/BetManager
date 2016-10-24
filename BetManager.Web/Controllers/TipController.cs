@@ -10,15 +10,16 @@ using System.Web.Mvc;
 namespace BetManager.Web.Controllers
 {
     [Authorize]
-    public class TipController : Controller
+    public class TipController : Mvc.BaseController
     {
         public ActionResult Index(TipListFilterViewModel filter)
         {
+            //UpdateModel(filter);
             if (filter.DateFrom == null && filter.DateTo == null)
             {
                 filter.SetDefault();
             }
-
+            sessionHelper.Remember(filter);
             var result = Handler.Get<TipListBuilder>().Build(filter);
             return View(result.Model);
         }

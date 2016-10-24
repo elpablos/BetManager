@@ -9,7 +9,7 @@ using System.Web.Mvc;
 namespace BetManager.Web.Controllers
 {
     [Authorize]
-    public class HomeController : Controller
+    public class HomeController : Mvc.BaseController
     {
         private readonly ITipManager _tipManager;
 
@@ -22,14 +22,15 @@ namespace BetManager.Web.Controllers
         public ActionResult Index(TipListFilterViewModel filter)
         {
             var vm = new TipListViewModel();
+            vm.Filter = filter;
+            // UpdateModel(filter);
 
             if (filter.DateFrom == null && filter.DateTo == null)
             {
                 filter.SetDefaultDashboard();
             }
 
-            vm.Filter = filter;
-
+            sessionHelper.Remember(filter);
             return View(vm);
         }
 
