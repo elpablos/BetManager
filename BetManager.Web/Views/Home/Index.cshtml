@@ -63,15 +63,16 @@
                           DateTo: window.graphDate,
                           Form: $("#Form").val(),
                           Odd: $("#Odd").val()
-                      }},
+                      }
+                  },
               },
               "columns": [
-                { "data": "DisplayName" },
-                { "data": "DateStart" },
-                { "data": "Form" },
-                { "data": "Odd" },
-                { "data": "WinnerCode" },
-                { "data": "ID" },
+                { data: "DisplayName" },
+                { data: "DateStart", render: function (d, t, r) { return moment(r.DateStart).format("YYYY-MM-DD hh:mm"); } },
+                { data: "Form" },
+                { data: "Odd" },
+                { data: "WinnerCode" },
+                { data: "ID", render: function (d, t, r) { return '<a href="/Tip/Detail/'+r.ID+'">Detail</a>' } },
               ],
               "order": [[1, "asc"]],
               createdRow: function (row, data, dataIndex) {

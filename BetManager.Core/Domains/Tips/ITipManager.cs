@@ -8,5 +8,6 @@ namespace BetManager.Core.Domains.Tips
         ICollection<Tip> GetAll(object input);
         Tip GetById(int id);
         IEnumerable<TipDetailGraph> GetGraph(object input);
+        int TipGenerate();
     }
 }

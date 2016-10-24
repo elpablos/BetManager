@@ -46,5 +46,16 @@ namespace BetManager.Core.Domains.Tips
 
             return tips;
         }
+
+        public virtual int TipGenerate()
+        {
+            int ret = -1;
+            using (var conn = ConnectionFactory.GetConnection("DbModel"))
+            {
+                ret = conn.Execute("BM_Tip_GENERATE", null, commandType: CommandType.StoredProcedure);
+                conn.Close();
+            }
+            return ret;
+        }
     }
 }

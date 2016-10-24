@@ -161,6 +161,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApiControllers\ImportDatas\Import\ImportDataImportFilterViewModel.cs" />
+    <Compile Include="ApiControllers\ImportDatas\Import\ImportDataImportHandler.cs" />
     <Compile Include="ApiControllers\TipController.cs" />
     <Compile Include="ApiControllers\Tips\Graph\GraphTipBuilder.cs" />
     <Compile Include="ApiControllers\Tips\Graph\GraphTipFilterViewModel.cs" />
@@ -399,6 +401,7 @@
     <Content Include="Content\fonts\glyphicons-halflings-regular.woff" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="redirect.html" />
     <Content Include="Scripts\metisMenu.js" />
     <Content Include="Scripts\metisMenu.min.js" />
     <Content Include="Scripts\morris.js" />
