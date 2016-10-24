@@ -27,7 +27,7 @@ namespace BetManager.Web.Controllers
 
             if (filter.DateFrom == null && filter.DateTo == null)
             {
-                filter.SetDefaultDashboard();
+                filter.SetDefaultDashboard(UserIdentity);
             }
 
             sessionHelper.Remember(filter);

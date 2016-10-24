@@ -36,6 +36,7 @@ namespace BetManager.Web.Controllers.Tips.Detail
                 Category = tip.Category,
                 DateStart = tip.DateStart,
                 DisplayName = tip.DisplayName,
+                FirstId = tip.FirstId,
                 FirstValue = tip.FirstValue,
                 Form = tip.Form,
                 HomeLastForm = tip.HomeLastForm,
@@ -48,9 +49,11 @@ namespace BetManager.Web.Controllers.Tips.Detail
                 HomeTeam = tip.HomeTeam,
                 Odd = tip.Odd,
                 Season = tip.Season,
+                SecondId = tip.SecondId,
                 SecondValue = tip.SecondValue,
                 Url = tip.Url,
                 WinnerCode = tip.WinnerCode,
+                XId = tip.XId,
                 Xvalue = tip.Xvalue
             };
 

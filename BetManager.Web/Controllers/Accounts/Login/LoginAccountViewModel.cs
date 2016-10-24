@@ -6,7 +6,7 @@ using System.Web;
 
 namespace BetManager.Web.Controllers.Accounts.Login
 {
-    public class LoginViewModel
+    public class LoginAccountViewModel
     {
         [Required(ErrorMessage = "Položka je povinná")]
         public string UserName { get; set; }

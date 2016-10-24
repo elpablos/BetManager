@@ -17,7 +17,7 @@ namespace BetManager.Web.Controllers
             //UpdateModel(filter);
             if (filter.DateFrom == null && filter.DateTo == null)
             {
-                filter.SetDefault();
+                filter.SetDefault(UserIdentity);
             }
             sessionHelper.Remember(filter);
             var result = Handler.Get<TipListBuilder>().Build(filter);

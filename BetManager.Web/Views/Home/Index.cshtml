@@ -76,7 +76,6 @@
               ],
               "order": [[1, "asc"]],
               createdRow: function (row, data, dataIndex) {
-                  console.log(data);
                   if ((data.WinnerCode == 1 && data.Form > 20) || (data.WinnerCode == 2 && data.Form < -20) || (data.WinnerCode == 3 && data.Form >= -20 && data.Form <= 20)) {
                       $(row).addClass('success');
                   } else if (data.WinnerCode > 0) {
@@ -92,6 +91,7 @@
               labels: ['Tipů', 'Odhadnuto', 'Zisk'],
               pointSize: 2,
               hideHover: 'auto',
+              dateFormat: function (x) { return moment(x).format("YYYY-MM-DD"); },
               resize: true
           }).on('click', function (i, row) {
               window.graphDate = row.DateStart;

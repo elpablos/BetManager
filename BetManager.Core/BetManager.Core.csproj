@@ -86,6 +86,7 @@
     <Compile Include="Domains\ImportDatas\ImportDataManager.cs" />
     <Compile Include="Domains\Tips\ITipManager.cs" />
     <Compile Include="Domains\Tips\TipManager.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Processors\IImportDataProcessor.cs" />
     <Compile Include="Processors\ImportDataProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

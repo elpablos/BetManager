@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Security.Claims;
 using System.Web;
 
 namespace BetManager.Web.Controllers.Tips.List
@@ -32,20 +33,20 @@ namespace BetManager.Web.Controllers.Tips.List
         {
         }
 
-        public void SetDefault()
+        public void SetDefault(ClaimsIdentity identity)
         {
             DateFrom = DateTime.Now;
             DateTo = DateTime.Now;
-            Odd = 2.0;
-            Form = 30;
+            Odd = double.Parse(identity.Claims.First(x => x.Type == "Odd").Value);
+            Form = int.Parse(identity.Claims.First(x => x.Type == "Form").Value);
         }
 
-        public void SetDefaultDashboard()
+        public void SetDefaultDashboard(ClaimsIdentity identity)
         {
             DateFrom = DateTime.Now.AddDays(-8);
             DateTo = DateTime.Now.AddDays(-1);
-            Odd = 2.0;
-            Form = 30;
+            Odd = double.Parse(identity.Claims.First(x => x.Type == "Odd").Value);
+            Form = int.Parse(identity.Claims.First(x => x.Type == "Form").Value);
         }
     }
 }

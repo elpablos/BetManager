@@ -84,13 +84,19 @@ namespace BetManager.Core.DbModels.Tips
         [Display(Name = "Kolo")]
         public int AwaySeasonCount { get; set; }
 
+        public int? FirstId { get; set; }
+
         [Display(Name = "Kurz - domácí")]
         public decimal FirstValue { get; set; }
 
         [Display(Name = "Kurz - remíza")]
         public decimal Xvalue { get; set; }
 
+        public int? XId { get; set; }
+
         [Display(Name = "Kurz - hosté")]
         public decimal SecondValue { get; set; }
+
+        public int? SecondId { get; set; }
     }
 }

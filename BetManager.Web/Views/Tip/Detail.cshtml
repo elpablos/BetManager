@@ -1,274 +1,303 @@
 ﻿@model BetManager.Web.Controllers.Tips.Detail.DetailTipViewModel
 
 @{
-    ViewBag.Title = "Detail";
+  ViewBag.Title = "Detail";
 }
 
 <div class="row">
-  <h2>@ViewBag.Title</h2>
+    <h2>@ViewBag.Title</h2>
 
 </div>
 
 <div class="row">
-  <p>
-    @Html.ActionLink("Zpět na tipy", "Index", "Tip", null, new { @class = "btn btn-primary" })
-  </p>
+    <p>
+        @Html.ActionLink("Zpět na tipy", "Index", "Tip", null, new { @class = "btn btn-primary" })
+    </p>
 </div>
 
 <div class="form-horizontal">
 
-  <div class="row">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h4 class="">Základní info</h4>
-      </div>
-      <div class="panel-body">
-        <div class="row">
-          <div class="form-group col-md-6">
-            <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.Url)</label>
-            <div class="col-md-7">
-              <p class="form-control-static">
-                <a href="@Html.ValueFor(model => model.Url)" target="_blank">www.sofascore.com</a>
-              </p>
+    <div class="row">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="">Základní info</h4>
             </div>
-          </div>
-          <div class="form-group col-md-6">
-            <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.DisplayName)</label>
-            <div class="col-md-7">
-              <p class="form-control-static">@Html.DisplayFor(model => model.DisplayName)</p>
-            </div>
-          </div>
-          <div class="form-group col-md-6">
-            <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.Season)</label>
-            <div class="col-md-7">
-              <p class="form-control-static">@Html.DisplayFor(model => model.Season)</p>
-            </div>
-          </div>
-          <div class="form-group col-md-6">
-            <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.Category)</label>
-            <div class="col-md-7">
-              <p class="form-control-static">@Html.DisplayFor(model => model.Category)</p>
-            </div>
-          </div>
-          <div class="form-group col-md-6">
-            <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.DateStart)</label>
-            <div class="col-md-7">
-              <p class="form-control-static">@Html.DisplayFor(model => model.DateStart)</p>
-            </div>
-          </div>
-
-          <div class="form-group col-md-6">
-            <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.Form)</label>
-            <div class="col-md-7">
-              <p class="form-control-static">@Html.DisplayFor(model => model.Form)</p>
-            </div>
-          </div>
-
-          <div class="form-group col-md-6">
-            <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.Odd)</label>
-            <div class="col-md-7">
-              <p class="form-control-static">@Html.DisplayFor(model => model.Odd)</p>
-            </div>
-          </div>
-
-          <div class="form-group col-md-6">
-            <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.WinnerCode)</label>
-            <div class="col-md-7">
-              <p class="form-control-static">@Html.DisplayFor(model => model.WinnerCode)</p>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-12">
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <h6 class="">Kurzy (bet365)</h6>
-              </div>
-              <div class="panel-body">
+            <div class="panel-body">
                 <div class="row">
-                  <div class="col-md-12">
-                    <div class="row">
-                      <div class="form-group col-md-4">
-                        <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.FirstValue)</label>
+                    <div class="form-group col-md-6">
+                        <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.Url)</label>
                         <div class="col-md-7">
-                          <p class="form-control-static">@Html.DisplayFor(model => model.FirstValue)</p>
+                            <p class="form-control-static">
+                                <a href="@Html.ValueFor(model => model.Url)" target="_blank">www.sofascore.com</a>
+                            </p>
                         </div>
-                      </div>
-                      <div class="form-group col-md-4">
-                        <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.Xvalue)</label>
-                        <div class="col-md-7">
-                          <p class="form-control-static">@Html.DisplayFor(model => model.Xvalue)</p>
-                        </div>
-                      </div>
-                      <div class="form-group col-md-4">
-                        <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.SecondValue)</label>
-                        <div class="col-md-7">
-                          <p class="form-control-static">@Html.DisplayFor(model => model.SecondValue)</p>
-                        </div>
-                      </div>
                     </div>
-                  </div>
+                    <div class="form-group col-md-6">
+                        <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.DisplayName)</label>
+                        <div class="col-md-7">
+                            <p class="form-control-static">@Html.DisplayFor(model => model.DisplayName)</p>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.Season)</label>
+                        <div class="col-md-7">
+                            <p class="form-control-static">@Html.DisplayFor(model => model.Season)</p>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.Category)</label>
+                        <div class="col-md-7">
+                            <p class="form-control-static">@Html.DisplayFor(model => model.Category)</p>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.DateStart)</label>
+                        <div class="col-md-7">
+                            <p class="form-control-static">@Html.DisplayFor(model => model.DateStart)</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.Form)</label>
+                        <div class="col-md-7">
+                            <p class="form-control-static">@Html.DisplayFor(model => model.Form)</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.Odd)</label>
+                        <div class="col-md-7">
+                            <p class="form-control-static">@Html.DisplayFor(model => model.Odd)</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.WinnerCode)</label>
+                        <div class="col-md-7">
+                            <p class="form-control-static">@Html.DisplayFor(model => model.WinnerCode)</p>
+                        </div>
+                    </div>
                 </div>
-              </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h6 class="">Kurzy (bet365)</h6>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="form-group col-md-4">
+                                                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.FirstValue)</label>
+                                                <div class="col-md-7">
+                                                    <p class="form-control-static">
+                                                        @if (Model.FirstId.HasValue)
+                                                        {
+                                                        @Html.Raw(string.Format("<a href=\"http://www.bet365.com/instantbet/default.asp?participantid={0}\" target=\"_blank\" class=\"btn btn-default\">", Model.FirstId))
+                                                        }
+                                                        @Html.DisplayFor(model => model.FirstValue)
+                                                        @if (Model.FirstId.HasValue)
+                                                        {
+                                                        @Html.Raw("</a>")
+                                                        }
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-4">
+                                                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.Xvalue)</label>
+                                                <div class="col-md-7">
+                                                    <p class="form-control-static">
+                                                        @if (Model.FirstId.HasValue)
+                                                        {
+                                                        @Html.Raw(string.Format("<a href=\"http://www.bet365.com/instantbet/default.asp?participantid={0}\" target=\"_blank\" class=\"btn btn-default\">", Model.XId))
+                                                        }
+                                                        @Html.DisplayFor(model => model.Xvalue)
+                                                        @if (Model.FirstId.HasValue)
+                                                        {
+                                                        @Html.Raw("</a>")
+                                                        }
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-4">
+                                                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.SecondValue)</label>
+                                                <div class="col-md-7">
+                                                    <p class="form-control-static">
+                                                        @if (Model.FirstId.HasValue)
+                                                        {
+                                                        @Html.Raw(string.Format("<a href=\"http://www.bet365.com/instantbet/default.asp?participantid={0}\" target=\"_blank\" class=\"btn btn-default\">", Model.SecondId))
+                                                        }
+                                                        @Html.DisplayFor(model => model.SecondValue)
+                                                        @if (Model.FirstId.HasValue)
+                                                        {
+                                                        @Html.Raw("</a>")
+                                                        }
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <a data-toggle="collapse" href="#panel-7-detail">
-          <h4 class="">Stav za posledních 7 zápasů</h4>
-        </a>
-      </div>
-      <div id="panel-7-detail" class="panel-body panel-collapse collapse in">
-        <div class="col-md-6">
-          <div class="panel panel-default">
+    <div class="row">
+        <div class="panel panel-default">
             <div class="panel-heading">
-              <h5 class="">Domácí - @Html.DisplayFor(model => model.HomeTeam)</h5>
+                <a data-toggle="collapse" href="#panel-7-detail">
+                    <h4 class="">Stav za posledních 7 zápasů</h4>
+                </a>
             </div>
-            <div class="panel-body">
-              <div class="form-group">
-                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeLastForm)</label>
-                <div class="col-md-7">
-                  <p class="form-control-static">@Html.DisplayFor(model => model.HomeLastForm)</p>
-                </div>
-              </div>
+            <div id="panel-7-detail" class="panel-body panel-collapse collapse in">
+                <div class="col-md-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h5 class="">Domácí - @Html.DisplayFor(model => model.HomeTeam)</h5>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeLastForm)</label>
+                                <div class="col-md-7">
+                                    <p class="form-control-static">@Html.DisplayFor(model => model.HomeLastForm)</p>
+                                </div>
+                            </div>
 
-              <div class="form-group">
-                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeLastGiven)</label>
-                <div class="col-md-7">
-                  <p class="form-control-static">@Html.DisplayFor(model => model.HomeLastGiven)</p>
-                </div>
-              </div>
+                            <div class="form-group">
+                                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeLastGiven)</label>
+                                <div class="col-md-7">
+                                    <p class="form-control-static">@Html.DisplayFor(model => model.HomeLastGiven)</p>
+                                </div>
+                            </div>
 
-              <div class="form-group">
-                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeLastTaken)</label>
-                <div class="col-md-7">
-                  <p class="form-control-static">@Html.DisplayFor(model => model.HomeLastTaken)</p>
+                            <div class="form-group">
+                                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeLastTaken)</label>
+                                <div class="col-md-7">
+                                    <p class="form-control-static">@Html.DisplayFor(model => model.HomeLastTaken)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
+
+                <div class="col-md-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h5 class="">Hosté - @Html.DisplayFor(model => model.AwayTeam)</h5>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwayLastForm)</label>
+                                <div class="col-md-7">
+                                    <p class="form-control-static">@Html.DisplayFor(model => model.AwayLastForm)</p>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwayLastGiven)</label>
+                                <div class="col-md-7">
+                                    <p class="form-control-static">@Html.DisplayFor(model => model.AwayLastGiven)</p>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwayLastTaken)</label>
+                                <div class="col-md-7">
+                                    <p class="form-control-static">@Html.DisplayFor(model => model.AwayLastTaken)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-
-        <div class="col-md-6">
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <h5 class="">Hosté - @Html.DisplayFor(model => model.AwayTeam)</h5>
-            </div>
-            <div class="panel-body">
-              <div class="form-group">
-                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwayLastForm)</label>
-                <div class="col-md-7">
-                  <p class="form-control-static">@Html.DisplayFor(model => model.AwayLastForm)</p>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwayLastGiven)</label>
-                <div class="col-md-7">
-                  <p class="form-control-static">@Html.DisplayFor(model => model.AwayLastGiven)</p>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwayLastTaken)</label>
-                <div class="col-md-7">
-                  <p class="form-control-static">@Html.DisplayFor(model => model.AwayLastTaken)</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <a data-toggle="collapse" href="#panel-season-detail">
-          <h4 class="">Stav za celou sezónu</h4>
-        </a>
-      </div>
-      <div id="panel-season-detail" class="panel-body panel-collapse collapse in">
-        <div class="col-md-6">
-          <div class="panel panel-default">
+    <div class="row">
+        <div class="panel panel-default">
             <div class="panel-heading">
-              <h5 class="">Domácí - @Html.DisplayFor(model => model.HomeTeam)</h5>
+                <a data-toggle="collapse" href="#panel-season-detail">
+                    <h4 class="">Stav za celou sezónu</h4>
+                </a>
             </div>
-            <div class="panel-body">
-              <div class="form-group">
-                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeSeasonForm)</label>
-                <div class="col-md-7">
-                  <p class="form-control-static">@Html.DisplayFor(model => model.HomeSeasonForm)</p>
-                </div>
-              </div>
+            <div id="panel-season-detail" class="panel-body panel-collapse collapse in">
+                <div class="col-md-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h5 class="">Domácí - @Html.DisplayFor(model => model.HomeTeam)</h5>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeSeasonForm)</label>
+                                <div class="col-md-7">
+                                    <p class="form-control-static">@Html.DisplayFor(model => model.HomeSeasonForm)</p>
+                                </div>
+                            </div>
 
-              <div class="form-group">
-                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeSeasonGiven)</label>
-                <div class="col-md-7">
-                  <p class="form-control-static">@Html.DisplayFor(model => model.HomeSeasonGiven)</p>
-                </div>
-              </div>
+                            <div class="form-group">
+                                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeSeasonGiven)</label>
+                                <div class="col-md-7">
+                                    <p class="form-control-static">@Html.DisplayFor(model => model.HomeSeasonGiven)</p>
+                                </div>
+                            </div>
 
-              <div class="form-group">
-                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeSeasonTaken)</label>
-                <div class="col-md-7">
-                  <p class="form-control-static">@Html.DisplayFor(model => model.HomeSeasonTaken)</p>
-                </div>
-              </div>
+                            <div class="form-group">
+                                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeSeasonTaken)</label>
+                                <div class="col-md-7">
+                                    <p class="form-control-static">@Html.DisplayFor(model => model.HomeSeasonTaken)</p>
+                                </div>
+                            </div>
 
-              <div class="form-group">
-                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeSeasonCount)</label>
-                <div class="col-md-7">
-                  <p class="form-control-static">@Html.DisplayFor(model => model.HomeSeasonCount)</p>
+                            <div class="form-group">
+                                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeSeasonCount)</label>
+                                <div class="col-md-7">
+                                    <p class="form-control-static">@Html.DisplayFor(model => model.HomeSeasonCount)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
+
+                <div class="col-md-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h5 class="">Hosté - @Html.DisplayFor(model => model.AwayTeam)</h5>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwaySeasonForm)</label>
+                                <div class="col-md-7">
+                                    <p class="form-control-static">@Html.DisplayFor(model => model.AwaySeasonForm)</p>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwaySeasonGiven)</label>
+                                <div class="col-md-7">
+                                    <p class="form-control-static">@Html.DisplayFor(model => model.AwaySeasonGiven)</p>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwaySeasonTaken)</label>
+                                <div class="col-md-7">
+                                    <p class="form-control-static">@Html.DisplayFor(model => model.AwaySeasonTaken)</p>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwaySeasonCount)</label>
+                                <div class="col-md-7">
+                                    <p class="form-control-static">@Html.DisplayFor(model => model.AwaySeasonCount)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-
-        <div class="col-md-6">
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <h5 class="">Hosté - @Html.DisplayFor(model => model.AwayTeam)</h5>
-            </div>
-            <div class="panel-body">
-              <div class="form-group">
-                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwaySeasonForm)</label>
-                <div class="col-md-7">
-                  <p class="form-control-static">@Html.DisplayFor(model => model.AwaySeasonForm)</p>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwaySeasonGiven)</label>
-                <div class="col-md-7">
-                  <p class="form-control-static">@Html.DisplayFor(model => model.AwaySeasonGiven)</p>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwaySeasonTaken)</label>
-                <div class="col-md-7">
-                  <p class="form-control-static">@Html.DisplayFor(model => model.AwaySeasonTaken)</p>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwaySeasonCount)</label>
-                <div class="col-md-7">
-                  <p class="form-control-static">@Html.DisplayFor(model => model.AwaySeasonCount)</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
 </div>
-

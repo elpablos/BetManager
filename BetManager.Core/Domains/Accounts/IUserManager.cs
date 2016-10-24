@@ -11,8 +11,12 @@ namespace BetManager.Core.Domains.Accounts
     {
         int Insert(User user);
 
+        int Update(User user);
+
         bool Login(User user, bool isPersistent);
 
         void Logout();
+
+        User GetById(int id);
     }
 }

@@ -8,16 +8,16 @@ using BetManager.Core.Domains.Accounts;
 
 namespace BetManager.Web.Controllers.Accounts.Login
 {
-    public class LoginHandler : IModelHandler<LoginViewModel>
+    public class LoginAccountHandler : IModelHandler<LoginAccountViewModel>
     {
         private readonly IUserManager _userManager;
 
-        public LoginHandler()
+        public LoginAccountHandler()
         {
             _userManager = new UserManager();
         }
 
-        public ModelHandlerResult Handle(LoginViewModel model)
+        public ModelHandlerResult Handle(LoginAccountViewModel model)
         {
             var result = new ModelHandlerResult();
             var check = _userManager.Login(new Core.DbModels.Accounts.User

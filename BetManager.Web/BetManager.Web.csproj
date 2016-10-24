@@ -173,8 +173,11 @@
     <Compile Include="App_Start\Startup.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
-    <Compile Include="Controllers\Accounts\Login\LoginHandler.cs" />
-    <Compile Include="Controllers\Accounts\Login\LoginViewModel.cs" />
+    <Compile Include="Controllers\Accounts\Detail\DetailAccountBuilder.cs" />
+    <Compile Include="Controllers\Accounts\Detail\DetailAccountHandler.cs" />
+    <Compile Include="Controllers\Accounts\Detail\DetailAccountViewModel.cs" />
+    <Compile Include="Controllers\Accounts\Login\LoginAccountHandler.cs" />
+    <Compile Include="Controllers\Accounts\Login\LoginAccountViewModel.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="ApiControllers\ImportDataController.cs" />
     <Compile Include="Controllers\TipController.cs" />
@@ -557,6 +560,7 @@
     <Content Include="Views\Tip\_IndexList.cshtml" />
     <Content Include="Views\Tip\Index.cshtml" />
     <Content Include="Views\Tip\Detail.cshtml" />
+    <Content Include="Views\Account\Detail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
