@@ -31,6 +31,10 @@
     <Procedure Name="BM_Tip_DETAIL_Graph" />
     <Procedure Name="BM_Tip_DETAIL_Income" />
     <Procedure Name="BM_Tip_DETAIL_Rozlozeni" />
+    <Procedure Name="BM_Event_ALL_Tournament_Form" />
+    <Procedure Name="BM_Tip_ALL_BackUp" />
+    <Procedure Name="BM_Tip_DETAIL_Genetic" />
+    <Procedure Name="BM_Tip_DETAIL_Genetic_Extend" />
   </Procedures>
   <Functions>
     <Function Name="BM_Event_DETAIL_LastEvent" InstallBeforeView="false" />
@@ -38,6 +42,20 @@
     <Function Name="BM_Event_DETAIL_TeamScoreGiven" InstallBeforeView="false" />
     <Function Name="BM_Event_DETAIL_TeamScoreTaken" InstallBeforeView="false" />
     <Function Name="BM_Event_DETAIL_SeasonEvent" InstallBeforeView="false" />
+    <Function Name="BM_Event_DETAIL_LastEvent_AwayOnly" InstallBeforeView="false" />
+    <Function Name="BM_Event_DETAIL_LastEvent_HomeOnly" InstallBeforeView="false" />
+    <Function Name="BM_Event_DETAIL_SeasonEvent_AwayOnly" InstallBeforeView="false" />
+    <Function Name="BM_Event_DETAIL_SeasonEvent_HomeOnly" InstallBeforeView="false" />
+    <Function Name="BM_Tip_CalcForm" InstallBeforeView="false" />
+    <Function Name="BM_Tip_Sigmoid" InstallBeforeView="false" />
+    <Function Name="BM_Event_DETAIL_SeasonEvent_BackUp" InstallBeforeView="false" />
+    <Function Name="BM_Event_DETAIL_SeasonEvent_Bad" InstallBeforeView="false" />
+    <Function Name="BM_Genetic_ALL_Score" InstallBeforeView="false" />
+    <Function Name="BM_Genetic_ALL_Score_Extend" InstallBeforeView="false" />
+    <Function Name="BM_Genetic_DETAIL_Price" InstallBeforeView="false" />
+    <Function Name="BM_Genetic_DETAIL_Price_Extend" InstallBeforeView="false" />
+    <Function Name="BM_Genetic_Score" InstallBeforeView="false" />
+    <Function Name="BM_Genetic_Score_Extend" InstallBeforeView="false" />
   </Functions>
   <BaseTables />
   <ProcedureTemplates>

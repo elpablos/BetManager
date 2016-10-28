@@ -91,7 +91,8 @@ values (@UserName, @Password, @Salt, @LastLogin)";
                         var claims = new List<Claim>();
 
                         claims.Add(new Claim(ClaimTypes.Sid, loggedUser.ID.ToString()));
-                        claims.Add(new Claim(ClaimTypes.IsPersistent, isPersistent.ToString()));
+                        if (isPersistent)
+                        claims.Add(new Claim(ClaimTypes.IsPersistent, Boolean.TrueString));
                         claims.Add(new Claim(ClaimTypes.NameIdentifier, user.UserName));
                         claims.Add(new Claim(ClaimTypes.Name, user.UserName));
                         claims.Add(new Claim("Odd", loggedUser.Odd.ToString()));

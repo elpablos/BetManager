@@ -48,7 +48,7 @@
 //-->
 </style>
 <h1>Databáze: BetManagerDevel</h1>
-<p>datum vygenerování: 18.10.2016 21:47:46</p>
+<p>datum vygenerování: 28.10.2016 10:47:59</p>
 <h2>Seznam tabulek</h2>
 <ul>
 <li><a href="#BM_Category">BM_Category</a></li>
@@ -63,6 +63,7 @@
 <li><a href="#BM_Team">BM_Team</a></li>
 <li><a href="#BM_Tip">BM_Tip</a></li>
 <li><a href="#BM_Tournament">BM_Tournament</a></li>
+<li><a href="#CR_User">CR_User</a></li>
 </ul>
 <a name="BM_Category"></a>
 <h3>Tabulka: BM_Category</h3>
@@ -1664,6 +1665,76 @@
 <td>Datum a čas</td>
 <td>ne</td>
 <td>Datum úpravy</td>
+</tr>
+</table>
+<a name="CR_User"></a>
+<h3>Tabulka: CR_User</h3>
+<table cellspacing="0">
+<tr>
+<th>Vlastnost</th>
+<th>Typ</th>
+<th>Povinný</th>
+<th>Popis</th>
+</tr>
+<tr>
+<td><strong>ID</strong></td>
+<td>Celé číslo</td>
+<td>ano</td>
+<td>Jedinečné ID uživatele</td>
+</tr>
+<tr>
+<td>IsActive</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ano</td>
+<td>Zda je aktivní</td>
+</tr>
+<tr>
+<td>UserName</td>
+<td>Text</td>
+<td>ano</td>
+<td>Uživatelské jméno</td>
+</tr>
+<tr>
+<td>Password</td>
+<td>Text</td>
+<td>ano</td>
+<td>Heslo</td>
+</tr>
+<tr>
+<td>Salt</td>
+<td>Text</td>
+<td>ano</td>
+<td>Sůl</td>
+</tr>
+<tr>
+<td>LastLogin</td>
+<td>Datum a čas</td>
+<td>ne</td>
+<td>Datum posledního přihlášení</td>
+</tr>
+<tr>
+<td>DateCreated</td>
+<td>Datum a čas</td>
+<td>ano</td>
+<td>Datum vytvoření</td>
+</tr>
+<tr>
+<td>DateUpdated</td>
+<td>Datum a čas</td>
+<td>ano</td>
+<td>Datum úpravy</td>
+</tr>
+<tr>
+<td>Odd</td>
+<td>Desetinné číslo</td>
+<td>ano</td>
+<td>Výchozí kurz</td>
+</tr>
+<tr>
+<td>Form</td>
+<td>Celé číslo</td>
+<td>ano</td>
+<td>Výchozí forma</td>
 </tr>
 </table>
 <p>vygenerováno aplikací ScriptDb - <a href="http://skeleton.cz">Skeleton Software</a></p>

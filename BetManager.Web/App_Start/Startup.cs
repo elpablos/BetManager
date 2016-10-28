@@ -6,6 +6,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.Owin.Security.Cookies;
 using System.Web.Helpers;
 using System.Security.Claims;
+using Microsoft.AspNet.Identity.Owin;
 
 [assembly: OwinStartup(typeof(BetManager.Web.App_Start.Startup))]
 
@@ -27,7 +28,6 @@ namespace BetManager.Web.App_Start
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
                 LoginPath = new PathString("/account/login")
             });
-
 
             app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
             AntiForgeryConfig.UniqueClaimTypeIdentifier = ClaimTypes.NameIdentifier;

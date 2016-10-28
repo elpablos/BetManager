@@ -1,5 +1,5 @@
 -- Database: BetManagerDevel
--- Date: 23.10.2016 20:21:41
+-- Date: 28.10.2016 10:48:04
 
 print 'CurrentTime: START - ' + convert(varchar, getdate(), 120)
 
@@ -2076,6 +2076,24 @@ else
 
 GO
 
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='Odd')
+	alter table [CR_User] add [Odd] decimal (9, 2) NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='Odd' and IS_NULLABLE='YES')
+	alter table [CR_User] alter column [Odd] decimal (9, 2) NULL
+else
+	alter table [CR_User] alter column [Odd] decimal (9, 2) NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='Form')
+	alter table [CR_User] add [Form] int NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='Form' and IS_NULLABLE='YES')
+	alter table [CR_User] alter column [Form] int NULL
+else
+	alter table [CR_User] alter column [Form] int NOT NULL
+
+GO
+
 print 'CurrentTime: Columns - ' + convert(varchar, getdate(), 120)
 
 GO
@@ -2311,13 +2329,322 @@ end
 
 GO
 
-
 -- =============================================
 -- Author:		Pavel Lorenz
 -- Create date: 18.10.2016
 -- Description:	Dopočítání formy, střelený a obdržený branky
 -- =============================================
 CREATE FUNCTION [dbo].[BM_Event_DETAIL_SeasonEvent]
+(	
+	@ID_Event int,
+	@ID_Team int
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+	-- Add the SELECT statement with parameter references here
+	select LastEvent.ID, case when count(*)=1 then 0 else IsNull(((100.0/(count(*)-1)) * sum(LastEvent.Form)),0) end as Form, 
+	IsNull(sum(LastEvent.Given),0) as Given, IsNull(sum(LastEvent.Taken),0) as Taken, (count(*)-1) as [Count] from 
+	(
+		select BM_EventOriginal.ID,
+			case when BM_Event.ID=BM_EventOriginal.ID then 0 else (case when BM_Event.ID_AwayTeam=@ID_Team then BM_Event.AwayScore else BM_Event.HomeScore end) end as Form, 
+			case when BM_Event.ID=BM_EventOriginal.ID then 0 else (case when BM_Event.ID_AwayTeam=@ID_Team then BM_Event.AwayScoreCurrent else BM_Event.HomeScoreCurrent end) end as Given,
+			case when BM_Event.ID=BM_EventOriginal.ID then 0 else (case when BM_Event.ID_AwayTeam=@ID_Team then BM_Event.HomeScoreCurrent else BM_Event.AwayScoreCurrent end) end as Taken
+		from BM_Event BM_EventOriginal
+			cross join BM_EventView BM_Event
+		where BM_EventOriginal.ID=@ID_Event 
+			and BM_Event.ID <= BM_EventOriginal.ID 
+			and BM_Event.ID_Season=BM_EventOriginal.ID_Season
+			and BM_Event.ID_Tournament=BM_EventOriginal.ID_Tournament
+			and BM_Event.ID_Status >= 90
+			and (BM_Event.ID_AwayTeam=@ID_Team OR BM_Event.ID_HomeTeam=@ID_Team)
+	) LastEvent
+	group by LastEvent.ID
+)
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Event_DETAIL_LastEvent_AwayOnly')
+begin
+  drop function BM_Event_DETAIL_LastEvent_AwayOnly
+end
+
+GO
+
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 26.10.2016
+-- Description:	Dopočítání formy, střelený a obdržený branky POUZE VENKU 
+-- =============================================
+CREATE FUNCTION [dbo].[BM_Event_DETAIL_LastEvent_AwayOnly]
+(	
+	@ID_Event int,
+	@ID_Team int
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+	-- Add the SELECT statement with parameter references here
+	select LastEvent.ID, IsNull((100.0/7.0 * sum(LastEvent.Form)),0) as Form , IsNull(sum(LastEvent.Given),0) as Given, IsNull(sum(LastEvent.Taken),0) as Taken from 
+	(
+		select top 7 BM_EventOriginal.ID, 
+			BM_Event.AwayScore as Form, 
+			BM_Event.AwayScoreCurrent as Given,
+			BM_Event.HomeScoreCurrent as Taken
+		from BM_Event BM_EventOriginal
+			cross join BM_EventView BM_Event
+		where BM_EventOriginal.ID=@ID_Event 
+			and BM_Event.ID < BM_EventOriginal.ID 
+			and BM_Event.ID_AwayTeam=@ID_Team
+		order by BM_Event.DateStart desc
+	) LastEvent
+	group by LastEvent.ID
+)
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Event_DETAIL_LastEvent_HomeOnly')
+begin
+  drop function BM_Event_DETAIL_LastEvent_HomeOnly
+end
+
+GO
+
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 26.10.2016
+-- Description:	Dopočítání formy, střelený a obdržený branky POUZE DOMACI 
+-- =============================================
+CREATE FUNCTION [dbo].[BM_Event_DETAIL_LastEvent_HomeOnly]
+(	
+	@ID_Event int,
+	@ID_Team int
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+	-- Add the SELECT statement with parameter references here
+	select LastEvent.ID, IsNull((100.0/7.0 * sum(LastEvent.Form)),0) as Form , IsNull(sum(LastEvent.Given),0) as Given, IsNull(sum(LastEvent.Taken),0) as Taken from 
+	(
+		select top 7 BM_EventOriginal.ID, 
+			BM_Event.HomeScore as Form, 
+			BM_Event.HomeScoreCurrent as Given,
+			BM_Event.AwayScoreCurrent as Taken
+		from BM_Event BM_EventOriginal
+			cross join BM_EventView BM_Event
+		where BM_EventOriginal.ID=@ID_Event 
+			and BM_Event.ID < BM_EventOriginal.ID 
+			and BM_Event.ID_HomeTeam=@ID_Team
+		order by BM_Event.DateStart desc
+	) LastEvent
+	group by LastEvent.ID
+)
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Event_DETAIL_SeasonEvent_AwayOnly')
+begin
+  drop function BM_Event_DETAIL_SeasonEvent_AwayOnly
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 26.10.2016
+-- Description:	Dopočítání formy, střelený a obdržený branky POUZE VENKU
+-- =============================================
+CREATE FUNCTION [dbo].[BM_Event_DETAIL_SeasonEvent_AwayOnly]
+(	
+	@ID_Event int,
+	@ID_Team int
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+	-- Add the SELECT statement with parameter references here
+	select LastEvent.ID, IsNull(((100.0/count(*)) * sum(LastEvent.Form)),0) as Form, 
+	IsNull(sum(LastEvent.Given),0) as Given, IsNull(sum(LastEvent.Taken),0) as Taken, count(*) as [Count] from 
+	(
+		select BM_EventOriginal.ID, 
+			BM_Event.AwayScore as Form, 
+			BM_Event.AwayScoreCurrent as Given,
+			BM_Event.AwayScoreCurrent as Taken
+		from BM_Event BM_EventOriginal
+			cross join BM_EventView BM_Event
+		where BM_EventOriginal.ID=@ID_Event 
+			and BM_Event.ID < BM_EventOriginal.ID 
+			and BM_Event.ID_Season=BM_EventOriginal.ID_Season
+			and BM_Event.ID_Tournament=BM_EventOriginal.ID_Tournament
+			and BM_Event.ID_Status >= 90
+			and BM_Event.ID_AwayTeam=@ID_Team
+	) LastEvent
+	group by LastEvent.ID
+)
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Event_DETAIL_SeasonEvent_HomeOnly')
+begin
+  drop function BM_Event_DETAIL_SeasonEvent_HomeOnly
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 26.10.2016
+-- Description:	Dopočítání formy, střelený a obdržený branky POUZE DOMA
+-- =============================================
+CREATE FUNCTION [dbo].[BM_Event_DETAIL_SeasonEvent_HomeOnly]
+(	
+	@ID_Event int,
+	@ID_Team int
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+	-- Add the SELECT statement with parameter references here
+	select LastEvent.ID, IsNull(((100.0/count(*)) * sum(LastEvent.Form)),0) as Form, 
+	IsNull(sum(LastEvent.Given),0) as Given, IsNull(sum(LastEvent.Taken),0) as Taken, count(*) as [Count] from 
+	(
+		select BM_EventOriginal.ID, 
+			BM_Event.HomeScore as Form, 
+			BM_Event.HomeScoreCurrent as Given,
+			BM_Event.HomeScoreCurrent as Taken
+		from BM_Event BM_EventOriginal
+			cross join BM_EventView BM_Event
+		where BM_EventOriginal.ID=@ID_Event 
+			and BM_Event.ID < BM_EventOriginal.ID 
+			and BM_Event.ID_Season=BM_EventOriginal.ID_Season
+			and BM_Event.ID_Tournament=BM_EventOriginal.ID_Tournament
+			and BM_Event.ID_Status >= 90
+			and BM_Event.ID_HomeTeam=@ID_Team
+	) LastEvent
+	group by LastEvent.ID
+)
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Tip_CalcForm')
+begin
+  drop function BM_Tip_CalcForm
+end
+
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date, ,>
+-- Description:	<Description, ,>
+-- =============================================
+CREATE FUNCTION [dbo].[BM_Tip_CalcForm]
+(
+	@LastForm decimal,
+	@SeasonForm decimal,
+	@LastGiven decimal,
+	@SeasonGiven decimal,
+	@LastTaken decimal,
+	@SeasonTaken decimal,
+	@SeasonCount decimal
+)
+RETURNS int -- dbo.BM_Tip_CalcForm(AwayLastForm, AwaySeasonForm, AwayLastGiven, AwaySeasonGiven, AwayLastTaken, AwaySeasonTaken, AwaySeasonCount)
+AS
+BEGIN
+	return 
+	(
+		@LastForm
+		+
+		dbo.BM_Tip_Sigmoid((@LastGiven/7.0), 1.1, 3.0)*100
+		+
+		dbo.BM_Tip_Sigmoid((@LastTaken/7.0), 1.1, 3.0)*100
+
+		+
+		@SeasonForm
+		+
+		dbo.BM_Tip_Sigmoid((@SeasonGiven/@SeasonCount), 1.1, 3.0)*100
+		+
+		dbo.BM_Tip_Sigmoid((@SeasonTaken/@SeasonCount), 1.1, 3.0)*100
+	) / 3.0
+	---- forma za posledních 7 zápasů
+	--1.25/2.0 *(
+	--1.0/3.0 * @LastForm
+	--+
+	---- utok
+	--1.0/3.0 * (((@LastGiven/7.0)/1.54) * 50)
+	--+
+	---- obrana
+	--1.0/3.0 * (154/(1.0+(@LastTaken/7.0))))
+	--+
+	--0.75/2.0 *(
+	---- sezóny
+	---- forma
+	--1.0/3.0 * @SeasonForm
+	--+
+	---- utok
+	--1.0/3.0 * (((@SeasonGiven/@SeasonCount)/1.54) * 50)
+	--+
+	---- obrana
+	--1.0/3.0 * (154/(1.0+(@SeasonTaken/@SeasonCount))))
+
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Tip_Sigmoid')
+begin
+  drop function BM_Tip_Sigmoid
+end
+
+GO
+
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 26.10.2016
+-- Description:	Pseudosigmoid, center je posun středu, speed je rychlost 
+-- =============================================
+CREATE FUNCTION BM_Tip_Sigmoid
+(
+	@Value decimal(9,2),
+	@Center decimal(9,2),
+	@Speed decimal(9,2)
+)
+RETURNS decimal(9,2)
+AS
+BEGIN
+	RETURN (1.0/(1.0 + exp(((@Value - @Center)* -@Speed))))
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Event_DETAIL_SeasonEvent_BackUp')
+begin
+  drop function BM_Event_DETAIL_SeasonEvent_BackUp
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 18.10.2016
+-- Description:	Dopočítání formy, střelený a obdržený branky
+-- =============================================
+CREATE FUNCTION [dbo].[BM_Event_DETAIL_SeasonEvent_BackUp]
 (	
 	@ID_Event int,
 	@ID_Team int
@@ -2336,6 +2663,7 @@ RETURN
 		from BM_Event BM_EventOriginal
 			cross join BM_EventView BM_Event
 		where BM_EventOriginal.ID=@ID_Event 
+			and BM_Event.ID < BM_EventOriginal.ID 
 			and BM_Event.ID_Season=BM_EventOriginal.ID_Season
 			and BM_Event.ID_Tournament=BM_EventOriginal.ID_Tournament
 			and BM_Event.ID_Status >= 90
@@ -2343,6 +2671,341 @@ RETURN
 	) LastEvent
 	group by LastEvent.ID
 )
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Event_DETAIL_SeasonEvent_Bad')
+begin
+  drop function BM_Event_DETAIL_SeasonEvent_Bad
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 27.10.2016
+-- Description:	Dopočítání formy, střelený a obdržený branky
+-- Původní chybný!
+-- =============================================
+CREATE FUNCTION [dbo].[BM_Event_DETAIL_SeasonEvent_Bad]
+(	
+	@ID_Event int,
+	@ID_Team int
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+	-- Add the SELECT statement with parameter references here
+	select LastEvent.ID, IsNull(((100.0/count(*)) * sum(LastEvent.Form)),0) as Form, IsNull(sum(LastEvent.Given),0) as Given, IsNull(sum(LastEvent.Taken),0) as Taken, count(*) as [Count] from 
+	(
+		select BM_EventOriginal.ID, 
+		(case when BM_Event.ID_AwayTeam=@ID_Team then BM_Event.AwayScore else BM_Event.HomeScore end) as Form, 
+		(case when BM_Event.ID_AwayTeam=@ID_Team then BM_Event.AwayScoreCurrent else BM_Event.HomeScoreCurrent end) as Given,
+		(case when BM_Event.ID_AwayTeam=@ID_Team then BM_Event.HomeScoreCurrent else BM_Event.AwayScoreCurrent end) as Taken
+		from BM_Event BM_EventOriginal
+			cross join BM_EventView BM_Event
+		where BM_EventOriginal.ID=@ID_Event 
+			--and BM_Event.ID < BM_EventOriginal.ID 
+			and BM_Event.ID_Season=BM_EventOriginal.ID_Season
+			and BM_Event.ID_Tournament=BM_EventOriginal.ID_Tournament
+			and BM_Event.ID_Status >= 90
+			and (BM_Event.ID_AwayTeam=@ID_Team OR BM_Event.ID_HomeTeam=@ID_Team)
+	) LastEvent
+	group by LastEvent.ID
+)
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Genetic_ALL_Score')
+begin
+  drop function BM_Genetic_ALL_Score
+end
+
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE FUNCTION [dbo].[BM_Genetic_ALL_Score]
+(	
+	@Form int,
+	@Odd decimal(9,2),
+	@DateFrom date,
+	@DateTo date,
+	@limit int,
+	@LastFormKoef decimal(9,2),
+	@SeasonFormKoef decimal(9,2)
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+	select 
+		BM_EventExtend.ID,
+		BM_EventExtend.DisplayName,
+		BM_EventExtend.DateStart,
+		BM_EventExtend.Form,
+		BM_EventExtend.Odd,
+		BM_EventExtend.WinnerCode,
+		(case when BM_EventExtend.Form > @limit then 1 else (case when BM_EventExtend.Form < @limit*-1 then 2 else 3 end) end) as Bet
+	from 
+	(
+		select 
+			BM_Event.ID,
+			BM_Event.DisplayName,
+			BM_Event.DateStart,
+			(case when dbo.BM_Genetic_Score(HomeLastForm,HomeSeasonForm,@LastFormKoef,@SeasonFormKoef) > 
+			dbo.BM_Genetic_Score(AwayLastForm,AwaySeasonForm,@LastFormKoef,@SeasonFormKoef) 
+			then (dbo.BM_Genetic_Score(HomeLastForm,HomeSeasonForm,@LastFormKoef,@SeasonFormKoef) - 
+			dbo.BM_Genetic_Score(AwayLastForm,AwaySeasonForm,@LastFormKoef,@SeasonFormKoef)) 
+			else (dbo.BM_Genetic_Score(AwayLastForm,AwaySeasonForm,@LastFormKoef,@SeasonFormKoef) - 
+			dbo.BM_Genetic_Score(HomeLastForm,HomeSeasonForm,@LastFormKoef,@SeasonFormKoef)) * -1 end) as Form,
+			(case when dbo.BM_Genetic_Score(HomeLastForm,HomeSeasonForm,@LastFormKoef,@SeasonFormKoef) > 
+			dbo.BM_Genetic_Score(AwayLastForm,AwaySeasonForm,@LastFormKoef,@SeasonFormKoef) then FirstValue else SecondValue end) as Odd,
+			(case when BM_Event.WinnerCode=0 then 0 else 
+			(case when BM_Event.HomeScoreCurrent>BM_Event.AwayScoreCurrent then 1 
+			else (case when BM_Event.HomeScoreCurrent<BM_Event.AwayScoreCurrent then 2 else 3 end) end) end) as WinnerCode
+		from BM_Tip
+		inner join BM_Event on BM_Event.ID=BM_Tip.ID
+		inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
+		inner join BM_Category on BM_Category.ID=BM_Event.ID_Category
+		where BM_Category.ID_Sport=1
+			and (BM_Event.DateStart >= @DateFrom)
+			and (BM_Event.DateStart < @DateTo)
+	) BM_EventExtend
+	where abs(BM_EventExtend.Form) >= @Form
+		and BM_EventExtend.Odd >= @Odd
+)
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Genetic_ALL_Score_Extend')
+begin
+  drop function BM_Genetic_ALL_Score_Extend
+end
+
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE FUNCTION [dbo].[BM_Genetic_ALL_Score_Extend]
+(	
+	@Form int,
+	@Odd decimal(9,2),
+	@DateFrom date,
+	@DateTo date,
+	@limit int,
+	@LastFormKoef decimal(9,2),
+	@SeasonFormKoef decimal(9,2),
+	@LastGivenKoeficient decimal(9,2),
+	@LastTakenKoeficient decimal(9,2),
+	@SeasonGivenKoeficient decimal(9,2),
+	@SeasonTakenKoeficient decimal(9,2)
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+	select 
+		BM_EventExtend.ID,
+		BM_EventExtend.DisplayName,
+		BM_EventExtend.DateStart,
+		BM_EventExtend.Form,
+		BM_EventExtend.Odd,
+		BM_EventExtend.WinnerCode,
+		(case when BM_EventExtend.Form > @limit then 1 else (case when BM_EventExtend.Form < @limit*-1 then 2 else 3 end) end) as Bet
+	from 
+	(
+		select 
+			BM_Event.ID,
+			BM_Event.DisplayName,
+			BM_Event.DateStart,
+			(case when dbo.BM_Genetic_Score_Extend(HomeLastForm,HomeSeasonForm,HomeLastGiven,HomeLastTaken,HomeSeasonGiven,HomeSeasonTaken,HomeSeasonCount,@LastFormKoef,@SeasonFormKoef,@LastGivenKoeficient,@LastTakenKoeficient,@SeasonGivenKoeficient,@SeasonTakenKoeficient) > 
+			dbo.BM_Genetic_Score_Extend(AwayLastForm,AwaySeasonForm,AwayLastGiven,AwayLastTaken,AwaySeasonGiven,AwaySeasonTaken,AwaySeasonCount,@LastFormKoef,@SeasonFormKoef,@LastGivenKoeficient,@LastTakenKoeficient,@SeasonGivenKoeficient,@SeasonTakenKoeficient) 
+			then (dbo.BM_Genetic_Score_Extend(HomeLastForm,HomeSeasonForm,HomeLastGiven,HomeLastTaken,HomeSeasonGiven,HomeSeasonTaken,HomeSeasonCount,@LastFormKoef,@SeasonFormKoef,@LastGivenKoeficient,@LastTakenKoeficient,@SeasonGivenKoeficient,@SeasonTakenKoeficient) - 
+			dbo.BM_Genetic_Score_Extend(AwayLastForm,AwaySeasonForm,AwayLastGiven,AwayLastTaken,AwaySeasonGiven,AwaySeasonTaken,AwaySeasonCount,@LastFormKoef,@SeasonFormKoef,@LastGivenKoeficient,@LastTakenKoeficient,@SeasonGivenKoeficient,@SeasonTakenKoeficient)) 
+			else (dbo.BM_Genetic_Score_Extend(AwayLastForm,AwaySeasonForm,AwayLastGiven,AwayLastTaken,AwaySeasonGiven,AwaySeasonTaken,AwaySeasonCount,@LastFormKoef,@SeasonFormKoef,@LastGivenKoeficient,@LastTakenKoeficient,@SeasonGivenKoeficient,@SeasonTakenKoeficient) - 
+			dbo.BM_Genetic_Score_Extend(HomeLastForm,HomeSeasonForm,HomeLastGiven,HomeLastTaken,HomeSeasonGiven,HomeSeasonTaken,HomeSeasonCount,@LastFormKoef,@SeasonFormKoef,@LastGivenKoeficient,@LastTakenKoeficient,@SeasonGivenKoeficient,@SeasonTakenKoeficient)) * -1 end) as Form,
+			(case when dbo.BM_Genetic_Score_Extend(HomeLastForm,HomeSeasonForm,HomeLastGiven,HomeLastTaken,HomeSeasonGiven,HomeSeasonTaken,HomeSeasonCount,@LastFormKoef,@SeasonFormKoef,@LastGivenKoeficient,@LastTakenKoeficient,@SeasonGivenKoeficient,@SeasonTakenKoeficient) > 
+			dbo.BM_Genetic_Score_Extend(AwayLastForm,AwaySeasonForm,AwayLastGiven,AwayLastTaken,AwaySeasonGiven,AwaySeasonTaken,AwaySeasonCount,@LastFormKoef,@SeasonFormKoef,@LastGivenKoeficient,@LastTakenKoeficient,@SeasonGivenKoeficient,@SeasonTakenKoeficient) then FirstValue else SecondValue end) as Odd,
+			(case when BM_Event.WinnerCode=0 then 0 else 
+			(case when BM_Event.HomeScoreCurrent>BM_Event.AwayScoreCurrent then 1 
+			else (case when BM_Event.HomeScoreCurrent<BM_Event.AwayScoreCurrent then 2 else 3 end) end) end) as WinnerCode
+		from BM_Tip
+		inner join BM_Event on BM_Event.ID=BM_Tip.ID
+		inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
+		inner join BM_Category on BM_Category.ID=BM_Event.ID_Category
+		where BM_Category.ID_Sport=1
+			and (BM_Event.DateStart >= @DateFrom)
+			and (BM_Event.DateStart < @DateTo)
+	) BM_EventExtend
+	where abs(BM_EventExtend.Form) >= @Form
+		and BM_EventExtend.Odd >= @Odd
+)
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Genetic_DETAIL_Price')
+begin
+  drop function BM_Genetic_DETAIL_Price
+end
+
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date, ,>
+-- Description:	<Description, ,>
+-- =============================================
+CREATE FUNCTION [dbo].[BM_Genetic_DETAIL_Price]
+(
+	@Form int,
+	@Odd decimal(9,2),
+	@DateFrom date,
+	@DateTo date,
+	@Limit int,
+	@Price int,
+	@LastFormKoef decimal(9,2),
+	@SeasonFormKoef decimal(9,2)
+)
+RETURNS decimal(9,2)
+AS
+BEGIN
+	return (select sum(((case when WinnerCode=Bet then (Odd * @price) else 0 end) - @price)) as Price from dbo.BM_Genetic_ALL_Score(@Form, @Odd, @DateFrom,@DateTo, @limit, @LastFormKoef, @SeasonFormKoef) x)
+
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Genetic_DETAIL_Price_Extend')
+begin
+  drop function BM_Genetic_DETAIL_Price_Extend
+end
+
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date, ,>
+-- Description:	<Description, ,>
+-- =============================================
+CREATE FUNCTION [dbo].[BM_Genetic_DETAIL_Price_Extend]
+(
+	@Form int,
+	@Odd decimal(9,2),
+	@DateFrom date,
+	@DateTo date,
+	@Limit int,
+	@Price int,
+	@LastFormKoef decimal(9,2),
+	@SeasonFormKoef decimal(9,2),
+	@LastGivenKoef decimal(9,2),
+	@LastTakenKoef decimal(9,2),
+	@SeasonGivenKoef decimal(9,2),
+	@SeasonTakenKoef decimal(9,2)
+)
+RETURNS decimal(9,2)
+AS
+BEGIN
+	return (select sum(((case when WinnerCode=Bet then (Odd * @price) else 0 end) - @price)) as Price 
+	from dbo.BM_Genetic_ALL_Score_Extend(@Form, @Odd, @DateFrom,@DateTo, @limit, @LastFormKoef, @SeasonFormKoef,@LastGivenKoef,@LastTakenKoef,@SeasonGivenKoef,@SeasonTakenKoef) x)
+
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Genetic_Score')
+begin
+  drop function BM_Genetic_Score
+end
+
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date, ,>
+-- Description:	<Description, ,>
+-- =============================================
+CREATE FUNCTION BM_Genetic_Score
+(
+	@LastForm decimal(9,2),
+	@SeasonForm decimal(9,2),
+	@LastKoeficient decimal(9,2),
+	@SeasonKoeficient decimal(9,2)
+)
+RETURNS decimal(9,2)
+AS
+BEGIN
+
+	-- Return the result of the function
+	RETURN 
+	(
+		(@LastForm * @LastKoeficient) + (@SeasonForm * @SeasonKoeficient)
+	)
+
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Genetic_Score_Extend')
+begin
+  drop function BM_Genetic_Score_Extend
+end
+
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date, ,>
+-- Description:	<Description, ,>
+-- =============================================
+CREATE FUNCTION BM_Genetic_Score_Extend
+(
+	@LastForm decimal(9,2),
+	@SeasonForm decimal(9,2),
+	@LastGiven decimal(9,2),
+	@LastTaken decimal(9,2),
+	@SeasonGiven decimal(9,2),
+	@SeasonTaken decimal(9,2),
+	@SeasonCount decimal(9,2),
+	-- koeficienty
+	@LastKoeficient decimal(9,2),
+	@SeasonKoeficient decimal(9,2),
+	@LastGivenKoeficient decimal(9,2),
+	@LastTakenKoeficient decimal(9,2),
+	@SeasonGivenKoeficient decimal(9,2),
+	@SeasonTakenKoeficient decimal(9,2)
+)
+RETURNS decimal(9,2)
+AS
+BEGIN
+
+	-- Return the result of the function
+	RETURN 
+	(
+		(@LastForm * @LastKoeficient) + 
+		(@SeasonForm * @SeasonKoeficient) + 
+		(dbo.BM_Tip_Sigmoid((@LastGiven/7.0), 1.1, 3.0)*100 * @LastGivenKoeficient) +
+		(dbo.BM_Tip_Sigmoid((@LastTaken/7.0), 1.1, 3.0)*100 * @LastTakenKoeficient) + 
+		(@SeasonForm) +
+		(dbo.BM_Tip_Sigmoid((@SeasonGiven/@SeasonCount), 1.1, 3.0)*100 * @SeasonGivenKoeficient) + 
+		(dbo.BM_Tip_Sigmoid((@SeasonTaken/@SeasonCount), 1.1, 3.0)*100 * @SeasonTakenKoeficient)
+	)
+
+END
 
 
 GO
@@ -2517,11 +3180,27 @@ update [CR_User] set [DateUpdated]=(getdate()) where [DateUpdated] is null
 
 GO
 
+alter table [CR_User] ADD CONSTRAINT [DF_CR_User_Form] DEFAULT (((30))) FOR [Form]
+
+GO
+
+update [CR_User] set [Form]=((30)) where [Form] is null
+
+GO
+
 alter table [CR_User] ADD CONSTRAINT [DF_CR_User_IsActive] DEFAULT (((1))) FOR [IsActive]
 
 GO
 
 update [CR_User] set [IsActive]=((1)) where [IsActive] is null
+
+GO
+
+alter table [CR_User] ADD CONSTRAINT [DF_CR_User_Odd] DEFAULT (((2.0))) FOR [Odd]
+
+GO
+
+update [CR_User] set [Odd]=((2.0)) where [Odd] is null
 
 GO
 
@@ -2831,6 +3510,16 @@ GO
 
 if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='DateUpdated' and IS_NULLABLE='YES')
     alter table [CR_User] alter column [DateUpdated] datetime NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='Odd' and IS_NULLABLE='YES')
+    alter table [CR_User] alter column [Odd] decimal (9, 2) NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='Form' and IS_NULLABLE='YES')
+    alter table [CR_User] alter column [Form] int NOT NULL
 
 GO
 
@@ -3678,6 +4367,24 @@ else
 
 GO
 
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'CR_User' and c.name = 'Odd')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Výchozí kurz' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'CR_User', @level2type=N'COLUMN',@level2name=N'Odd'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Výchozí kurz' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'CR_User', @level2type=N'COLUMN',@level2name=N'Odd'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'CR_User' and c.name = 'Form')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Výchozí forma' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'CR_User', @level2type=N'COLUMN',@level2name=N'Form'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Výchozí forma' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'CR_User', @level2type=N'COLUMN',@level2name=N'Form'
+
+GO
+
 print 'CurrentTime: Description - ' + convert(varchar, getdate(), 120)
 
 GO
@@ -3820,16 +4527,17 @@ BEGIN
 	declare @FootballTournament table (ID int, DateStart datetime, ID_Season int, ID_Tournament int,  
 	HomePoints int, HomeSeasonPoints int, HomeScoreGiven int, HomeScoreTaken int, HomeForm int, HomeLastGiven int, HomeLastTaken int,
 	AwayPoints int, AwaySeasonPoints int, AwayScoreGiven int, AwayScoreTaken int, AwayForm int, AwayLastGiven int, AwayLastTaken int,
-	[HomeRound] int, [AwayRound] int)
+	[HomeRound] int, [AwayRound] int, WinnerCode int)
 
-	insert into @FootballTournament (ID, DateStart, ID_Tournament, ID_Season, HomePoints, AwayPoints)
+	insert into @FootballTournament (ID, DateStart, ID_Tournament, ID_Season, HomePoints, AwayPoints, WinnerCode)
 	select 
 		BM_Event.ID,
 		BM_Event.DateStart,
 		BM_Event.ID_Tournament,
 		BM_Event.ID_Season,
 		BM_Event.HomePoints,
-		BM_Event.AwayPoints
+		BM_Event.AwayPoints,
+		(case when BM_Event.WinnerCode=0 then 0 else (case when BM_Event.HomeScoreCurrent>BM_Event.AwayScoreCurrent then 1 else (case when BM_Event.HomeScoreCurrent<BM_Event.AwayScoreCurrent then 2 else 3 end) end) end) as WinnerCode
 	from BM_EventView BM_Event
 	where BM_Event.ID_Tournament=@ID_Tournament AND (BM_Event.ID_Status=0 or BM_Event.ID_Status>=90)
 	order by BM_Event.DateStart
@@ -3974,9 +4682,9 @@ BEGIN
 		[BM_OddsRegular].XValue,
 		[BM_OddsRegular].SecondValue,
 		-- results
-		'Home'=case when [BM_Event].[WinnerCode]=1 then @true else @false end,
-		'Draw'=case when [BM_Event].[WinnerCode]=3 then @true else @false end,
-		'Away'=case when [BM_Event].[WinnerCode]=2 then @true else @false end
+		'Home'=case when x.[WinnerCode]=1 then @true else @false end,
+		'Draw'=case when x.[WinnerCode]=3 then @true else @false end,
+		'Away'=case when x.[WinnerCode]=2 then @true else @false end
 	from @FootballTournament x
 		inner join BM_Event on BM_Event.ID=x.ID
 		inner join BM_Season on BM_Season.ID=x.ID_Season
@@ -4009,16 +4717,17 @@ BEGIN
 
 	declare @FootballTournament table (ID int, DateStart datetime, ID_Season int, ID_Tournament int,  
 	HomePoints int, HomeSeasonPoints int, HomeScoreGiven int, HomeScoreTaken int, AwayPoints int, AwaySeasonPoints int, AwayScoreGiven int, AwayScoreTaken int,
-	[HomeRound] int, [AwayRound] int)
+	[HomeRound] int, [AwayRound] int, WinnerCode int)
 
-	insert into @FootballTournament (ID, DateStart, ID_Tournament, ID_Season, HomePoints, AwayPoints)
+	insert into @FootballTournament (ID, DateStart, ID_Tournament, ID_Season, HomePoints, AwayPoints, WinnerCode)
 	select 
 		BM_Event.ID,
 		BM_Event.DateStart,
 		BM_Event.ID_Tournament,
 		BM_Event.ID_Season,
 		BM_Event.HomePoints,
-		BM_Event.AwayPoints
+		BM_Event.AwayPoints,
+		(case when BM_Event.WinnerCode=0 then 0 else (case when BM_Event.HomeScoreCurrent>BM_Event.AwayScoreCurrent then 1 else (case when BM_Event.HomeScoreCurrent<BM_Event.AwayScoreCurrent then 2 else 3 end) end) end) as WinnerCode
 	from BM_EventView BM_Event
 	inner join BM_Tournament on BM_Tournament.ID=BM_Event.ID_Tournament
 	where BM_Tournament.UniqueID=@ID_Tournament AND BM_Event.ID_Status in (0,100)
@@ -4132,9 +4841,9 @@ BEGIN
 		[BM_OddsRegular].XValue,
 		[BM_OddsRegular].SecondValue,
 		-- results
-		'Home'=case when [BM_Event].[WinnerCode]=1 then @true else @false end,
-		'Draw'=case when [BM_Event].[WinnerCode]=3 then @true else @false end,
-		'Away'=case when [BM_Event].[WinnerCode]=2 then @true else @false end
+		'Home'=case when x.[WinnerCode]=1 then @true else @false end,
+		'Draw'=case when x.[WinnerCode]=3 then @true else @false end,
+		'Away'=case when x.[WinnerCode]=2 then @true else @false end
 	from @FootballTournament x
 		inner join BM_Event on BM_Event.ID=x.ID
 		inner join BM_Season on BM_Season.ID=x.ID_Season
@@ -4762,18 +5471,22 @@ CREATE PROCEDURE [dbo].[BM_Tip_ALL]
 	@Form int = 30,
 	@Odd decimal(9,2) = 2.0,
 	@DateFrom date = null,
-	@DateTo date = null
+	@DateTo date = null,
+	@WithoutTournament bit = 0
 AS
 BEGIN
 	select 
 		BM_Event.ID,
 		'Url'='http://www.sofascore.com/'+BM_Event.Slug+'/'+BM_Event.CustomId,
 		BM_Event.DisplayName,
+		BM_Category.Slug,
 		BM_Event.DateStart,
 		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
 			else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) * -1 end) as Form,
 		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) as Odd,
-		BM_Event.WinnerCode,
+		(case when BM_Event.WinnerCode=0 then 0 else (case when BM_Event.HomeScoreCurrent>BM_Event.AwayScoreCurrent then 1 else (case when BM_Event.HomeScoreCurrent<BM_Event.AwayScoreCurrent then 2 else 3 end) end) end) as WinnerCode,
+		BM_Event.HomeScoreCurrent,
+		BM_Event.AwayScoreCurrent,
 		BM_Event.ID_Status,
         BM_Tip.[HomeLastForm],
         BM_Tip.[HomeLastGiven],
@@ -4797,15 +5510,16 @@ BEGIN
 		BM_OddsRegular.XValue,
 		BM_OddsRegular.SecondValue
 	from BM_Tip
-	inner join BM_Event on BM_Event.ID=BM_Tip.ID
-	inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
-	left join BM_Category on BM_Category.ID=BM_Event.ID_Category
-	left join BM_Season on BM_Season.ID=BM_Event.ID_Season
+		inner join BM_Event on BM_Event.ID=BM_Tip.ID
+		inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
+		inner join BM_Category on BM_Category.ID=BM_Event.ID_Category
+		left join BM_Season on BM_Season.ID=BM_Event.ID_Season
 	where (case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
 			else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) end) >= @Form
-		AND (case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) > @Odd
+		and (case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) >= @Odd
 		and (@DateFrom is null or BM_Event.DateStart >= @DateFrom)
 		and (@DateTo is null or BM_Event.DateStart < dateadd(day, 1, @DateTo))
+		and ((@WithoutTournament=1 and BM_Category.Slug not like 'international%') or @WithoutTournament=0)
 	order by BM_Event.DateStart
 END
 
@@ -4835,8 +5549,8 @@ BEGIN
 		BM_Event.DateStart,
 		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
 			else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) * -1 end) as Form,
-		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) as Odd,
-		BM_Event.WinnerCode,
+		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then FirstValue else SecondValue end) as Odd,
+		(case when BM_Event.WinnerCode=0 then 0 else (case when BM_Event.HomeScoreCurrent>BM_Event.AwayScoreCurrent then 1 else (case when BM_Event.HomeScoreCurrent<BM_Event.AwayScoreCurrent then 2 else 3 end) end) end) as WinnerCode,
 		BM_Event.ID_Status,
 		'ID_Category'=BM_Category.ID,
 		'Category'=BM_Category.DisplayName,
@@ -4860,8 +5574,11 @@ BEGIN
         BM_Tip.[AwaySeasonGiven],
         BM_Tip.[AwaySeasonTaken],
 		BM_Tip.[AwaySeasonCount],
+		BM_OddsRegular.FirstId,
 		BM_OddsRegular.FirstValue,
+		BM_OddsRegular.XId,
 		BM_OddsRegular.XValue,
+		BM_OddsRegular.SecondId,
 		BM_OddsRegular.SecondValue
 	from BM_Tip
 	inner join BM_Event on BM_Event.ID=BM_Tip.ID
@@ -4994,10 +5711,11 @@ GO
 -- Description:	<Description,,>
 -- =============================================
 CREATE PROCEDURE [dbo].[BM_Tip_GENERATE_Old]
-	@DateStart datetime = '2016-10-01'
+	@DateStart datetime,
+	@DateTo datetime = null
 AS
 BEGIN
-
+	select @DateTo=getdate() where @DateTo is null
 	declare @FootballTournament table (ID int, HomeLastForm int, HomeLastGiven int, HomeLastTaken int, HomeSeasonForm int, HomeSeasonGiven int, HomeSeasonTaken int, HomeSeasonCount int,  
 				AwayLastForm int, AwayLastGiven int, AwayLastTaken int, AwaySeasonForm int, AwaySeasonGiven int, AwaySeasonTaken int, AwaySeasonCount int)
 
@@ -5007,9 +5725,9 @@ BEGIN
 	select BM_Event.ID, BM_Event.ID_HomeTeam, BM_Event.ID_AwayTeam
 	from BM_Event
 	inner join BM_Category on BM_Category.ID=BM_Event.ID_Category
-	inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
+	left join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
 	where BM_Category.ID_Sport=1
-		and DateStart >=@DateStart and DateStart < getdate()
+		and DateStart >=@DateStart and DateStart <= @DateTo
 	order by BM_Event.DateStart
 
 	OPEN db_cursor   
@@ -5131,7 +5849,7 @@ from
 		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
 			else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) * -1 end) as Form,
 		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) as Odd,
-		BM_Event.WinnerCode,
+		(case when BM_Event.WinnerCode=0 then 0 else (case when BM_Event.HomeScoreCurrent>BM_Event.AwayScoreCurrent then 1 else (case when BM_Event.HomeScoreCurrent<BM_Event.AwayScoreCurrent then 2 else 3 end) end) end) as WinnerCode,
 		BM_Event.ID_Status,
         BM_Tip.[HomeLastForm],
         BM_Tip.[HomeLastGiven],
@@ -5186,7 +5904,7 @@ GO
 -- Create date: 20.10.2016
 -- Description:	Zisk z tipů při dané konfiguraci
 -- =============================================
-CREATE PROCEDURE BM_Tip_DETAIL_Income
+CREATE PROCEDURE [dbo].[BM_Tip_DETAIL_Income]
 @Form int = 0,
 	@Odd decimal(9,2) = 2.0,
 	@DateFrom date = '2016-10-01',
@@ -5219,7 +5937,7 @@ from
 		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
 			else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) * -1 end) as Form,
 		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) as Odd,
-		BM_Event.WinnerCode,
+		(case when BM_Event.WinnerCode=0 then 0 else (case when BM_Event.HomeScoreCurrent>BM_Event.AwayScoreCurrent then 1 else (case when BM_Event.HomeScoreCurrent<BM_Event.AwayScoreCurrent then 2 else 3 end) end) end) as WinnerCode,
 		BM_Event.ID_Status,
         BM_Tip.[HomeLastForm],
         BM_Tip.[HomeLastGiven],
@@ -5273,7 +5991,7 @@ GO
 -- Create date: 20.10.2016
 -- Description:	Rozlozeni uspesnosti dle limitu
 -- =============================================
-CREATE PROCEDURE BM_Tip_DETAIL_Rozlozeni
+CREATE PROCEDURE [dbo].[BM_Tip_DETAIL_Rozlozeni]
 		@Form int = 0,
 		@Odd decimal(9,2) = 2.0,
 		@DateFrom date = '2016-01-01',
@@ -5301,7 +6019,7 @@ BEGIN
 			(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
 				else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) * -1 end) as Form,
 			(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) as Odd,
-			BM_Event.WinnerCode,
+			(case when BM_Event.WinnerCode=0 then 0 else (case when BM_Event.HomeScoreCurrent>BM_Event.AwayScoreCurrent then 1 else (case when BM_Event.HomeScoreCurrent<BM_Event.AwayScoreCurrent then 2 else 3 end) end) end) as WinnerCode,
 			BM_Event.ID_Status,
 			BM_Tip.[HomeLastForm],
 			BM_Tip.[HomeLastGiven],
@@ -5342,11 +6060,499 @@ END
 
 GO
 
+if exists (select * from sysobjects where name='BM_Event_ALL_Tournament_Form')
+begin
+  drop procedure BM_Event_ALL_Tournament_Form
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 26.10.2016
+-- Description: Prepared data for FANN..
+-- =============================================
+CREATE PROCEDURE [dbo].[BM_Event_ALL_Tournament_Form]
+	@ID_Tournament int,
+	@ID_Season int,
+	@Inverse bit = 0
+AS
+BEGIN
+	declare @true int = 1, @false int = 0, @ID int
+
+select 
+	BM_Event.ID,
+	BM_Event.DisplayName,
+	BM_Event.DateStart,
+	BM_Event.ID_Season,
+	BM_Event.ID_HomeTeam,
+	BM_Event.ID_AwayTeam,
+	cast(HomeLastEvent.Form as int) as HomeLastForm,
+	cast((dbo.BM_Tip_Sigmoid((HomeLastEvent.Given/7.0), 1.1, 3.0)*100) as int) as HomeLastGiven,
+	cast((dbo.BM_Tip_Sigmoid((HomeLastEvent.Taken/7.0), 1.1, 3.0)*100) as int) as HomeLastTaken,
+	cast(HomeLastEventOnly.Form as int) as HomeLastOnlyForm,
+	cast((dbo.BM_Tip_Sigmoid((HomeLastEventOnly.Given/7.0), 1.1, 3.0)*100) as int) as HomeLastOnlyGiven,
+	cast((dbo.BM_Tip_Sigmoid((HomeLastEventOnly.Taken/7.0), 1.1, 3.0)*100) as int) as HomeLastOnlyTaken,
+	cast(AwayLastEvent.Form as int) as AwayLastForm,
+	cast((dbo.BM_Tip_Sigmoid((AwayLastEvent.Given/7.0), 1.1, 3.0)*100) as int) as AwayLastGiven,
+	cast((dbo.BM_Tip_Sigmoid((AwayLastEvent.Taken/7.0), 1.1, 3.0)*100) as int) as AwayLastTaken,
+	cast(AwayLastEventOnly.Form as int) as AwayLastOnlyForm,
+	cast((dbo.BM_Tip_Sigmoid((AwayLastEventOnly.Given/7.0), 1.1, 3.0)*100) as int) as AwayLastOnlyGiven,
+	cast((dbo.BM_Tip_Sigmoid((AwayLastEventOnly.Taken/7.0), 1.1, 3.0)*100) as int) as AwayLastOnlyTaken,
+	-- odds
+	[BM_OddsRegular].FirstValue,
+	[BM_OddsRegular].XValue,
+	[BM_OddsRegular].SecondValue,
+	-- results
+	'Home'=case when BM_Event.[WinnerCode]=1 then @true else @false end,
+	'Draw'=case when BM_Event.[WinnerCode]=3 then @true else @false end,
+	'Away'=case when BM_Event.[WinnerCode]=2 then @true else @false end
+from BM_Event
+	--inner join BM_Tip on BM_Event.ID=BM_Tip.ID
+	left join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
+	inner join BM_Season on BM_Season.ID=BM_Event.ID_Season
+	outer apply [dbo].[BM_Event_DETAIL_LastEvent](BM_Event.ID, BM_Event.ID_HomeTeam) HomeLastEvent
+	outer apply [dbo].[BM_Event_DETAIL_LastEvent](BM_Event.ID, BM_Event.ID_AwayTeam) AwayLastEvent
+	outer apply [dbo].[BM_Event_DETAIL_LastEvent_HomeOnly](BM_Event.ID, BM_Event.ID_HomeTeam) HomeLastEventOnly
+	outer apply [dbo].[BM_Event_DETAIL_LastEvent_AwayOnly](BM_Event.ID, BM_Event.ID_AwayTeam) AwayLastEventOnly
+where ((BM_Event.ID_Season=@ID_Season and @Inverse=0) or (BM_Event.ID_Season<>@ID_Season and @Inverse=1))
+	and BM_Event.ID_Tournament=@ID_Tournament
+order by BM_Event.ID_Season, BM_Event.DateStart 
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Tip_ALL_BackUp')
+begin
+  drop procedure BM_Tip_ALL_BackUp
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 15.10.2016
+-- Description:	Přehled tipů
+-- =============================================
+CREATE PROCEDURE [dbo].[BM_Tip_ALL_BackUp]
+	@Form int = 30,
+	@Odd decimal(9,2) = 2.0,
+	@DateFrom date = null,
+	@DateTo date = null,
+	@WithoutTournament bit = 0
+AS
+BEGIN
+	select 
+		BM_Event.ID,
+		'Url'='http://www.sofascore.com/'+BM_Event.Slug+'/'+BM_Event.CustomId,
+		BM_Event.DisplayName,
+		BM_Category.Slug,
+		BM_Event.DateStart,
+		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
+			else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) * -1 end) as Form,
+		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) as Odd,
+		(case when BM_Event.WinnerCode=0 then 0 else (case when BM_Event.HomeScoreCurrent>BM_Event.AwayScoreCurrent then 1 else (case when BM_Event.HomeScoreCurrent<BM_Event.AwayScoreCurrent then 2 else 3 end) end) end) as WinnerCode,
+		BM_Event.HomeScoreCurrent,
+		BM_Event.AwayScoreCurrent,
+		BM_Event.ID_Status,
+        BM_Tip.[HomeLastForm],
+        BM_Tip.[HomeLastGiven],
+        BM_Tip.[HomeLastTaken],
+        BM_Tip.[HomeSeasonForm],
+        BM_Tip.[HomeSeasonGiven],
+        BM_Tip.[HomeSeasonTaken],
+		BM_Tip.[HomeSeasonCount],
+        BM_Tip.[AwayLastForm],
+        BM_Tip.[AwayLastGiven],
+        BM_Tip.[AwayLastTaken],
+        BM_Tip.[AwaySeasonForm],
+        BM_Tip.[AwaySeasonGiven],
+        BM_Tip.[AwaySeasonTaken],
+		BM_Tip.[AwaySeasonCount],
+		'ID_Category'=BM_Category.ID,
+		'Category'=BM_Category.DisplayName,
+		'ID_Season'=BM_Season.ID,
+		'Season'=BM_Season.DisplayName,
+		BM_OddsRegular.FirstValue,
+		BM_OddsRegular.XValue,
+		BM_OddsRegular.SecondValue
+	from BM_Tip
+		inner join BM_Event on BM_Event.ID=BM_Tip.ID
+		inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
+		inner join BM_Category on BM_Category.ID=BM_Event.ID_Category
+		left join BM_Season on BM_Season.ID=BM_Event.ID_Season
+	where (case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
+			else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) end) >= @Form
+		and (case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) >= @Odd
+		and (@DateFrom is null or BM_Event.DateStart >= @DateFrom)
+		and (@DateTo is null or BM_Event.DateStart < dateadd(day, 1, @DateTo))
+		and ((@WithoutTournament=1 and BM_Category.Slug not like 'international%') or @WithoutTournament=0)
+	order by BM_Event.DateStart
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Tip_DETAIL_Genetic')
+begin
+  drop procedure BM_Tip_DETAIL_Genetic
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 27.10.2016
+-- Description:	Implementace genetického algoritmu
+-- =============================================
+CREATE PROCEDURE BM_Tip_DETAIL_Genetic
+	@Form int = 30,
+	@Odd decimal(9,2) = 2.0,
+	@DateFrom date = '2016-10-01',
+	@DateTo date = '2016-10-27',
+	@limit int = 20,
+	@price int = 100,
+	-- promenne
+	@PopulationSize int = 20, -- počáteční počet populace
+	@generationLength int = 50, -- počet interací/generací
+	@crossover decimal(9,2) = 0.8, -- ppdst křížení
+	@mutation decimal(9,2) = 0.2 -- ppdst mutace
+AS
+BEGIN
+	declare
+	@i int = 0, -- iterátor nad generacemi
+	@j int = 0 -- iterátor nad populací
+
+	-- 1) deklarace počáteční populace a další generace
+	create table #PopulationCurrent  
+	(
+		ID int,
+		LastKoef decimal(9,2),
+		SeasonKoef decimal(9,2),
+		Fitness decimal(9,2)
+	)
+
+	-- budouci generace
+	create table #PopulationNext  
+	(
+		ID int identity,
+		LastKoef decimal(9,2),
+		SeasonKoef decimal(9,2),
+		Fitness decimal(9,2)
+	)
+
+	-- vygeneruju X náhodných mutací do začátku
+	;WITH Nbrs (Number) AS (
+		SELECT 1 UNION ALL
+		SELECT 1 + Number FROM Nbrs WHERE Number < @PopulationSize
+	)
+	insert into #PopulationCurrent
+	select Number, RAND(CHECKSUM(NEWID())), RAND(CHECKSUM(NEWID())), null from Nbrs
+
+	-- výchozí výpočet vah
+	update [Population]
+	set Fitness=IsNull([dbo].[BM_Genetic_DETAIL_Price](@Form, @Odd, @DateFrom,@DateTo, @limit, @price, [Population].LastKoef, [Population].SeasonKoef), -9999999.99)
+	from #PopulationCurrent [Population]
+	where [Population].Fitness is null
+
+	-- 2) iterujeme nad generacemi
+	while(@i < @generationLength)
+	begin
+
+
+
+		set @j = 0
+		while (@j < @PopulationSize)
+		begin
+			declare @leftOut int, @rightOut int, @leftIn int, @rightIn int
+			select @leftOut=ROUND(((@PopulationSize-2) * RAND() + 1), 0), @rightOut=ROUND(((@PopulationSize-2) * RAND() + 1), 0),
+				@leftIn=ROUND(((@PopulationSize-2) * RAND() + 1), 0), @rightIn=ROUND(((@PopulationSize-2) * RAND() + 1), 0)
+			-- 3) křížení nebo výběr
+			if (RAND(CHECKSUM(NEWID())) < @crossover)
+			begin
+				-- křížení
+				insert into #PopulationNext
+				select 
+					 (case when RAND(CHECKSUM(NEWID()))< 0.5 then PLeft.LastKoef else PRight.LastKoef end) as LastKoef,
+					 (case when RAND(CHECKSUM(NEWID()))< 0.5 then PLeft.SeasonKoef else PRight.SeasonKoef end) as SeasonKoef,
+					 null as Crossing
+				from
+				(select
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].LastKoef else [RightPopulation].LastKoef end) as LastKoef,
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].SeasonKoef else [RightPopulation].SeasonKoef end) as SeasonKoef,
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].Fitness else [RightPopulation].Fitness end) as Fitness
+				from #PopulationCurrent [LeftPopulation] 
+				cross join #PopulationCurrent [RightPopulation]
+				where [LeftPopulation].ID=@leftIn
+					and [RightPopulation].ID=@rightIn) as PLeft
+				cross join (select
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].LastKoef else [RightPopulation].LastKoef end) as LastKoef,
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].SeasonKoef else [RightPopulation].SeasonKoef end) as SeasonKoef,
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].Fitness else [RightPopulation].Fitness end) as Fitness
+				from #PopulationCurrent [LeftPopulation] 
+				cross join #PopulationCurrent [RightPopulation]
+				where [LeftPopulation].ID=@leftOut
+					and [RightPopulation].ID=@rightOut) as PRight
+			end
+			else
+			begin 
+				-- výběr
+				insert into #PopulationNext
+				select
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].LastKoef else [RightPopulation].LastKoef end) as LastKoef,
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].SeasonKoef else [RightPopulation].SeasonKoef end) as SeasonKoef,
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].Fitness else [RightPopulation].Fitness end) as Fitness
+				from #PopulationCurrent [LeftPopulation] 
+				cross join #PopulationCurrent [RightPopulation]
+				where [LeftPopulation].ID=@leftOut
+					and [RightPopulation].ID=@rightOut
+			end
+
+			-- 4) mutace
+			if (RAND(CHECKSUM(NEWID())) < @mutation)
+			begin
+				declare @rand decimal(9,2)
+				set @rand=RAND(CHECKSUM(NEWID()))
+
+				update PopulationNext set 
+					PopulationNext.LastKoef=case when @rand<0.5 then RAND(CHECKSUM(NEWID())) else PopulationNext.LastKoef end,
+					PopulationNext.SeasonKoef=case when @rand>0.5 then RAND(CHECKSUM(NEWID())) else PopulationNext.SeasonKoef end
+				from #PopulationNext PopulationNext
+				where ID=@@IDENTITY
+			end
+
+			select @j += 1
+		end
+
+		truncate table #PopulationCurrent
+
+		insert into #PopulationCurrent
+		select * from #PopulationNext
+
+		truncate table #PopulationNext
+
+		-- výchozí výpočet vah
+		update [Population]
+		set Fitness=IsNull([dbo].[BM_Genetic_DETAIL_Price](@Form, @Odd, @DateFrom,@DateTo, @limit, @price, [Population].LastKoef, [Population].SeasonKoef), -9999999.99)
+		from #PopulationCurrent [Population]
+		where [Population].Fitness is null
+
+		-- inc
+		select @i += 1
+	end
+
+	select TOP(1) * from #PopulationCurrent order by Fitness desc
+
+	drop table #PopulationCurrent
+	drop table #PopulationNext
+
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Tip_DETAIL_Genetic_Extend')
+begin
+  drop procedure BM_Tip_DETAIL_Genetic_Extend
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 27.10.2016
+-- Description:	Implementace genetického algoritmu
+-- Rozšířeno o další parametry
+-- =============================================
+CREATE PROCEDURE BM_Tip_DETAIL_Genetic_Extend
+	@Form int = 30,
+	@Odd decimal(9,2) = 2.0,
+	@DateFrom date = '2016-10-01',
+	@DateTo date = '2016-10-27',
+	@limit int = 20,
+	@price int = 100,
+	-- promenne
+	@PopulationSize int = 20, -- počáteční počet populace
+	@generationLength int = 10, -- počet interací/generací
+	@crossover decimal(9,2) = 0.8, -- ppdst křížení
+	@mutation decimal(9,2) = 0.2 -- ppdst mutace
+AS
+BEGIN
+	declare
+	@i int = 0, -- iterátor nad generacemi
+	@j int = 0 -- iterátor nad populací
+
+	-- 1) deklarace počáteční populace a další generace
+	create table #PopulationCurrent  
+	(
+		ID int,
+		LastKoef decimal(9,2),
+		--SeasonKoef decimal(9,2),
+		LastGivenKoef decimal(9,2),
+		LastTakenKoef decimal(9,2),
+		--SeasonGivenKoef decimal(9,2),
+		--SeasonTakenKoef decimal(9,2),
+		Fitness decimal(9,2)
+	)
+
+	-- budouci generace
+	create table #PopulationNext  
+	(
+		ID int identity,
+		LastKoef decimal(9,2),
+		--SeasonKoef decimal(9,2),
+		LastGivenKoef decimal(9,2),
+		LastTakenKoef decimal(9,2),
+		--SeasonGivenKoef decimal(9,2),
+		--SeasonTakenKoef decimal(9,2),
+		Fitness decimal(9,2)
+	)
+
+	-- vygeneruju X náhodných mutací do začátku
+	;WITH Nbrs (Number) AS (
+		SELECT 1 UNION ALL
+		SELECT 1 + Number FROM Nbrs WHERE Number < @PopulationSize
+	)
+	insert into #PopulationCurrent
+	select Number, RAND(CHECKSUM(NEWID())), RAND(CHECKSUM(NEWID())),RAND(CHECKSUM(NEWID())), null from Nbrs
+	-- RAND(CHECKSUM(NEWID())),RAND(CHECKSUM(NEWID())), RAND(CHECKSUM(NEWID()))
+
+	-- výchozí výpočet vah
+	update [Population]
+	set Fitness=IsNull([dbo].[BM_Genetic_DETAIL_Price_Extend](@Form, @Odd, @DateFrom,@DateTo, @limit, @price, 
+	[Population].LastKoef, 0, [Population].LastGivenKoef, [Population].LastTakenKoef, 0, 0), -9999999.99)
+	from #PopulationCurrent [Population]
+	where [Population].Fitness is null
+
+	-- 2) iterujeme nad generacemi
+	while(@i < @generationLength)
+	begin
+		set @j = 0
+		while (@j < @PopulationSize)
+		begin
+			declare @leftOut int, @rightOut int, @leftIn int, @rightIn int
+			select @leftOut=ROUND(((@PopulationSize-2) * RAND() + 1), 0), @rightOut=ROUND(((@PopulationSize-2) * RAND() + 1), 0),
+				@leftIn=ROUND(((@PopulationSize-2) * RAND() + 1), 0), @rightIn=ROUND(((@PopulationSize-2) * RAND() + 1), 0)
+			-- 3) křížení nebo výběr
+			if (RAND(CHECKSUM(NEWID())) < @crossover)
+			begin
+				-- křížení (vždy 0.5)
+				insert into #PopulationNext
+				select 
+					 (case when RAND(CHECKSUM(NEWID()))< 0.5 then PLeft.LastKoef else PRight.LastKoef end) as LastKoef,
+					 --(case when RAND(CHECKSUM(NEWID()))< 0.5 then PLeft.SeasonKoef else PRight.SeasonKoef end) as SeasonKoef,
+					 (case when RAND(CHECKSUM(NEWID()))< 0.5 then PLeft.LastGivenKoef else PRight.LastGivenKoef end) as LastGivenKoef,
+					 (case when RAND(CHECKSUM(NEWID()))< 0.5 then PLeft.LastTakenKoef else PRight.LastTakenKoef end) as LastTakenKoef,
+					 --(case when RAND(CHECKSUM(NEWID()))< 0.5 then PLeft.SeasonGivenKoef else PRight.SeasonGivenKoef end) as SeasonGivenKoef,
+					 --(case when RAND(CHECKSUM(NEWID()))< 0.5 then PLeft.SeasonTakenKoef else PRight.SeasonTakenKoef end) as SeasonTakenKoef,
+					 null as Crossing
+				from
+				(select
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].LastKoef else [RightPopulation].LastKoef end) as LastKoef,
+					 --(case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].SeasonKoef else [RightPopulation].SeasonKoef end) as SeasonKoef,
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].LastGivenKoef else [RightPopulation].LastGivenKoef end) as LastGivenKoef,
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].LastTakenKoef else [RightPopulation].LastTakenKoef end) as LastTakenKoef,
+					 --(case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].SeasonGivenKoef else [RightPopulation].SeasonGivenKoef end) as SeasonGivenKoef,
+					 --(case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].SeasonTakenKoef else [RightPopulation].SeasonTakenKoef end) as SeasonTakenKoef,
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].Fitness else [RightPopulation].Fitness end) as Fitness
+				from #PopulationCurrent [LeftPopulation] 
+				cross join #PopulationCurrent [RightPopulation]
+				where [LeftPopulation].ID=@leftIn
+					and [RightPopulation].ID=@rightIn) as PLeft
+				cross join (select
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].LastKoef else [RightPopulation].LastKoef end) as LastKoef,
+					 --(case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].SeasonKoef else [RightPopulation].SeasonKoef end) as SeasonKoef,
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].LastGivenKoef else [RightPopulation].LastGivenKoef end) as LastGivenKoef,
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].LastTakenKoef else [RightPopulation].LastTakenKoef end) as LastTakenKoef,
+					 --(case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].SeasonGivenKoef else [RightPopulation].SeasonGivenKoef end) as SeasonGivenKoef,
+					 --(case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].SeasonTakenKoef else [RightPopulation].SeasonTakenKoef end) as SeasonTakenKoef,
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].Fitness else [RightPopulation].Fitness end) as Fitness
+				from #PopulationCurrent [LeftPopulation] 
+				cross join #PopulationCurrent [RightPopulation]
+				where [LeftPopulation].ID=@leftOut
+					and [RightPopulation].ID=@rightOut) as PRight
+			end
+			else
+			begin 
+				-- výběr
+				insert into #PopulationNext
+				select
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].LastKoef else [RightPopulation].LastKoef end) as LastKoef,
+					 --(case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].SeasonKoef else [RightPopulation].SeasonKoef end) as SeasonKoef,
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].LastGivenKoef else [RightPopulation].LastGivenKoef end) as LastGivenKoef,
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].LastTakenKoef else [RightPopulation].LastTakenKoef end) as LastTakenKoef,
+					 --(case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].SeasonGivenKoef else [RightPopulation].SeasonGivenKoef end) as SeasonGivenKoef,
+					 --(case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].SeasonTakenKoef else [RightPopulation].SeasonTakenKoef end) as SeasonTakenKoef,
+					 (case when [LeftPopulation].Fitness > [RightPopulation].Fitness then [LeftPopulation].Fitness else [RightPopulation].Fitness end) as Fitness
+				from #PopulationCurrent [LeftPopulation] 
+				cross join #PopulationCurrent [RightPopulation]
+				where [LeftPopulation].ID=@leftOut
+					and [RightPopulation].ID=@rightOut
+			end
+
+			-- 4) mutace - pouze jeden parametr
+			if (RAND(CHECKSUM(NEWID())) < @mutation)
+			begin
+				declare @rand decimal(9,2)
+				set @rand=RAND(CHECKSUM(NEWID()))
+
+				update PopulationNext set 
+					PopulationNext.LastKoef=case when @rand<0.5 then RAND(CHECKSUM(NEWID())) else PopulationNext.LastKoef end,
+					--PopulationNext.SeasonKoef=case when @rand>0.5 then RAND(CHECKSUM(NEWID())) else PopulationNext.SeasonKoef end,
+					PopulationNext.LastGivenKoef=case when @rand<0.5 then RAND(CHECKSUM(NEWID())) else PopulationNext.LastGivenKoef end,
+					PopulationNext.LastTakenKoef=case when @rand>0.5 then RAND(CHECKSUM(NEWID())) else PopulationNext.LastTakenKoef end --,
+					--PopulationNext.SeasonGivenKoef=case when @rand<0.5 then RAND(CHECKSUM(NEWID())) else PopulationNext.SeasonGivenKoef end,
+					--PopulationNext.SeasonTakenKoef=case when @rand>0.5 then RAND(CHECKSUM(NEWID())) else PopulationNext.SeasonTakenKoef end
+				from #PopulationNext PopulationNext
+				where ID=@@IDENTITY
+			end
+
+			select @j += 1
+		end
+
+		truncate table #PopulationCurrent
+
+		insert into #PopulationCurrent
+		select * from #PopulationNext
+
+		truncate table #PopulationNext
+
+		-- výchozí výpočet vah
+		update [Population]
+		set Fitness=IsNull([dbo].[BM_Genetic_DETAIL_Price_Extend](@Form, @Odd, @DateFrom,@DateTo, @limit, @price, 
+		[Population].LastKoef, 0, [Population].LastGivenKoef, [Population].LastTakenKoef, 0, 0), -9999999.99)
+		--set Fitness=IsNull([dbo].[BM_Genetic_DETAIL_Price_Extend](@Form, @Odd, @DateFrom,@DateTo, @limit, @price, 
+		--[Population].LastKoef, [Population].SeasonKoef, [Population].LastGivenKoef, [Population].LastTakenKoef, [Population].SeasonGivenKoef, [Population].SeasonTakenKoef), -9999999.99)
+		from #PopulationCurrent [Population]
+		where [Population].Fitness is null
+
+		-- inc
+		select @i += 1
+	end
+
+	select TOP(1) * from #PopulationCurrent order by Fitness desc
+
+	drop table #PopulationCurrent
+	drop table #PopulationNext
+
+END
+
+
+GO
+
 print 'CurrentTime: Procedures - ' + convert(varchar, getdate(), 120)
 
 GO
 
 -- Create indices
+
+if not exists(select * from sys.indexes where name='IX_BM_Event_DateStart' and is_primary_key=0)
+begin
+    create  nonclustered index IX_BM_Event_DateStart on [BM_Event] ([DateStart] ASC)
+end
+
+GO
 
 if not exists(select * from sys.indexes where name='IX_BM_Event_Status' and is_primary_key=0)
 begin
@@ -5581,7 +6787,7 @@ from
     inner join sys.tables on sys.tables.object_id=sys.columns.object_id 
 where 
     sys.tables.name='CR_User' 
-    and sys.columns.name not in ('ID', 'IsActive', 'UserName', 'Password', 'Salt', 'LastLogin', 'DateCreated', 'DateUpdated') 
+    and sys.columns.name not in ('ID', 'IsActive', 'UserName', 'Password', 'Salt', 'LastLogin', 'DateCreated', 'DateUpdated', 'Odd', 'Form') 
 
 if @Message<>'' 
 begin 
