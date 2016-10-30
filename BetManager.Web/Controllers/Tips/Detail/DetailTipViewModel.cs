@@ -97,5 +97,12 @@ namespace BetManager.Web.Controllers.Tips.Detail
         public decimal SecondValue { get; set; }
 
         public int? SecondId { get; set; }
+
+        public virtual ICollection<DetailTipPoissonViewModel> Poissons { get; set; }
+
+        public DetailTipViewModel()
+        {
+            Poissons = new List<DetailTipPoissonViewModel>();
+        }
     }
 }

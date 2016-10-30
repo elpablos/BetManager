@@ -78,6 +78,7 @@
     <Compile Include="DbModels\Accounts\User.cs" />
     <Compile Include="DbModels\ImportData.cs" />
     <Compile Include="DbModels\Tips\Tip.cs" />
+    <Compile Include="DbModels\Tips\TipAllPoisson.cs" />
     <Compile Include="DbModels\Tips\TipDetailGraph.cs" />
     <Compile Include="Domains\Accounts\IUserManager.cs" />
     <Compile Include="Domains\Accounts\UserManager.cs" />

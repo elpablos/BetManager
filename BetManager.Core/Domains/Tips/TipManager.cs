@@ -35,9 +35,9 @@ namespace BetManager.Core.Domains.Tips
             return tip;
         }
 
-        public virtual IEnumerable<TipDetailGraph> GetGraph(object input)
+        public virtual ICollection<TipDetailGraph> GetGraph(object input)
         {
-            IEnumerable<TipDetailGraph> tips = null;
+            ICollection<TipDetailGraph> tips = null;
             using (var conn = ConnectionFactory.GetConnection("DbModel"))
             {
                 tips = conn.Query<TipDetailGraph>("BM_Tip_DETAIL_Graph", input, commandType: CommandType.StoredProcedure).ToList();
@@ -56,6 +56,17 @@ namespace BetManager.Core.Domains.Tips
                 conn.Close();
             }
             return ret;
+        }
+
+        public virtual ICollection<TipAllPoisson> GetAllPoisson(object input)
+        {
+            ICollection<TipAllPoisson> tips = null;
+            using (var conn = ConnectionFactory.GetConnection("DbModel"))
+            {
+                tips = conn.Query<TipAllPoisson>("BM_Event_DETAIL_Poisson", input, commandType: CommandType.StoredProcedure).ToList();
+                conn.Close();
+            }
+            return tips;
         }
     }
 }

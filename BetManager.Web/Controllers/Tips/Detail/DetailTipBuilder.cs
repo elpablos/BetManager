@@ -31,7 +31,7 @@ namespace BetManager.Web.Controllers.Tips.Detail
                 AwaySeasonCount = tip.AwaySeasonCount,
                 AwaySeasonForm = tip.AwaySeasonForm,
                 AwaySeasonGiven = tip.AwaySeasonGiven,
-                AwaySeasonTaken= tip.AwaySeasonTaken,
+                AwaySeasonTaken = tip.AwaySeasonTaken,
                 AwayTeam = tip.AwayTeam,
                 Category = tip.Category,
                 DateStart = tip.DateStart,
@@ -54,7 +54,18 @@ namespace BetManager.Web.Controllers.Tips.Detail
                 Url = tip.Url,
                 WinnerCode = tip.WinnerCode,
                 XId = tip.XId,
-                Xvalue = tip.Xvalue
+                Xvalue = tip.Xvalue,
+                Poissons = _tipManager.GetAllPoisson(new { id = tip.ID }).Select(x => new DetailTipPoissonViewModel
+                {
+                    DisplayName = x.DisplayName,
+                    GoalFive = x.GoalFive,
+                    GoalFour = x.GoalFour,
+                    GoalOne = x.GoalOne,
+                    GoalThree = x.GoalThree,
+                    GoalTwo = x.GoalTwo,
+                    GoalZero = x.GoalZero,
+                    Score = x.Score
+                }).ToList()
             };
 
             return result;

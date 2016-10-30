@@ -182,6 +182,8 @@
     <Compile Include="ApiControllers\ImportDataController.cs" />
     <Compile Include="Controllers\TipController.cs" />
     <Compile Include="Controllers\Tips\Detail\DetailTipBuilder.cs" />
+    <Compile Include="Controllers\Tips\Detail\DetailTipPoissonViewModel.cs" />
+    <Compile Include="Controllers\Tips\Detail\DetailTipTeamViewModel.cs" />
     <Compile Include="Controllers\Tips\Detail\DetailTipViewModel.cs" />
     <Compile Include="Controllers\Tips\List\TipListFilterViewModel.cs" />
     <Compile Include="Controllers\Tips\List\TipListItemViewModel.cs" />
@@ -561,6 +563,7 @@
     <Content Include="Views\Tip\Index.cshtml" />
     <Content Include="Views\Tip\Detail.cshtml" />
     <Content Include="Views\Account\Detail.cshtml" />
+    <Content Include="Views\Tip\_DetailPoisson.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

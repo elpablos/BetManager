@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
 
 namespace BetManager.Web.ApiControllers
@@ -15,6 +16,8 @@ namespace BetManager.Web.ApiControllers
     {
         public int Get()
         {
+            HttpContext.Current.Server.ScriptTimeout = 300;
+
             // DateTime date, string category, string sport
             var vm = new ImportDataImportFilterViewModel();
             //if (sport != null)
@@ -31,7 +34,22 @@ namespace BetManager.Web.ApiControllers
         [HttpPost]
         public int Post(ImportDataImportFilterViewModel model)
         {
+            HttpContext.Current.Server.ScriptTimeout = 300;
             var result = Handler.Get<ImportDataImportHandler>().Handle(model);
+
+            return (int)result.Data;
+        }
+
+        [Authorize]
+        [HttpGet]
+        [Route("api/ImportData/Tomorrow")]
+        public int Tommorow()
+        {
+            HttpContext.Current.Server.ScriptTimeout = 300;
+
+            var vm = new ImportDataImportFilterViewModel();
+            vm.Date = DateTime.Now.AddDays(1);
+            var result = Handler.Get<ImportDataImportHandler>().Handle(vm);
 
             return (int)result.Data;
         }
@@ -41,8 +59,10 @@ namespace BetManager.Web.ApiControllers
         [Route("api/ImportData/Yesterday")]
         public int Yesterday()
         {
+            HttpContext.Current.Server.ScriptTimeout = 300;
+
             var vm = new ImportDataImportFilterViewModel();
-            vm.Date = DateTime.Now.AddDays(1);
+            vm.Date = DateTime.Now.AddDays(-1);
             var result = Handler.Get<ImportDataImportHandler>().Handle(vm);
 
             return (int)result.Data;
