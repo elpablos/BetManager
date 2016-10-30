@@ -82,6 +82,7 @@
     <Compile Include="DbModels\Tips\TipDetailGraph.cs" />
     <Compile Include="Domains\Accounts\IUserManager.cs" />
     <Compile Include="Domains\Accounts\UserManager.cs" />
+    <Compile Include="Domains\BaseManager.cs" />
     <Compile Include="Domains\ConnectionFactory.cs" />
     <Compile Include="Domains\ImportDatas\IImportDataManager.cs" />
     <Compile Include="Domains\ImportDatas\ImportDataManager.cs" />

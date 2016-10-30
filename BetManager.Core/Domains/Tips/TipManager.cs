@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BetManager.Core.Domains.Tips
 {
-    public class TipManager : ITipManager
+    public class TipManager : BaseManager, ITipManager
     {
         public virtual ICollection<Tip> GetAll(object input)
         {
@@ -52,7 +52,7 @@ namespace BetManager.Core.Domains.Tips
             int ret = -1;
             using (var conn = ConnectionFactory.GetConnection("DbModel"))
             {
-                ret = conn.Execute("BM_Tip_GENERATE", null, commandType: CommandType.StoredProcedure);
+                ret = conn.Execute("BM_Tip_GENERATE", null, commandType: CommandType.StoredProcedure, commandTimeout: LONG_TIMEOUT);
                 conn.Close();
             }
             return ret;

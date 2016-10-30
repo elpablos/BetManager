@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BetManager.Core.Domains.ImportDatas
 {
-    public class ImportDataManager : IImportDataManager
+    public class ImportDataManager : BaseManager, IImportDataManager
     {
         private const string SqlInsert = @"insert into BM_ImportData ([Date], [SportName], [SportSlug], [SportId], [TournamentName], [TournamentSlug], [TournamentId], [TournamentUniqueId], [CategoryName], [CategorySlug], [CategoryId], [SeasonName], [SeasonSlug], [SeasonId], [SeasonYear], [EventId], [EventCustomId], [EventFirstToServe], [EventHasDraw], [EventWinnerCode], [EventName], [EventSlug], [EventStartDate], [EventStartTime], [EventChanges], [StatusCode], [StatusType], [StatusDescription], [HomeTeamId], [HomeTeamName], [HomeTeamSlug], [HomeTeamGender], [HomeScoreCurrent], [HomeScorePeriod1], [HomeScorePeriod2], [HomeScorePeriod3], [HomeScoreNormaltime], [HomeScoreOvertime], [HomeScorePenalties], [AwayTeamId], [AwayTeamName], [AwayTeamSlug], [AwayTeamGender], [AwayScoreCurrent], [AwayScorePeriod1], [AwayScorePeriod2], [AwayScorePeriod3], [AwayScoreNormaltime], [AwayScoreOvertime], [AwayScorePenalties], [OddsRegularFirstSourceId], [OddsRegularFirstValue], [OddsRegularFirstWining], [OddsRegularXSourceId], [OddsRegularXValue], [OddsRegularXWining], [OddsRegularSecondSourceId], [OddsRegularSecondValue], [OddsRegularSecondWining], [OddsDoubleChangeFirstXSourceId], [OddsDoubleChangeFirstXValue], [OddsDoubleChangeFirstXWining], [OddsDoubleChangeXSecondSourceId], [OddsDoubleChangeXSecondValue], [OddsDoubleChangeXSecondWining], [OddsDoubleChangeFirstSecondSourceId], [OddsDoubleChangeFirstSecondValue], [OddsDoubleChangeFirstSecondWining], [IsProcessed])
 values(@Date, @SportName, @SportSlug, @SportId, @TournamentName, @TournamentSlug, @TournamentId, @TournamentUniqueId, @CategoryName, @CategorySlug, @CategoryId, @SeasonName, @SeasonSlug, @SeasonId, @SeasonYear, @EventId, @EventCustomId, @EventFirstToServe, @EventHasDraw, @EventWinnerCode, @EventName, @EventSlug, @EventStartDate, @EventStartTime, @EventChanges, @StatusCode, @StatusType, @StatusDescription, @HomeTeamId, @HomeTeamName, @HomeTeamSlug, @HomeTeamGender, @HomeScoreCurrent, @HomeScorePeriod1, @HomeScorePeriod2, @HomeScorePeriod3, @HomeScoreNormaltime, @HomeScoreOvertime, @HomeScorePenalties, @AwayTeamId, @AwayTeamName, @AwayTeamSlug, @AwayTeamGender, @AwayScoreCurrent, @AwayScorePeriod1, @AwayScorePeriod2, @AwayScorePeriod3, @AwayScoreNormaltime, @AwayScoreOvertime, @AwayScorePenalties, @OddsRegularFirstSourceId, @OddsRegularFirstValue, @OddsRegularFirstWining, @OddsRegularXSourceId, @OddsRegularXValue, @OddsRegularXWining, @OddsRegularSecondSourceId, @OddsRegularSecondValue, @OddsRegularSecondWining, @OddsDoubleChangeFirstXSourceId, @OddsDoubleChangeFirstXValue, @OddsDoubleChangeFirstXWining, @OddsDoubleChangeXSecondSourceId, @OddsDoubleChangeXSecondValue, @OddsDoubleChangeXSecondWining, @OddsDoubleChangeFirstSecondSourceId, @OddsDoubleChangeFirstSecondValue, @OddsDoubleChangeFirstSecondWining, @IsProcessed)";
@@ -33,7 +33,7 @@ values(@Date, @SportName, @SportSlug, @SportId, @TournamentName, @TournamentSlug
             int ret = -1;
             using (var conn = ConnectionFactory.GetConnection("DbModel"))
             {
-                ret = conn.Execute(SqlInsert, rows, commandType: CommandType.Text);
+                ret = conn.Execute(SqlInsert, rows, commandType: CommandType.Text, commandTimeout: LONG_TIMEOUT);
                 conn.Close();
             }
             return ret;
@@ -78,7 +78,7 @@ values(@Date, @SportName, @SportSlug, @SportId, @TournamentName, @TournamentSlug
             int ret = -1;
             using (var conn = ConnectionFactory.GetConnection("DbModel"))
             {
-                ret = conn.Execute("BM_ImportData_IMPORT", null, commandType: CommandType.StoredProcedure);
+                ret = conn.Execute("BM_ImportData_IMPORT", null, commandType: CommandType.StoredProcedure, commandTimeout: LONG_TIMEOUT);
                 conn.Close();
             }
             return ret;
