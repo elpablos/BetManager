@@ -25,6 +25,9 @@
         @Html.DisplayNameFor(model => model.GoalFive)
       </td>
       <td class="text-center">
+        @Html.DisplayNameFor(model => model.Tip)
+      </td>
+      <td class="text-center">
         @Html.DisplayNameFor(model => model.Score)
       </td>
     </tr>
@@ -53,6 +56,9 @@
           </td>
           <td class="text-right">
             @Html.DisplayFor(modelItem => item.GoalFive) %
+          </td>
+          <td class="text-center info">
+            <strong>@Html.DisplayFor(modelItem => item.Tip)</strong>
           </td>
           <td class="text-center">
             @Html.DisplayFor(modelItem => item.Score)

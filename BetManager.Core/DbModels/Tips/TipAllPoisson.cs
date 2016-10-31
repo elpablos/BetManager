@@ -23,5 +23,7 @@ namespace BetManager.Core.DbModels.Tips
         public string DisplayName { get; set; }
 
         public int? Score { get; set; }
+
+        public double Tip { get; set; }
     }
 }

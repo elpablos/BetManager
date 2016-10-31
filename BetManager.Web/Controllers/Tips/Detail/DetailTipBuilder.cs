@@ -64,7 +64,8 @@ namespace BetManager.Web.Controllers.Tips.Detail
                     GoalThree = x.GoalThree,
                     GoalTwo = x.GoalTwo,
                     GoalZero = x.GoalZero,
-                    Score = x.Score
+                    Score = x.Score,
+                    Tip = x.Tip
                 }).ToList()
             };
 

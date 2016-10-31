@@ -31,5 +31,8 @@ namespace BetManager.Web.Controllers.Tips.Detail
 
         [Display(Name = "Skóre")]
         public int? Score { get; set; }
+
+        [Display(Name = "Tip")]
+        public double Tip { get; set; }
     }
 }

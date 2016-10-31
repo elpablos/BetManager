@@ -35,6 +35,9 @@
     <Procedure Name="BM_Tip_ALL_BackUp" />
     <Procedure Name="BM_Tip_DETAIL_Genetic" />
     <Procedure Name="BM_Tip_DETAIL_Genetic_Extend" />
+    <Procedure Name="BM_Event_DETAIL_Poisson" />
+    <Procedure Name="BM_Tip_ALL_PokusOne" />
+    <Procedure Name="BM_Tip_ALL_PokusTwo" />
   </Procedures>
   <Functions>
     <Function Name="BM_Event_DETAIL_LastEvent" InstallBeforeView="false" />
@@ -56,6 +59,8 @@
     <Function Name="BM_Genetic_DETAIL_Price_Extend" InstallBeforeView="false" />
     <Function Name="BM_Genetic_Score" InstallBeforeView="false" />
     <Function Name="BM_Genetic_Score_Extend" InstallBeforeView="false" />
+    <Function Name="FN_Factorial" InstallBeforeView="false" />
+    <Function Name="FN_Poisson" InstallBeforeView="false" />
   </Functions>
   <BaseTables />
   <ProcedureTemplates>

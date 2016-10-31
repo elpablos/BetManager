@@ -1,5 +1,5 @@
 -- Database: BetManagerDevel
--- Date: 28.10.2016 10:48:04
+-- Date: 31.10.2016 14:05:14
 
 print 'CurrentTime: START - ' + convert(varchar, getdate(), 120)
 
@@ -2159,13 +2159,12 @@ end
 
 GO
 
-
 -- =============================================
 -- Author:		Pavel Lorenz
--- Create date: 14.10.2016
+-- Update date: 28.10.2016
 -- Description:	Dopočítání formy, střelený a obdržený branky
 -- =============================================
-CREATE FUNCTION BM_Event_DETAIL_LastEvent
+CREATE FUNCTION [dbo].[BM_Event_DETAIL_LastEvent]
 (	
 	@ID_Event int,
 	@ID_Team int
@@ -2185,7 +2184,9 @@ RETURN
 			cross join BM_EventView BM_Event
 		where BM_EventOriginal.ID=@ID_Event 
 			and BM_Event.ID < BM_EventOriginal.ID 
+			and BM_Event.DateStart <= BM_EventOriginal.DateStart 
 			and (BM_Event.ID_AwayTeam=@ID_Team OR BM_Event.ID_HomeTeam=@ID_Team)
+			and BM_Event.ID_Status >= 90
 		order by BM_Event.DateStart desc
 	) LastEvent
 	group by LastEvent.ID
@@ -2331,7 +2332,7 @@ GO
 
 -- =============================================
 -- Author:		Pavel Lorenz
--- Create date: 18.10.2016
+-- Update date: 28.10.2016
 -- Description:	Dopočítání formy, střelený a obdržený branky
 -- =============================================
 CREATE FUNCTION [dbo].[BM_Event_DETAIL_SeasonEvent]
@@ -2355,6 +2356,7 @@ RETURN
 			cross join BM_EventView BM_Event
 		where BM_EventOriginal.ID=@ID_Event 
 			and BM_Event.ID <= BM_EventOriginal.ID 
+			and BM_Event.DateStart <= BM_EventOriginal.DateStart 
 			and BM_Event.ID_Season=BM_EventOriginal.ID_Season
 			and BM_Event.ID_Tournament=BM_EventOriginal.ID_Tournament
 			and BM_Event.ID_Status >= 90
@@ -2707,7 +2709,8 @@ RETURN
 		from BM_Event BM_EventOriginal
 			cross join BM_EventView BM_Event
 		where BM_EventOriginal.ID=@ID_Event 
-			--and BM_Event.ID < BM_EventOriginal.ID 
+			and BM_Event.ID <= BM_EventOriginal.ID 
+			and BM_Event.DateStart <= BM_EventOriginal.DateStart 
 			and BM_Event.ID_Season=BM_EventOriginal.ID_Season
 			and BM_Event.ID_Tournament=BM_EventOriginal.ID_Tournament
 			and BM_Event.ID_Status >= 90
@@ -3003,6 +3006,58 @@ BEGIN
 		(@SeasonForm) +
 		(dbo.BM_Tip_Sigmoid((@SeasonGiven/@SeasonCount), 1.1, 3.0)*100 * @SeasonGivenKoeficient) + 
 		(dbo.BM_Tip_Sigmoid((@SeasonTaken/@SeasonCount), 1.1, 3.0)*100 * @SeasonTakenKoeficient)
+	)
+
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='FN_Factorial')
+begin
+  drop function FN_Factorial
+end
+
+GO
+
+CREATE FUNCTION [dbo].[FN_Factorial] ( @iNumber int )
+RETURNS INT
+AS
+BEGIN
+DECLARE @i  int
+
+    IF @iNumber <= 1
+        SET @i = 1
+    ELSE
+        SET @i = @iNumber * dbo.FN_Factorial( @iNumber - 1 )
+RETURN (@i)
+END
+
+GO
+
+if exists (select * from sysobjects where name='FN_Poisson')
+begin
+  drop function FN_Poisson
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 30.10.2016
+-- Description:	výpočet poissona
+-- =============================================
+CREATE FUNCTION [dbo].[FN_Poisson]
+(
+	@x int,
+	@m decimal(9,4)
+)
+RETURNS decimal(9,4)
+AS
+BEGIN
+	RETURN 
+	(
+		exp(-1*@m) * power(@m, @x) / (dbo.FN_Factorial(@x) * 1.0)
 	)
 
 END
@@ -5705,14 +5760,15 @@ end
 
 GO
 
+
 -- =============================================
--- Author:		<Author,,Name>
--- Create date: <Create Date,,>
--- Description:	<Description,,>
+-- Author:		Pavel Lorenz
+-- Update date: 28.10.2016
+-- Description:	Přegenerování starších tipů
 -- =============================================
 CREATE PROCEDURE [dbo].[BM_Tip_GENERATE_Old]
-	@DateStart datetime,
-	@DateTo datetime = null
+	@DateStart date = '2016-01-01',
+	@DateTo date = null
 AS
 BEGIN
 	select @DateTo=getdate() where @DateTo is null
@@ -6536,6 +6592,320 @@ BEGIN
 	drop table #PopulationCurrent
 	drop table #PopulationNext
 
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Event_DETAIL_Poisson')
+begin
+  drop procedure BM_Event_DETAIL_Poisson
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Update date: 31.10.2016
+-- Description:	Dopočítání statistiky dle Poissonova rozdělení
+--
+-- =============================================
+CREATE PROCEDURE [dbo].[BM_Event_DETAIL_Poisson]
+	@ID int
+AS
+BEGIN
+	declare
+		@ID_Season int,
+		@ID_HomeTeam int,
+		@ID_AwayTeam int,
+		@HomeLambda decimal(9,4),
+		@AwayLambda decimal(9,4),
+		@HomeMi decimal(9,4),
+		@AwayMi decimal(9,4)
+
+	-- dotažení parametrů
+	select @ID_Season=ID_Season, 
+		@ID_HomeTeam=ID_HomeTeam, 
+		@ID_AwayTeam=ID_AwayTeam 
+	from BM_Event where ID=@ID
+
+	-- prumerny pocet strel jako domaci nebo hoste
+	select @HomeLambda=avg(HomeScoreCurrent * 1.0),
+		@AwayLambda=avg(AwayScoreCurrent * 1.0)
+	from BM_Event
+	where BM_Event.ID_Season=@ID_Season 
+		AND BM_Event.ID < @ID
+		AND BM_Event.ID_Status >= 90
+
+	select
+		@HomeMi =
+		((
+			-- domaci utok
+			select case when count(*)=0 then 0 else sum(HomeScoreCurrent) * 1.0/count(*)/@HomeLambda end
+			from BM_Event
+			where BM_Event.ID_Season=@ID_Season 
+				AND BM_Event.ID < @ID
+				AND BM_Event.ID_Status >= 90
+				AND BM_Event.ID_HomeTeam=@ID_HomeTeam
+		) 
+		*
+		(
+			-- hoste obrana
+			select case when count(*)=0 then 0 else sum(HomeScoreCurrent) * 1.0/count(*)/@HomeLambda end
+			from BM_Event
+			where BM_Event.ID_Season=@ID_Season 
+				AND BM_Event.ID < @ID
+				AND BM_Event.ID_Status >= 90
+				AND BM_Event.ID_AwayTeam=@ID_AwayTeam
+		) 
+		*
+		@HomeLambda),
+		@AwayMi=
+		-- hoste
+		((
+			-- hoste utok
+			select case when count(*)=0 then 0 else sum(AwayScoreCurrent) * 1.0/count(*)/@AwayLambda end
+			from BM_Event
+			where BM_Event.ID_Season=@ID_Season 
+				AND BM_Event.ID < @ID
+				AND BM_Event.ID_Status >= 90
+				AND BM_Event.ID_AwayTeam=@ID_AwayTeam
+		) 
+		*
+		(
+			-- domaci obrana
+			select case when count(*)=0 then 0 else sum(HomeScoreCurrent) * 1.0/count(*)/@AwayLambda end
+			from BM_Event
+			where BM_Event.ID_Season=@ID_Season 
+				AND BM_Event.ID < @ID
+				AND BM_Event.ID_Status >= 90
+				AND BM_Event.ID_HomeTeam=@ID_HomeTeam
+		) 
+		*
+		@AwayLambda)
+	from BM_Event
+	where BM_Event.ID=@ID
+
+	-- poisson tabulka
+	(
+		select 
+			1 as TeamCode,
+			dbo.FN_Poisson(0, @HomeMi) * 100 as GoalZero,
+			dbo.FN_Poisson(1, @HomeMi) * 100 as GoalOne,
+			dbo.FN_Poisson(2, @HomeMi) * 100 as GoalTwo,
+			dbo.FN_Poisson(3, @HomeMi) * 100 as GoalThree,
+			dbo.FN_Poisson(4, @HomeMi) * 100 as GoalFour,
+			dbo.FN_Poisson(5, @HomeMi) * 100 as GoalFive,
+			WinnerCode,
+			HomeScoreCurrent as Score,
+			BM_Team.DisplayName,
+			@HomeMi as Tip
+		from BM_Event
+		inner join BM_Team on BM_Team.ID=BM_Event.ID_HomeTeam
+		where BM_Event.ID=@ID
+	union
+		select 
+			2 as TeamCode,
+			dbo.FN_Poisson(0, @AwayMi) * 100 as GoalZero,
+			dbo.FN_Poisson(1, @AwayMi) * 100 as GoalOne,
+			dbo.FN_Poisson(2, @AwayMi) * 100 as GoalTwo,
+			dbo.FN_Poisson(3, @AwayMi) * 100 as GoalThree,
+			dbo.FN_Poisson(4, @AwayMi) * 100 as GoalFour,
+			dbo.FN_Poisson(5, @AwayMi) * 100 as GoalFive,
+			WinnerCode,
+			AwayScoreCurrent as Score,
+			BM_Team.DisplayName,
+			@AwayMi as Tip
+		from BM_Event
+		inner join BM_Team on BM_Team.ID=BM_Event.ID_AwayTeam
+		where BM_Event.ID=@ID
+	)
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Tip_ALL_PokusOne')
+begin
+  drop procedure BM_Tip_ALL_PokusOne
+end
+
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE BM_Tip_ALL_PokusOne
+@limit int = 30, 
+	@price int = 100, 
+	@bet decimal(9,2) = 2.0,
+	@DateStart date = '2016-01-01'
+AS
+BEGIN
+
+select 
+	sum(Price), count(*) as [Count], sum(case when Tip=WinnerCode then 1 else 0 end) as GoodBet, 
+	avg(Bet) as AvgBet,
+	1.0*sum(case when Tip=WinnerCode then 1 else 0 end)/count(*) as Percentile
+from
+(
+	select 
+		((case when Tip=WinnerCode then (Bet * @price) else 0 end) - @price) as Price,
+		*
+	from
+	(
+		select 
+		case when [Group] < 0 then SecondValue else FirstValue end as Bet,
+		case when [Group] < 0 then 2 else 1 end as Tip,
+		*
+		from 
+		(
+			select  cast(
+			  0.5 *IsNull((0.5 * LastFormGreater+0.5 * ( 0.5 *LastGivenGreater + 0.5 * LastTakenGreater)) ,0) 
+			+ 0.5 * IsNull((0.5 * SeasonFormGreater+0.5 * ( 0.5 *SeasonGivenGreater + 0.5 * SeasonTakenGreater)) ,0)
+			as int) as [Group], *
+			from 
+			(
+				select 
+					BM_Event.ID,
+					BM_Event.DisplayName,
+					BM_Event.DateStart,
+					BM_Event.WinnerCode,
+					BM_Event.HomeScoreCurrent,
+					BM_Event.AwayScoreCurrent,
+					--case when BM_Event.WinnerCode=2 then BM_Tip.AwayLastForm - BM_Tip.HomeLastForm else BM_Tip.HomeLastForm - BM_Tip.AwayLastForm end as LastForm,
+					--case when BM_Event.WinnerCode=2 then (dbo.BM_Tip_Sigmoid((BM_Tip.AwayLastGiven/7.0), 1.1, 3.0)*100) - (dbo.BM_Tip_Sigmoid((BM_Tip.HomeLastGiven/7.0), 1.1, 3.0)*100) 
+					--else (dbo.BM_Tip_Sigmoid((BM_Tip.HomeLastGiven/7.0), 1.1, 3.0)*100) - (dbo.BM_Tip_Sigmoid((BM_Tip.AwayLastGiven/7.0), 1.1, 3.0)*100) end as LastGiven,
+					--case when BM_Event.WinnerCode=2 then (dbo.BM_Tip_Sigmoid((BM_Tip.AwayLastTaken/7.0), 1.1, 3.0)*100) - (dbo.BM_Tip_Sigmoid((BM_Tip.HomeLastTaken/7.0), 1.1, 3.0)*100) 
+					--else (dbo.BM_Tip_Sigmoid((BM_Tip.HomeLastTaken/7.0), 1.1, 3.0)*100) - (dbo.BM_Tip_Sigmoid((BM_Tip.AwayLastTaken/7.0), 1.1, 3.0)*100) end as LastTaken,
+
+					case when BM_Tip.AwayLastForm > BM_Tip.HomeLastForm then (BM_Tip.AwayLastForm - BM_Tip.HomeLastForm) * -1 else BM_Tip.HomeLastForm - BM_Tip.AwayLastForm end as LastFormGreater,
+					case when (dbo.BM_Tip_Sigmoid((BM_Tip.AwayLastGiven/7.0), 1.1, 3.0)*100) > (dbo.BM_Tip_Sigmoid((BM_Tip.HomeLastGiven/7.0), 1.1, 3.0)*100) 
+					then ((dbo.BM_Tip_Sigmoid((BM_Tip.AwayLastGiven/7.0), 1.1, 3.0)*100) - (dbo.BM_Tip_Sigmoid((BM_Tip.HomeLastGiven/7.0), 1.1, 3.0)*100)) * -1
+					else (dbo.BM_Tip_Sigmoid((BM_Tip.HomeLastGiven/7.0), 1.1, 3.0)*100) - (dbo.BM_Tip_Sigmoid((BM_Tip.AwayLastGiven/7.0), 1.1, 3.0)*100) end as LastGivenGreater,
+					case when (dbo.BM_Tip_Sigmoid((BM_Tip.AwayLastTaken/7.0), 1.1, 3.0)*100) < (dbo.BM_Tip_Sigmoid((BM_Tip.HomeLastTaken/7.0), 1.1, 3.0)*100)
+					then ((dbo.BM_Tip_Sigmoid((BM_Tip.AwayLastTaken/7.0), 1.1, 3.0)*100) - (dbo.BM_Tip_Sigmoid((BM_Tip.HomeLastTaken/7.0), 1.1, 3.0)*100)) 
+					else (dbo.BM_Tip_Sigmoid((BM_Tip.HomeLastTaken/7.0), 1.1, 3.0)*100) - (dbo.BM_Tip_Sigmoid((BM_Tip.AwayLastTaken/7.0), 1.1, 3.0)*100)* -1 end as LastTakenGreater,
+
+					case when BM_Tip.AwaySeasonForm > BM_Tip.HomeSeasonForm then (BM_Tip.AwaySeasonForm - BM_Tip.HomeSeasonForm) * -1 else BM_Tip.HomeSeasonForm - BM_Tip.AwaySeasonForm end as SeasonFormGreater,
+
+					case when IsNull(BM_Tip.HomeSeasonCount,0)=0 OR IsNull(BM_Tip.AwaySeasonCount,0)=0 then 0 else
+					case when (dbo.BM_Tip_Sigmoid((BM_Tip.AwaySeasonGiven/BM_Tip.AwaySeasonCount), 1.1, 3.0)*100) > (dbo.BM_Tip_Sigmoid((BM_Tip.HomeSeasonGiven/BM_Tip.HomeSeasonCount), 1.1, 3.0)*100) 
+					then ((dbo.BM_Tip_Sigmoid((BM_Tip.AwaySeasonGiven/BM_Tip.AwaySeasonCount), 1.1, 3.0)*100) - (dbo.BM_Tip_Sigmoid((BM_Tip.HomeSeasonGiven/BM_Tip.HomeSeasonCount), 1.1, 3.0)*100)) * -1
+					else (dbo.BM_Tip_Sigmoid((BM_Tip.HomeSeasonGiven/BM_Tip.HomeSeasonCount), 1.1, 3.0)*100) - (dbo.BM_Tip_Sigmoid((BM_Tip.AwaySeasonGiven/BM_Tip.AwaySeasonCount), 1.1, 3.0)*100) end end as SeasonGivenGreater,
+
+					case when IsNull(BM_Tip.HomeSeasonCount,0)=0 OR IsNull(BM_Tip.AwaySeasonCount,0)=0 then 0 else
+					case when (dbo.BM_Tip_Sigmoid((BM_Tip.AwaySeasonTaken/BM_Tip.AwaySeasonCount), 1.1, 3.0)*100) < (dbo.BM_Tip_Sigmoid((BM_Tip.HomeSeasonTaken/BM_Tip.HomeSeasonCount), 1.1, 3.0)*100)
+					then ((dbo.BM_Tip_Sigmoid((BM_Tip.AwaySeasonTaken/BM_Tip.AwaySeasonCount), 1.1, 3.0)*100) - (dbo.BM_Tip_Sigmoid((BM_Tip.HomeSeasonTaken/BM_Tip.HomeSeasonCount), 1.1, 3.0)*100)) 
+					else (dbo.BM_Tip_Sigmoid((BM_Tip.HomeSeasonTaken/BM_Tip.HomeSeasonCount), 1.1, 3.0)*100) - (dbo.BM_Tip_Sigmoid((BM_Tip.AwaySeasonTaken/BM_Tip.AwaySeasonCount), 1.1, 3.0)*100)* -1 end end as SeasonTakenGreater,
+
+					BM_OddsRegular.FirstValue,
+					BM_OddsRegular.SecondValue
+				from BM_Event
+				inner join BM_Category on BM_Category.ID=BM_Event.ID_Category
+				inner join BM_Tip on BM_Tip.ID=BM_Event.ID
+				inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
+				where BM_Event.DateStart >= @DateStart
+					and BM_Category.ID_Sport=1 --AND WinnerCode=1
+					and BM_Event.ID_Status >= 90
+			) x
+		) y
+		where abs([Group]) >= @limit
+	) z
+	where z.Bet >= @bet
+) a
+--order by z.[Group] 
+
+-- 2268 celkem, 770 OK
+-- 3835 celkem, 1412 OK
+
+
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Tip_ALL_PokusTwo')
+begin
+  drop procedure BM_Tip_ALL_PokusTwo
+end
+
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE BM_Tip_ALL_PokusTwo
+	@limit int = 50, 
+	@price int = 100, 
+	@bet decimal(9,2) = 2.0,
+	@DateStart date = '2016-07-01'
+AS
+BEGIN
+select 
+	sum(Price), count(*) as [Count], sum(case when Tip=WinnerCode then 1 else 0 end) as GoodBet, 
+	avg(Bet) as AvgBet,
+	1.0*sum(case when Tip=WinnerCode then 1 else 0 end)/count(*) as Percentile
+from
+(
+	select 
+		((case when Tip=WinnerCode then (Bet * @price) else 0 end) - @price) as Price,
+		*
+	from
+	(
+		select 
+		case when [Group] < 0 then SecondValue else FirstValue end as Bet,
+		case when [Group] < 0 then 2 else 1 end as Tip,
+		*
+		from 
+		(
+			select cast(IsNull((0.6 * LastFormGreater+0.4 * ( 0.7 *LastGivenGreater + 0.3 * LastTakenGreater)) ,0)as int) as [Group], *
+			from 
+			(
+				select 
+					BM_Event.ID,
+					BM_Event.DisplayName,
+					BM_Event.DateStart,
+					BM_Event.WinnerCode,
+					BM_Event.HomeScoreCurrent,
+					BM_Event.AwayScoreCurrent,
+					case when BM_Event.WinnerCode=2 then BM_Tip.AwayLastForm - BM_Tip.HomeLastForm else BM_Tip.HomeLastForm - BM_Tip.AwayLastForm end as LastForm,
+					case when BM_Event.WinnerCode=2 then (dbo.BM_Tip_Sigmoid((BM_Tip.AwayLastGiven/7.0), 1.1, 3.0)*100) - (dbo.BM_Tip_Sigmoid((BM_Tip.HomeLastGiven/7.0), 1.1, 3.0)*100) 
+					else (dbo.BM_Tip_Sigmoid((BM_Tip.HomeLastGiven/7.0), 1.1, 3.0)*100) - (dbo.BM_Tip_Sigmoid((BM_Tip.AwayLastGiven/7.0), 1.1, 3.0)*100) end as LastGiven,
+					case when BM_Event.WinnerCode=2 then (dbo.BM_Tip_Sigmoid((BM_Tip.AwayLastTaken/7.0), 1.1, 3.0)*100) - (dbo.BM_Tip_Sigmoid((BM_Tip.HomeLastTaken/7.0), 1.1, 3.0)*100) 
+					else (dbo.BM_Tip_Sigmoid((BM_Tip.HomeLastTaken/7.0), 1.1, 3.0)*100) - (dbo.BM_Tip_Sigmoid((BM_Tip.AwayLastTaken/7.0), 1.1, 3.0)*100) end as LastTaken,
+
+					case when BM_Tip.AwayLastForm > BM_Tip.HomeLastForm then (BM_Tip.AwayLastForm - BM_Tip.HomeLastForm) * -1 else BM_Tip.HomeLastForm - BM_Tip.AwayLastForm end as LastFormGreater,
+					case when (dbo.BM_Tip_Sigmoid((BM_Tip.AwayLastGiven/7.0), 1.1, 3.0)*100) > (dbo.BM_Tip_Sigmoid((BM_Tip.HomeLastGiven/7.0), 1.1, 3.0)*100) 
+					then ((dbo.BM_Tip_Sigmoid((BM_Tip.AwayLastGiven/7.0), 1.1, 3.0)*100) - (dbo.BM_Tip_Sigmoid((BM_Tip.HomeLastGiven/7.0), 1.1, 3.0)*100)) * -1
+					else (dbo.BM_Tip_Sigmoid((BM_Tip.HomeLastGiven/7.0), 1.1, 3.0)*100) - (dbo.BM_Tip_Sigmoid((BM_Tip.AwayLastGiven/7.0), 1.1, 3.0)*100) end as LastGivenGreater,
+					case when (dbo.BM_Tip_Sigmoid((BM_Tip.AwayLastTaken/7.0), 1.1, 3.0)*100) < (dbo.BM_Tip_Sigmoid((BM_Tip.HomeLastTaken/7.0), 1.1, 3.0)*100)
+					then ((dbo.BM_Tip_Sigmoid((BM_Tip.AwayLastTaken/7.0), 1.1, 3.0)*100) - (dbo.BM_Tip_Sigmoid((BM_Tip.HomeLastTaken/7.0), 1.1, 3.0)*100)) 
+					else (dbo.BM_Tip_Sigmoid((BM_Tip.HomeLastTaken/7.0), 1.1, 3.0)*100) - (dbo.BM_Tip_Sigmoid((BM_Tip.AwayLastTaken/7.0), 1.1, 3.0)*100)* -1 end as LastTakenGreater,
+
+					BM_OddsRegular.FirstValue,
+					BM_OddsRegular.SecondValue
+				from BM_Event
+				inner join BM_Category on BM_Category.ID=BM_Event.ID_Category
+				inner join BM_Tip on BM_Tip.ID=BM_Event.ID
+				inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
+				where BM_Event.DateStart >= @DateStart
+					and BM_Category.ID_Sport=1 -- AND WinnerCode=1
+					and BM_Event.ID_Status >= 90
+			) x
+		) y
+		where abs([Group]) >= @limit
+	) z
+	where z.Bet >= @bet
+	-- order by z.DateStart
+) a
+
+-- 2268 celkem, 770 OK
+-- 3835 celkem, 1412 OK
 END
 
 
