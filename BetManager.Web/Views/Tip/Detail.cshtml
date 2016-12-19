@@ -301,16 +301,25 @@
           </div>
         </div>
 
-        <div class="row col-md-12">
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <a data-toggle="collapse" href="#panel-poisson-detail">
-                <h4 class="">Pravděpodobnosti dle Poissona</h4>
-              </a>
-            </div>
-            <div id="panel-poisson-detail" class="panel-body panel-collapse collapse in">
-              @Html.Partial("_DetailPoisson", Model.Poissons)
-            </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <a data-toggle="collapse" href="#panel-poisson-detail">
+              <h4 class="">Odhad z aktuální sezóny</h4>
+            </a>
+          </div>
+          <div id="panel-poisson-detail" class="panel-body panel-collapse collapse in">
+            @Html.Partial("_DetailPoisson", Model.Poissons)
+          </div>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <a data-toggle="collapse" href="#panel-poisson-detail">
+              <h4 class="">Odhad ze všech sezón</h4>
+            </a>
+          </div>
+          <div id="panel-poisson-detail" class="panel-body panel-collapse collapse in">
+            @Html.Partial("_DetailPoisson", Model.PoissonHistories)
           </div>
         </div>
       </div>

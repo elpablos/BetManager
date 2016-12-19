@@ -79,6 +79,7 @@ namespace BetManager.Web.Controllers
                     ModelState.AddModelError("", "Neplatné přihlášení");
                 }
             }
+
             return View(data);
         }
 

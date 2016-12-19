@@ -9,6 +9,8 @@ namespace BetManager.Core.Domains.Tips
         Tip GetById(int id);
         ICollection<TipDetailGraph> GetGraph(object input);
         ICollection<TipAllPoisson> GetAllPoisson(object input);
+        ICollection<TipAllPoisson> GetAllPoissonHistory(object input);
+        
         int TipGenerate();
     }
 }

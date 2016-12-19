@@ -16,7 +16,8 @@ namespace BetManager.Web
 
             bundles.Add(new ScriptBundle("~/bundles/datatables").Include(
                  "~/Scripts/jquery.dataTables.js",
-                 "~/Scripts/dataTables.bootstrap.js"
+                 "~/Scripts/dataTables.bootstrap.js",
+                 "~/Scripts/DataTables-1.10.12/extensions/Responsive/js/dataTables.responsive.js"
                  ));
 
             // Use the development version of Modernizr to develop with and learn from. Then, when you're

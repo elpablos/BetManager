@@ -66,6 +66,18 @@ namespace BetManager.Web.Controllers.Tips.Detail
                     GoalZero = x.GoalZero,
                     Score = x.Score,
                     Tip = x.Tip
+                }).ToList(),
+                PoissonHistories = _tipManager.GetAllPoissonHistory(new { id = tip.ID }).Select(x => new DetailTipPoissonViewModel
+                {
+                    DisplayName = x.DisplayName,
+                    GoalFive = x.GoalFive,
+                    GoalFour = x.GoalFour,
+                    GoalOne = x.GoalOne,
+                    GoalThree = x.GoalThree,
+                    GoalTwo = x.GoalTwo,
+                    GoalZero = x.GoalZero,
+                    Score = x.Score,
+                    Tip = x.Tip
                 }).ToList()
             };
 

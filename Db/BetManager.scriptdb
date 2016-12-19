@@ -40,6 +40,7 @@
     <Procedure Name="BM_Tip_ALL_PokusTwo" />
     <Procedure Name="BM_Event_ALL_Season" />
     <Procedure Name="BM_Event_DETAIL_Poisson_History" />
+    <Procedure Name="BM_Event_ALL_Python" />
   </Procedures>
   <Functions>
     <Function Name="BM_Event_DETAIL_LastEvent" InstallBeforeView="false" />

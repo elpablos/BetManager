@@ -1,51 +1,54 @@
 ﻿@model IEnumerable<BetManager.Web.Controllers.Tips.List.TipListItemViewModel>
 
+
 <div class="row">
-  <table id="example" class="table table-striped table-bordered table-hover table-responsive">
-    <thead>
-      <tr>
-        <td>
-          @Html.DisplayNameFor(model => model.DisplayName)
-        </td>
-        <td>
-          @Html.DisplayNameFor(model => model.DateStart)
-        </td>
-        <td>
-          @Html.DisplayNameFor(model => model.Form)
-        </td>
-        <td>
-          @Html.DisplayNameFor(model => model.Odd)
-        </td>
-        <td>
-          @Html.DisplayNameFor(model => model.WinnerCode)
-        </td>
-        <td></td>
-      </tr>
-    </thead>
-    <tbody>
-      @foreach (var item in Model)
-      {
-          <tr>
-            <td>
-              @Html.DisplayFor(modelItem => item.DisplayName)
-            </td>
-            <td>
-              @Html.DisplayFor(modelItem => item.DateStart)
-            </td>
-            <td>
-              @Html.DisplayFor(modelItem => item.Form)
-            </td>
-            <td>
-              @Html.DisplayFor(modelItem => item.Odd)
-            </td>
-            <td>
-              @Html.DisplayFor(modelItem => item.WinnerCode)
-            </td>
-            <td>
-              @Html.ActionLink("Detail", "Detail", new { id = item.ID })
-            </td>
-          </tr>
-      }
-    </tbody>
-  </table>
+  <div class="col-md-12">
+    <table id="example" class="table table-striped table-bordered table-hover">
+      <thead>
+        <tr>
+          <td>
+            @Html.DisplayNameFor(model => model.DisplayName)
+          </td>
+          <td>
+            @Html.DisplayNameFor(model => model.DateStart)
+          </td>
+          <td>
+            @Html.DisplayNameFor(model => model.Form)
+          </td>
+          <td>
+            @Html.DisplayNameFor(model => model.Odd)
+          </td>
+          <td>
+            @Html.DisplayNameFor(model => model.WinnerCode)
+          </td>
+          <td></td>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+              <td>
+                @Html.DisplayFor(modelItem => item.DisplayName)
+              </td>
+              <td>
+                @Html.DisplayFor(modelItem => item.DateStart)
+              </td>
+              <td>
+                @Html.DisplayFor(modelItem => item.Form)
+              </td>
+              <td>
+                @Html.DisplayFor(modelItem => item.Odd)
+              </td>
+              <td>
+                @Html.DisplayFor(modelItem => item.WinnerCode)
+              </td>
+              <td>
+                @Html.ActionLink("Detail", "Detail", new { id = item.ID })
+              </td>
+            </tr>
+        }
+      </tbody>
+    </table>
+  </div>
 </div>

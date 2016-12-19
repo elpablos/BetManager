@@ -26,8 +26,8 @@
           });
 
           $('#example').DataTable({
-              order: [[1, "asc"]],
               responsive: true,
+              order: [[1, "asc"]],
               createdRow: function (row, data, dataIndex) {
                   if ((data[4] == 1 && data[2] > 20) || (data[4] == 2 && data[2] < -20) || (data[4] == 3 && data[2] >= -20 && data[2] <= 20)) {
                       $(row).addClass('success');

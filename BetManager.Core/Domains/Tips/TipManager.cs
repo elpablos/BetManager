@@ -68,5 +68,16 @@ namespace BetManager.Core.Domains.Tips
             }
             return tips;
         }
+
+        public virtual ICollection<TipAllPoisson> GetAllPoissonHistory(object input)
+        {
+            ICollection<TipAllPoisson> tips = null;
+            using (var conn = ConnectionFactory.GetConnection("DbModel"))
+            {
+                tips = conn.Query<TipAllPoisson>("BM_Event_DETAIL_Poisson_History", input, commandType: CommandType.StoredProcedure).ToList();
+                conn.Close();
+            }
+            return tips;
+        }
     }
 }

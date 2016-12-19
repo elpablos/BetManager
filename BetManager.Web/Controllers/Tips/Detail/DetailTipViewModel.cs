@@ -100,9 +100,12 @@ namespace BetManager.Web.Controllers.Tips.Detail
 
         public virtual ICollection<DetailTipPoissonViewModel> Poissons { get; set; }
 
+        public virtual ICollection<DetailTipPoissonViewModel> PoissonHistories { get; set; }
+
         public DetailTipViewModel()
         {
             Poissons = new List<DetailTipPoissonViewModel>();
+            PoissonHistories = new List<DetailTipPoissonViewModel>();
         }
     }
 }
