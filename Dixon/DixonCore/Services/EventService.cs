@@ -5,12 +5,12 @@ using System.Data.SqlClient;
 
 namespace Dixon.Core.Services
 {
-    public class EventService : IEventService
+    public class EventService : BaseService, IEventService
     {
         public virtual IEnumerable<Event> GetAll(int tournament, int season)
         {
             IEnumerable<Event> ret = null;
-            using (var sqlConnection = new SqlConnection(@"Server =.\sqlexpress;Database=BetManagerDevel;Trusted_Connection=True;"))
+            using (var sqlConnection = new SqlConnection(ConnectionString))
             {
                 sqlConnection.Open();
 

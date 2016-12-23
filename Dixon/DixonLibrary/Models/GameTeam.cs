@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Dixon.Library.Models
+﻿namespace Dixon.Library.Models
 {
     /// <summary>
     /// Herní tým
@@ -30,5 +24,24 @@ namespace Dixon.Library.Models
         /// Útok venku
         /// </summary>
         public double AwayAttack { get; set; } = 1.0;
+
+        #region Overrided methods
+
+        public override bool Equals(object obj)
+        {
+            if (obj is GameTeam)
+            {
+                var team = (GameTeam)obj;
+                if (team.Id == Id) return true;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+
+        #endregion
     }
 }

@@ -111,7 +111,7 @@ namespace Dixon.Library.Managers
             // away-attack
             var mu = (match.HomeTeam.AwayAttack * match.AwayTeam.HomeAttack);
 
-            return
+            var result =
                 // casova fce
                 match.TimeFunc(dateActual, Epsilon)
                 // ln fce zavislosti tau
@@ -125,6 +125,8 @@ namespace Dixon.Library.Managers
                 // minus predikce golu hosti
                 - mu
                 );
+            return result;
+
         }
     }
 }

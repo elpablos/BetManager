@@ -46,5 +46,24 @@ namespace Dixon.Library.Models
         /// Datum zápasu
         /// </summary>
         public DateTime DateStart { get; set; }
+
+        #region Overrided methods
+
+        public override bool Equals(object obj)
+        {
+            if (obj is GameMatch)
+            {
+                var team = (GameMatch)obj;
+                if (team.Id == Id) return true;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+
+        #endregion
     }
 }
