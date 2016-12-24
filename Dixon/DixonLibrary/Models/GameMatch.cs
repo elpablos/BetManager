@@ -47,6 +47,11 @@ namespace Dixon.Library.Models
         /// </summary>
         public DateTime DateStart { get; set; }
 
+        /// <summary>
+        /// Dny
+        /// </summary>
+        public int Days { get; set; }
+
         #region Overrided methods
 
         public override bool Equals(object obj)

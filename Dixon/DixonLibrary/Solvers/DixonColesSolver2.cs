@@ -43,7 +43,7 @@ namespace Dixon.Library.Solvers
             awayTeamId.SetBinding(_DixonManager.Matches, "AwayTeamId", "Id");
 
             Parameter epsilon = new Parameter(Domain.RealNonnegative, "epsilon");
-            epsilon.SetBinding(_DixonManager.Epsilon);
+            epsilon.SetBinding(_DixonManager.Ksi);
 
             model.AddParameters(homeScore, awayScore, homeTeamId, awayTeamId, epsilon);
 

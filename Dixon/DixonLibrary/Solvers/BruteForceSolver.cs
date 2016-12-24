@@ -17,7 +17,7 @@ namespace Dixon.Library.Solvers
         /// <summary>
         /// Počáteční velikost populace
         /// </summary>
-        public int PopulationSize { get; set; } = 50000;
+        public int PopulationSize { get; set; } = 1000000;
 
         public List<DxGeneticGen> CurrentPopulation { get; private set; }
 
@@ -55,6 +55,7 @@ namespace Dixon.Library.Solvers
 
             var best = CurrentPopulation.Where(x => !double.IsNaN(x.Fitness)).OrderByDescending(x => x.Fitness).FirstOrDefault();
             best.CalculateFitness(_DixonManager, actualDate);
+
             return best.Fitness;
         }
     }

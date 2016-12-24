@@ -1,6 +1,7 @@
 ﻿using Dixon.Library.Managers;
 using Microsoft.SolverFoundation.Services;
 using System;
+using System.Diagnostics;
 
 namespace Dixon.Library.Solvers
 {
@@ -19,6 +20,9 @@ namespace Dixon.Library.Solvers
 
         public double Solve(DateTime actualDate)
         {
+            Stopwatch watch = new Stopwatch();
+
+            watch.Start();
             double result = 0;
 
             // solver init
@@ -29,14 +33,14 @@ namespace Dixon.Library.Solvers
             Set teams = new Set(Domain.Integer, "Teams");
 
             // parameters
-            //Parameter dateStart = new Parameter(Domain.Any, "dateStart", matches);
-            //dateStart.SetBinding(_DixonManager.Matches, "DateStart", "Id");
+            Parameter homeScore = new Parameter(Domain.IntegerNonnegative, "homeScore", matches, teams, teams);
+            homeScore.SetBinding(_DixonManager.Matches, "HomeScore", "Id", "HomeTeamId", "AwayTeamId");
 
-            Parameter homeScore = new Parameter(Domain.IntegerNonnegative, "homeScore", matches);
-            homeScore.SetBinding(_DixonManager.Matches, "HomeScore", "Id");
+            Parameter awayScore = new Parameter(Domain.IntegerNonnegative, "awayScore", matches, teams, teams);
+            awayScore.SetBinding(_DixonManager.Matches, "AwayScore", "Id", "HomeTeamId", "AwayTeamId");
 
-            Parameter awayScore = new Parameter(Domain.IntegerNonnegative, "awayScore", matches);
-            awayScore.SetBinding(_DixonManager.Matches, "AwayScore", "Id");
+            Parameter days = new Parameter(Domain.IntegerNonnegative, "days", matches, teams, teams);
+            days.SetBinding(_DixonManager.Matches, "Days", "Id", "HomeTeamId", "AwayTeamId");
 
             Parameter homeTeamId = new Parameter(Domain.IntegerNonnegative, "homeTeamId", matches);
             homeTeamId.SetBinding(_DixonManager.Matches, "HomeTeamId", "Id");
@@ -44,94 +48,85 @@ namespace Dixon.Library.Solvers
             Parameter awayTeamId = new Parameter(Domain.IntegerNonnegative, "awayTeamId", matches);
             awayTeamId.SetBinding(_DixonManager.Matches, "AwayTeamId", "Id");
 
-            Parameter epsilon = new Parameter(Domain.RealNonnegative, "epsilon");
-            epsilon.SetBinding(_DixonManager.Epsilon);
+            Parameter ksi = new Parameter(Domain.Real, "ksi");
+            ksi.SetBinding(_DixonManager.Ksi);
 
-            model.AddParameters(homeScore, awayScore, homeTeamId, awayTeamId, epsilon);
+            model.AddParameters(homeScore, awayScore, days, homeTeamId, awayTeamId, ksi);
 
             // decisions
-            Decision homeAttack = new Decision(Domain.RealRange(0, 3), "homeAttack", teams);
-            homeAttack.SetBinding(_DixonManager.Teams, "HomeAttack", "Id");
+            Decision attack = new Decision(Domain.RealRange(0, 2), "attack", teams);
+            attack.SetBinding(_DixonManager.Teams, "HomeAttack", "Id");
 
-            Decision awayAttack = new Decision(Domain.RealRange(0, 3), "awayAttack", teams);
-            awayAttack.SetBinding(_DixonManager.Teams, "AwayAttack", "Id");
+            Decision defence = new Decision(Domain.RealRange(0, 2), "defence", teams);
+            defence.SetBinding(_DixonManager.Teams, "AwayAttack", "Id");
 
-            Decision rho = new Decision(Domain.RealRange(0, 1), "rho");
-
+            Decision rho = new Decision(Domain.RealRange(-1, 1), "rho");
             Decision gama = new Decision(Domain.RealRange(1, 2), "gama");
 
-            model.AddDecisions(homeAttack, awayAttack, rho, gama);
+            model.AddDecisions(attack, defence, rho, gama);
 
             // constraints
             model.AddConstraint("homeAttackCount",
-                Model.Sum(Model.ForEach(teams, t => homeAttack[t])) == _DixonManager.Teams.Count);
+                Model.Sum(Model.ForEach(teams, t => attack[t])) == _DixonManager.Teams.Count);
             model.AddConstraint("awayAttackCount",
-                Model.Sum(Model.ForEach(teams, t => awayAttack[t])) == _DixonManager.Teams.Count);
+                Model.Sum(Model.ForEach(teams, t => defence[t])) == _DixonManager.Teams.Count);
 
             Goal sum = model.AddGoal("sum", GoalKind.Maximize,
                 Model.Sum(
-                    Model.ForEach(matches, match =>
-                    {
-                        // home-attack
-                        var lambda = Model.Sum(Model.ForEachWhere(teams, t => homeAttack[t], t => Model.Equal(t, homeTeamId[match])))
-                        * Model.Sum(Model.ForEachWhere(teams, t => awayAttack[t], t => Model.Equal(t, awayTeamId[match]))) * gama;
-                        // away-attack
-                        var mu = Model.ForEachWhere(teams, t => Model.Sum(awayAttack[t]), t => t == homeTeamId[match])
-                         * Model.ForEachWhere(teams, t => homeAttack[t], t => t == awayTeamId[match]);
+                   Model.ForEach(matches, match =>
+                   Model.ForEachWhere(teams, h =>
+                   Model.ForEachWhere(teams, a =>
+                   {
+                       // home-attack
+                       var lambda = attack[h] * defence[a] * gama;
 
-                        mu = 1;
-                        var tau = 1;
-                        var dateDif = 200;
+                       // away-attack
+                       var mu = attack[a] * defence[h];
 
-                        return
-                        // casova fce
-                        Model.Exp(-epsilon * dateDif)
-                        // ln fce zavislosti tau
-                        * (Model.Log(tau)
-                        // pocet golu domaciho + ln predikce golu domaciho
-                        + homeScore[match] * Model.Log(lambda)
-                        // minus predikce golu domaciho
-                        - lambda
-                        // pocet golu hosti + ln predikce golu hosti
-                        + awayScore[match] * Model.Log(mu)
-                        // minus predikce golu hosti
-                        - mu);
-                    })
-                ));
+                       // funkce tau
+                       var tau = Model.If(Model.And(homeScore[match, h, a] == 0, awayScore[match, h, a] == 0),
+                           1 - lambda * mu * rho,
+                           Model.If(Model.And(homeScore[match, h, a] == 0, awayScore[match, h, a] == 1),
+                           1 + lambda * rho,
+                           Model.If(Model.And(homeScore[match, h, a] == 1, awayScore[match, h, a] == 0),
+                           1 + mu * rho,
+                           Model.If(Model.And(homeScore[match, h, a] == 1, awayScore[match, h, a] == 1),
+                           1 - rho,
+                           1))));
 
-            /*
-            // home-attack
-            var lambda = (match.HomeTeam.HomeAttack * match.AwayTeam.AwayAttack * Gama);
-            // away-attack
-            var mu = (match.HomeTeam.AwayAttack * match.AwayTeam.HomeAttack);
-
-            return
-                // casova fce
-                match.TimeFunc(dateActual, Epsilon)
-                // ln fce zavislosti tau
-                * (Math.Log(DependenceTau(match, lambda, mu))
-                // pocet golu domaciho + ln predikce golu domaciho
-                + match.HomeScore * Math.Log(lambda)
-                // minus predikce golu domaciho
-                - lambda
-                // pocet golu hosti + ln predikce golu hosti
-                + match.AwayScore * Math.Log(mu)
-                // minus predikce golu hosti
-                - mu
-                );
-             */
+                       return
+                           // casova fce
+                           Model.Exp(-ksi * days[match, h, a])
+                           // ln fce zavislosti tau
+                           * (Model.Log(tau)
+                           // pocet golu domaciho + ln predikce golu domaciho
+                           + homeScore[match, h, a] * Model.Log(lambda)
+                           // minus predikce golu domaciho
+                           - lambda
+                           // pocet golu hosti + ln predikce golu hosti
+                           + awayScore[match, h, a] * Model.Log(mu)
+                           // minus predikce golu hosti
+                           - mu);
+                   }, a => awayTeamId[match] == a
+                   ), h => homeTeamId[match] == h
+                   ))));
 
             context.CheckModel();
 
             // solve
             context.Solve();
 
-            Console.WriteLine(String.Format("Sum consumption: {0:f2}", sum.ToDouble()));
-
             context.PropagateDecisions();
 
+            watch.Stop();
+
+            _DixonManager.Rho = rho.GetDouble();
+            _DixonManager.Gama = gama.GetDouble();
+            _DixonManager.Summary = sum.ToDouble();
+            _DixonManager.LastElapsed = watch.Elapsed;
+
             // navrat
-            return result;
+            return _DixonManager.Summary;
         }
     }
 }

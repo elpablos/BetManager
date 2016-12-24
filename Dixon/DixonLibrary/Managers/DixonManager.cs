@@ -1,6 +1,7 @@
 ﻿using Dixon.Library.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,21 +29,32 @@ namespace Dixon.Library.Managers
         /// Dixon-Coles váha / půl týdne
         /// 0.0065 / 3.5
         /// </summary>
-        public double Epsilon { get; set; } = 0.0065 / 3.5;
+        public double Ksi { get; set; } = 0.0065 / 3.5;
 
         /// <summary>
         /// Parametr závislosti
-        /// upravuje ?poissonovu? krivku kolem 0..1 golu
+        /// upravuje ?poissonovu? krivku kolem -0.5..0.5 golu
         /// PARAMETR SE BUDE MENIT DLE MAXIMALIZACNI FCE!
         /// </summary>
-        public double Rho { get; set; } = 0.11;
+        public double Rho { get; set; } = -0.148236387553165;
 
         /// <summary>
         /// Výhoda domácího
         /// Tým hrající doma má většinou převahu
         /// PARAMETR SE BUDE MENIT DLE MAXIMALIZACNI FCE!
+        /// rozsah 1..2
         /// </summary>
-        public double Gama { get; set; } = 1.55;
+        public double Gama { get; set; } = 1.50951729586059;
+
+        /// <summary>
+        /// čas posledního doběhu
+        /// </summary>
+        public TimeSpan LastElapsed { get; set; }
+
+        /// <summary>
+        /// Součet
+        /// </summary>
+        public double Summary { get; set; }
 
         /// <summary>
         /// Konstruktor
@@ -63,10 +75,14 @@ namespace Dixon.Library.Managers
         public virtual double Sum(DateTime dateActual)
         {
             double sum = 0;
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
             foreach (var match in Matches)
             {
                 sum += Calculate(match, dateActual);
             }
+            watch.Stop();
+            LastElapsed = watch.Elapsed;
             return sum;
         }
 
@@ -113,7 +129,7 @@ namespace Dixon.Library.Managers
 
             var result =
                 // casova fce
-                match.TimeFunc(dateActual, Epsilon)
+                match.TimeFunc(dateActual, Ksi)
                 // ln fce zavislosti tau
                 * (Math.Log(DependenceTau(match, lambda, mu))
                 // pocet golu domaciho + ln predikce golu domaciho
@@ -126,7 +142,28 @@ namespace Dixon.Library.Managers
                 - mu
                 );
             return result;
+        }
 
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendFormat("Gama;{0}\n", Gama)
+                .AppendFormat("Rho;{0}\n", Rho)
+                .AppendFormat("Ksi;{0}\n", Ksi)
+                .AppendFormat("LastElapsed;{0}\n", LastElapsed)
+                .AppendFormat("MatchCount;{0}\n", Matches.Count)
+                .AppendFormat("Summary;{0}\n", Summary)
+                .AppendLine()
+                .AppendLine("DisplayName;HomeAttack;AwayAttack");
+
+            foreach (var team in Teams)
+            {
+                sb.AppendFormat("{0};{1};{2}\n", team.DisplayName, team.HomeAttack, team.AwayAttack);
+            }
+
+            return sb.AppendLine().ToString();
         }
     }
 }

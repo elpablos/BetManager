@@ -1,32 +1,24 @@
-﻿using Dixon.ConsoleApp;
-using Dixon.Core.Services;
+﻿using Dixon.Core.Services;
 using Dixon.Library.Managers;
 using Dixon.Library.Models;
 using Dixon.Library.Solvers;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DixonConsole
+namespace Dixon.ConsoleApp
 {
-    /// <summary>
-    /// Run dixon
-    /// TODO: maximization algorithm
-    /// https://gist.github.com/trevordixon/9702052
-    /// https://msdn.microsoft.com/en-us/library/ff628587(v=vs.93).aspx
-    /// </summary>
-    class Program
+    public class DXSolver
     {
-        static void Main(string[] args)
+        public void DoParallel(int count)
         {
-            DixonSolver();
+            var ksiints = Enumerable.Range(0, count);
 
-            var solver = new DXSolver();
-            solver.DoParallel(30);
+            var ksis = ksiints.Select(x => x / 10.0);
+            Parallel.ForEach(ksis, ksi => Solve(ksi));
         }
 
-        static void DixonSolver()
+        public void Solve(double ksi)
         {
             int idTournament = 1;
             int idSeason = 11733;
@@ -93,14 +85,16 @@ namespace DixonConsole
             .ToList();
 
             // prepare dixon
+            Console.WriteLine("Start solve ksi: {0}", ksi);
             IDixonManager dixonManager = new DixonManager(matches, teams);
+            dixonManager.Ksi = ksi;
             IDixonColesSolver solver = new DixonColesSolver(dixonManager);
-
             dixonManager.Summary = solver.Solve(dateActual);
 
             var result = dixonManager.ToString();
             Console.WriteLine(result);
-            System.IO.File.WriteAllText("teams.csv", result.Replace(",", "."));
+            string filename = "result-" + ksi + ".csv";
+            System.IO.File.WriteAllText(filename, result.Replace(",", "."));
 
             Console.WriteLine(dixonManager.Summary);
         }
