@@ -5,6 +5,7 @@ namespace Dixon.Core.Services
 {
     public interface IEventService
     {
+        IEnumerable<Event> GetAll(int tournament);
         IEnumerable<Event> GetAll(int tournament, int season);
     }
 }

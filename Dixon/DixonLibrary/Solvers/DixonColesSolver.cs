@@ -23,7 +23,6 @@ namespace Dixon.Library.Solvers
             Stopwatch watch = new Stopwatch();
 
             watch.Start();
-            double result = 0;
 
             // solver init
             SolverContext context = SolverContext.GetContext();

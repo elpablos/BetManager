@@ -52,10 +52,25 @@ namespace Dixon.Library.Managers
         double Summary { get; set; }
 
         /// <summary>
+        /// Součet pravděpodobností
+        /// </summary>
+        double MaximumLikehoodValue { get; set; }
+
+        /// <summary>
+        /// Počet golů na ppdst
+        /// </summary>
+        int PropLength { get; set; }
+
+        /// <summary>
         /// Suma věrohodnostních funkcí nad zápasem
         /// </summary>
         /// <param name="dateActual"></param>
         /// <returns></returns>
         double Sum(DateTime dateActual);
+
+        double SumMaximumLikehood();
+        double HomeProbability(GameMatch match);
+        double DrawProbability(GameMatch match);
+        double AwayProbability(GameMatch match);
     }
 }

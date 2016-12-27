@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Dixon.Library.Managers
 {
@@ -13,6 +12,8 @@ namespace Dixon.Library.Managers
     /// </summary>
     public class DixonManager : IDixonManager
     {
+        #region Properties
+
         /// <summary>
         /// Zápasy
         /// </summary>
@@ -57,6 +58,15 @@ namespace Dixon.Library.Managers
         public double Summary { get; set; }
 
         /// <summary>
+        /// Součet pravděpodobností
+        /// </summary>
+        public double MaximumLikehoodValue { get; set; }
+
+        public int PropLength { get; set; } = 10;
+
+        #endregion
+
+        /// <summary>
         /// Konstruktor
         /// </summary>
         /// <param name="matches">zápasy</param>
@@ -65,6 +75,96 @@ namespace Dixon.Library.Managers
         {
             Matches = matches;
             Teams = teams;
+        }
+
+        public static Func<int, int> Factorial = x => x < 0 ? -1 : x == 1 || x == 0 ? 1 : x * Factorial(x - 1);
+
+        /// <summary>
+        /// Poisson
+        /// </summary>
+        /// <param name="x">pocet golu</param>
+        /// <param name="m">utok/obrana tymu</param>
+        /// <returns></returns>
+        public static double Poisson(int x, double m) { return Math.Exp(-1 * m) * Math.Pow(m, x) / (Factorial(x) * 1.0); }
+
+        /// <summary>
+        /// Suma všech pravděpodobností v logaritmu
+        /// </summary>
+        /// <returns></returns>
+        public virtual double SumMaximumLikehood()
+        {
+            double ret = 0;
+            foreach (var match in Matches)
+            {
+                if (match.HomeScore < match.AwayScore)
+                {
+                    ret += Math.Log(AwayProbability(match));
+                }
+                else if (match.HomeScore > match.AwayScore)
+                {
+                    ret += Math.Log(HomeProbability(match));
+                }
+                else
+                {
+                    ret += Math.Log(DrawProbability(match));
+                }
+            }
+
+            MaximumLikehoodValue = ret;
+            return ret;
+        }
+
+        public virtual double HomeProbability(GameMatch match)
+        {
+            double ret = 0;
+            var homeTeam = Teams.FirstOrDefault(x => x.Id == match.HomeTeamId);
+            var awayTeam = Teams.FirstOrDefault(x => x.Id == match.AwayTeamId);
+
+            for (int h = 0; h < PropLength; h++)
+            {
+                for (int a = (h + 1); a < PropLength; a++)
+                {
+                    ret +=
+                        Poisson(h, homeTeam.HomeAttack * awayTeam.AwayAttack * Gama)
+                        * Poisson(a, awayTeam.HomeAttack * homeTeam.AwayAttack);
+                }
+            }
+
+            return ret;
+        }
+
+        public virtual double DrawProbability(GameMatch match)
+        {
+            double ret = 0;
+            var homeTeam = Teams.FirstOrDefault(x => x.Id == match.HomeTeamId);
+            var awayTeam = Teams.FirstOrDefault(x => x.Id == match.AwayTeamId);
+
+            for (int i = 0; i < PropLength; i++)
+            {
+                ret += Poisson(i, homeTeam.HomeAttack * awayTeam.AwayAttack * Gama)
+                    * Poisson(i, awayTeam.HomeAttack * homeTeam.AwayAttack);
+            }
+
+            return ret;
+        }
+
+        public virtual double AwayProbability(GameMatch match)
+        {
+            double ret = 0;
+            var homeTeam = Teams.FirstOrDefault(x => x.Id == match.HomeTeamId);
+            var awayTeam = Teams.FirstOrDefault(x => x.Id == match.AwayTeamId);
+
+            for (int a = 0; a < PropLength; a++)
+            {
+                for (int h = (a+1); h < PropLength; h++)
+                {
+                    ret += 
+                        Poisson(h, homeTeam.HomeAttack * awayTeam.AwayAttack * Gama)
+                        * Poisson(a, awayTeam.HomeAttack * homeTeam.AwayAttack);
+                }
+            }
+
+            return ret;
         }
 
         /// <summary>
@@ -155,6 +255,7 @@ namespace Dixon.Library.Managers
                 .AppendFormat("LastElapsed;{0}\n", LastElapsed)
                 .AppendFormat("MatchCount;{0}\n", Matches.Count)
                 .AppendFormat("Summary;{0}\n", Summary)
+                .AppendFormat("MaximumLikehoodValue;{0}\n", MaximumLikehoodValue)
                 .AppendLine()
                 .AppendLine("DisplayName;HomeAttack;AwayAttack");
 
