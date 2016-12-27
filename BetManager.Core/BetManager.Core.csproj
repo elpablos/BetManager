@@ -76,7 +76,11 @@
   <ItemGroup>
     <Compile Include="DbModels\Accounts\Role.cs" />
     <Compile Include="DbModels\Accounts\User.cs" />
+    <Compile Include="DbModels\Events\Event.cs" />
+    <Compile Include="DbModels\Events\Team.cs" />
     <Compile Include="DbModels\ImportData.cs" />
+    <Compile Include="DbModels\Predictions\Prediction.cs" />
+    <Compile Include="DbModels\Predictions\PredictionTeam.cs" />
     <Compile Include="DbModels\Tips\Tip.cs" />
     <Compile Include="DbModels\Tips\TipAllPoisson.cs" />
     <Compile Include="DbModels\Tips\TipDetailGraph.cs" />
@@ -84,8 +88,14 @@
     <Compile Include="Domains\Accounts\UserManager.cs" />
     <Compile Include="Domains\BaseManager.cs" />
     <Compile Include="Domains\ConnectionFactory.cs" />
+    <Compile Include="Domains\Events\EventManager.cs" />
+    <Compile Include="Domains\Events\IEventManager.cs" />
+    <Compile Include="Domains\Events\ITeamManager.cs" />
+    <Compile Include="Domains\Events\TeamManager.cs" />
     <Compile Include="Domains\ImportDatas\IImportDataManager.cs" />
     <Compile Include="Domains\ImportDatas\ImportDataManager.cs" />
+    <Compile Include="Domains\Predictions\IPredictionManager.cs" />
+    <Compile Include="Domains\Predictions\PredictionManager.cs" />
     <Compile Include="Domains\Tips\ITipManager.cs" />
     <Compile Include="Domains\Tips\TipManager.cs" />
     <Compile Include="GlobalSuppressions.cs" />
