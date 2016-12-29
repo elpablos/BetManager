@@ -62,6 +62,14 @@ namespace BetManager.Solver.Managers
         /// </summary>
         public double MaximumLikehoodValue { get; set; }
 
+        /// <summary>
+        /// Report ze solveru
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Počet golů do pravděpodobností
+        /// </summary>
         public int PropLength { get; set; } = 10;
 
         #endregion
@@ -120,6 +128,11 @@ namespace BetManager.Solver.Managers
             var homeTeam = Teams.FirstOrDefault(x => x.Id == match.HomeTeamId);
             var awayTeam = Teams.FirstOrDefault(x => x.Id == match.AwayTeamId);
 
+            if (homeTeam == null || awayTeam == null)
+            {
+                throw new Exception(string.Format("match: {0}\t{1}-{2}\t{3}-{4}", match.Id, match.HomeTeamId, match.AwayTeamId, homeTeam == null, awayTeam == null));
+            }
+
             for (int h = 0; h < PropLength; h++)
             {
                 for (int a = (h + 1); a < PropLength; a++)
@@ -139,6 +152,11 @@ namespace BetManager.Solver.Managers
             var homeTeam = Teams.FirstOrDefault(x => x.Id == match.HomeTeamId);
             var awayTeam = Teams.FirstOrDefault(x => x.Id == match.AwayTeamId);
 
+            if (homeTeam == null || awayTeam == null)
+            {
+                throw new Exception(string.Format("match: {0}\t{1}-{2}\t{3}-{4}", match.Id, match.HomeTeamId, match.AwayTeamId, homeTeam == null, awayTeam == null));
+            }
+
             for (int i = 0; i < PropLength; i++)
             {
                 ret += Poisson(i, homeTeam.HomeAttack * awayTeam.AwayAttack * Gamma)
@@ -153,6 +171,11 @@ namespace BetManager.Solver.Managers
             double ret = 0;
             var homeTeam = Teams.FirstOrDefault(x => x.Id == match.HomeTeamId);
             var awayTeam = Teams.FirstOrDefault(x => x.Id == match.AwayTeamId);
+
+            if (homeTeam == null || awayTeam == null)
+            {
+                throw new Exception(string.Format("match: {0}\t{1}-{2}\t{3}-{4}", match.Id, match.HomeTeamId, match.AwayTeamId, homeTeam == null, awayTeam == null));
+            }
 
             for (int a = 0; a < PropLength; a++)
             {

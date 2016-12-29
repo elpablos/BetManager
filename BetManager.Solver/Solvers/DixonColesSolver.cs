@@ -12,6 +12,7 @@ namespace BetManager.Solver.Solvers
     public class DixonColesSolver : IDixonColesSolver
     {
         private readonly IDixonManager _DixonManager;
+        public string LastReport { get; private set; }
 
         public DixonColesSolver(IDixonManager dixonManager)
         {
@@ -113,7 +114,8 @@ namespace BetManager.Solver.Solvers
             context.CheckModel();
 
             // solve
-            context.Solve();
+            var solution = context.Solve();
+            LastReport = solution.GetReport().ToString();
 
             context.PropagateDecisions();
 

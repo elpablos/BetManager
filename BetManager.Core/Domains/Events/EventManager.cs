@@ -12,7 +12,7 @@ namespace BetManager.Core.Domains.Events
             ICollection<Event> tips = null;
             using (var conn = ConnectionFactory.GetConnection("DbModel"))
             {
-                tips = conn.Query<Event>("select * from BM_Event where ID_Tournament=@ID_Tournament and (@ID_Season is null or ID_Season=@ID_Season)", input).ToList();
+                tips = conn.Query<Event>("select * from BM_Event where ID_Tournament=@ID_Tournament and ID_Status >= 90 and (@ID_Season is null or ID_Season=@ID_Season)", input).ToList();
                 conn.Close();
             }
             return tips;

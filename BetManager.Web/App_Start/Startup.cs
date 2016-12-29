@@ -7,6 +7,7 @@ using Microsoft.Owin.Security.Cookies;
 using System.Web.Helpers;
 using System.Security.Claims;
 using Microsoft.AspNet.Identity.Owin;
+using Hangfire;
 
 [assembly: OwinStartup(typeof(BetManager.Web.App_Start.Startup))]
 
@@ -17,6 +18,13 @@ namespace BetManager.Web.App_Start
         public void Configuration(IAppBuilder app)
         {
             ConfigureAuth(app);
+            GlobalConfiguration.Configuration.UseSqlServerStorage("DbModel");
+
+            app.UseHangfireDashboard();
+            app.UseHangfireServer(new BackgroundJobServerOptions
+            {
+                WorkerCount = 1
+            });
         }
 
         // For more information on configuring authentication, please visit http://go.microsoft.com/fwlink/?LinkId=301864

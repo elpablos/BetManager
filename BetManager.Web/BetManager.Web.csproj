@@ -49,6 +49,14 @@
       <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Hangfire.Core, Version=1.6.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hangfire.Core.1.6.8\lib\net45\Hangfire.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Hangfire.SqlServer, Version=1.6.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hangfire.SqlServer.1.6.8\lib\net45\Hangfire.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.1\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
       <Private>True</Private>
@@ -81,6 +89,10 @@
     <Reference Include="Microsoft.Owin.Security.OAuth, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Owin.Security.OAuth.3.0.1\lib\net45\Microsoft.Owin.Security.OAuth.dll</HintPath>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Solver.Foundation, Version=3.0.2.10889, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\Microsoft.Solver.Foundation.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
@@ -178,8 +190,19 @@
     <Compile Include="Controllers\Accounts\Detail\DetailAccountViewModel.cs" />
     <Compile Include="Controllers\Accounts\Login\LoginAccountHandler.cs" />
     <Compile Include="Controllers\Accounts\Login\LoginAccountViewModel.cs" />
+    <Compile Include="Controllers\AdminController.cs" />
+    <Compile Include="Controllers\Admins\Jobs\Create\CreateJobBuilder.cs" />
+    <Compile Include="Controllers\Admins\Jobs\Create\CreateJobHandler.cs" />
+    <Compile Include="Controllers\Admins\Jobs\Create\CreateJobModel.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="ApiControllers\ImportDataController.cs" />
+    <Compile Include="Controllers\PredictionController.cs" />
+    <Compile Include="Controllers\Predictions\Detail\PredictionDetailTipBuilder.cs" />
+    <Compile Include="Controllers\Predictions\Detail\PredictionDetailTipViewModel.cs" />
+    <Compile Include="Controllers\Predictions\List\PredictionListBuilder.cs" />
+    <Compile Include="Controllers\Predictions\List\PredictionListFilterViewModel.cs" />
+    <Compile Include="Controllers\Predictions\List\PredictionListItemViewModel.cs" />
+    <Compile Include="Controllers\Predictions\List\PredictionListViewModel.cs" />
     <Compile Include="Controllers\TipController.cs" />
     <Compile Include="Controllers\Tips\Detail\DetailTipBuilder.cs" />
     <Compile Include="Controllers\Tips\Detail\DetailTipPoissonViewModel.cs" />
@@ -193,6 +216,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="HangfireJobs\SolverJob.cs" />
     <Compile Include="Mvc\BaseController.cs" />
     <Compile Include="Mvc\Common\IModelBuilder.cs" />
     <Compile Include="Mvc\Common\IModelHandler.cs" />
@@ -564,15 +588,22 @@
     <Content Include="Views\Tip\Detail.cshtml" />
     <Content Include="Views\Account\Detail.cshtml" />
     <Content Include="Views\Tip\_DetailPoisson.cshtml" />
+    <Content Include="Views\Admin\Index.cshtml" />
+    <Content Include="Views\Admin\CreateJob.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Mvc\Extensions\" />
+    <Folder Include="Views\Prediction\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BetManager.Core\BetManager.Core.csproj">
       <Project>{c0c49ccd-ef76-4893-9aa6-e0429c4fdf84}</Project>
       <Name>BetManager.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BetManager.Solver\BetManager.Solver.csproj">
+      <Project>{0b9762ff-0aae-4627-820a-1c1583d3e7fa}</Project>
+      <Name>BetManager.Solver</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

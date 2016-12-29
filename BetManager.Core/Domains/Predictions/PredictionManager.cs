@@ -8,10 +8,10 @@ namespace BetManager.Core.Domains.Predictions
 {
     public class PredictionManager : BaseManager, IPredictionManager
     {
-        private readonly string SqlInsert = 
+        private readonly string SqlInsert =
 @"
-    insert into BM_Prediction ([ID_Tournament], [DatePredict], [Ksi], [Gamma], [Summary], [LikehoodValue], [DateCreated], [Elapsed])
-    values (@ID_Tournament, @DatePredict, @Ksi, @Gamma, @Summary, @LikehoodValue, @DateCreated, @Elapsed)
+    insert into BM_Prediction ([ID_Tournament], [DatePredict], [Ksi], [Gamma], [Summary], [LikehoodValue], [DateCreated], [Elapsed], [Description])
+    values (@ID_Tournament, @DatePredict, @Ksi, @Gamma, @Summary, @LikehoodValue, @DateCreated, @Elapsed, @Description)
     select @@identity
 ";
 

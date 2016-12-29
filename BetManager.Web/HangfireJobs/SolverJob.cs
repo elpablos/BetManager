@@ -7,27 +7,12 @@ using BetManager.Solver.Solvers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Web;
 
-namespace BetManager.App.Solving
+namespace BetManager.Web.HangfireJobs
 {
-    public class DXSolver
+    public class SolverJob 
     {
-        public void DoParallel(int count)
-        {
-            var ksiints = Enumerable.Range(0, count);
-
-            var ksis = ksiints.Select(x => x / 10.0);
-            int[] tournaments = new int[] { 1, };
-            DateTime dateActual = new DateTime(2016, 12, 25);
-
-            foreach (var tournament in tournaments)
-            {
-                Parallel.ForEach(ksis, ksi => Solve(ksi, tournament, dateActual));
-            }
-        }
-
         protected virtual IDixonManager PrepareDataAll(int idTournament, DateTime dateActual)
         {
             IEventManager eventService = new EventManager();
@@ -136,7 +121,8 @@ namespace BetManager.App.Solving
         protected virtual void SaveToDb(IDixonManager manager, DateTime dateActual, int idTournament)
         {
             IPredictionManager premanager = new PredictionManager();
-            var prediction = new Prediction {
+            var prediction = new Prediction
+            {
                 DateCreated = DateTime.Now,
                 DatePredict = dateActual,
                 Elapsed = manager.LastElapsed.Ticks,
@@ -144,8 +130,7 @@ namespace BetManager.App.Solving
                 Ksi = manager.Ksi,
                 LikehoodValue = manager.MaximumLikehoodValue,
                 ID_Tournament = idTournament,
-                Summary = manager.Summary,
-                Description = manager.Description
+                Summary = manager.Summary
             };
 
             var predictionTeams = manager.Teams.Select(t => new PredictionTeam
@@ -158,90 +143,16 @@ namespace BetManager.App.Solving
             premanager.Insert(prediction, predictionTeams);
         }
 
-        public void Solve(double ksi, int idTournament, DateTime dateActual)
+        public void Solve(int idTournament, DateTime dateActual, double ksi)
         {
-            try
-            {
-                // prepare dixon
-                Console.WriteLine("Start solve ksi: {0}", ksi);
-                IDixonManager dixonManager = PrepareDataAll(idTournament, dateActual);
-                dixonManager.Ksi = ksi;
-
-                // osetreni chyby
-                if (dixonManager.Matches.Count == 0 || dixonManager.Teams.Count == 0)
-                {
-                    Console.WriteLine("Skip cause no data");
-                    return;
-                }
-
-                IDixonColesSolver solver = new DixonColesSolver(dixonManager);
-                Console.WriteLine("Start solving");
-
-                dixonManager.Summary = solver.Solve(dateActual);
-                dixonManager.Description = solver.LastReport;
-                Console.WriteLine("solved");
-                dixonManager.MaximumLikehoodValue = dixonManager.SumMaximumLikehood();
-                Console.WriteLine("Maximum likehood counted");
-
-                var result = dixonManager.ToString();
-                Console.WriteLine(result);
-                string filename = dateActual.ToString("yyyyMMdd-") + "result-ksi-" + ksi + "-t-" + idTournament + ".csv";
-                System.IO.File.WriteAllText(filename, result.Replace(",", "."));
-                Console.WriteLine("saving to DB");
-                SaveToDb(dixonManager, dateActual, idTournament);
-                Console.WriteLine("saved");
-                Console.WriteLine(dixonManager.Summary);
-            }
-            catch (Exception ex)
-            {
-                System.IO.File.AppendAllText("errz.txt", string.Format("idTournament: {3}\nMessage: {0}\nTrace: {1}\nInnerMessage: {2}", 
-                    ex.Message, ex.StackTrace, ex.InnerException?.Message, idTournament));
-            }
-        }
-
-        public void Test(string filepath)
-        {
-            int idTournament = 1;
-            int idSeason = 11733;
-            int idLastSeason = 10356;
-            DateTime dateActual = new DateTime(2016, 12, 14);
-
             // prepare dixon
-            IDixonManager dixonManager = PrepareData(idTournament, idSeason, idLastSeason, dateActual);
+            IDixonManager dixonManager = PrepareDataAll(idTournament, dateActual); // PrepareData(idTournament, idSeason, idLastSeason, dateActual);
+            dixonManager.Ksi = ksi;
             IDixonColesSolver solver = new DixonColesSolver(dixonManager);
-
-            dixonManager.Gamma = 1.50959228465985;
-            dixonManager.Rho = -0.148334085871382;
-            dixonManager.Ksi = 0.00185714285714286;
-
-            foreach (var team in dixonManager.Teams)
-            {
-
-            }
-
-            //  Burnley; 0.642876871660756; 1.11318950943912
-            //Crystal Palace; 0.992914222297631; 1.16944525197482
-            //West Bromwich Albion; 0.837599011822103; 0.848324970473902
-            //Manchester City; 1.51152826057043; 0.85395831784309
-            //Watford; 0.884760198533533; 1.0774333971691
-            //Stoke City; 0.83084067241941; 1.04051285260052
-            //Leicester City; 1.24383672625791; 0.883005094391995
-            //Tottenham; 1.34012388799594; 0.616243308271679
-            //Manchester United; 0.960912416830746; 0.662419214774675
-            //Middlesbrough; 0.562090832090398; 0.762389283808631
-            //West Ham; 1.13724128137898; 1.10841948589809
-            //Chelsea; 1.39637501492742; 0.759691114651839
-            //Sunderland; 0.840692656134263; 1.13148321122441
-            //Arsenal; 1.50261971941139; 0.747390648612331
-            //Liverpool; 1.55071458893771; 0.931860143380468
-            //Southampton; 0.989312944348403; 0.723817642220095
-            //Everton; 1.07466934258972; 0.960892438289372
-            //Bournemouth; 0.990667326149388; 1.18735829114802
-            //Swansea City; 0.935613432109431; 1.20101904250424
-            //Hull City; 0.648803964334445; 1.53431322738814
-            //Newcastle United; 0.865343295801357; 1.11597349327305
-            //Aston Villa; 0.528048395880155; 1.38507208178721
-            //Norwich City; 0.732414947456615; 1.18578798882963
+            dixonManager.Summary = solver.Solve(dateActual);
+            dixonManager.MaximumLikehoodValue = dixonManager.SumMaximumLikehood();
+            // save to DB
+            SaveToDb(dixonManager, dateActual, idTournament);
         }
     }
 }

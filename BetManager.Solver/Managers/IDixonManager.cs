@@ -62,6 +62,11 @@ namespace BetManager.Solver.Managers
         int PropLength { get; set; }
 
         /// <summary>
+        /// Report ze solveru
+        /// </summary>
+        string Description { get; set; }
+
+        /// <summary>
         /// Suma věrohodnostních funkcí nad zápasem
         /// </summary>
         /// <param name="dateActual"></param>

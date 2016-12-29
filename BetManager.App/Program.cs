@@ -9,14 +9,30 @@ namespace BetManager.App
         {
             var solver = new DXSolver();
             var ksi = 0.0065 / 3.5;
-            var idtournament = 54;
-            DateTime dateActual = new DateTime(2016, 12, 26);
-
-
-            int[] tournaments = new int[] { 1, 2, 3, 4, 16, 19, 33, 34, 36, 38, 40, 41, 42, 52, 54, 55, 56, 57, 62, 64, 66, 68, 72, 84, 86, 101, 127, 144, 150, 161, 219, 280, 681, 877, 904, 950, 1130, 1377, 3608, 3625, 3640, 3657, 3708, 3799, 3800, 3801, 3802, 3830, 3962, 4051, 5071, 5126, 7002, 16755, 23303, 23304, 36800, 37412, 37884, 37885, 37886, 37929, 37930, 38612, 39256, 39257, 39258, 39259, 47943 };
-            System.Threading.Tasks.Parallel.ForEach(tournaments, t => solver.Solve(ksi, idtournament, dateActual));
-
-            // solver.Solve(ksi, idtournament, dateActual);
+            DateTime dateActual = new DateTime(2016, 12, 28);
+            int[] tournaments = new int[] { 2, 112, 125, 142, 285, 673, 930, 1649, 2520, 2768, 3625, 3660, 3708, 3799, 3801, 3962, 5126, 5502, 7489, 9515, 9516, 9517, 9958, 11959, 11960, 13376, 13768, 37884, 37885, 37886, 54634, 55756, 56202, 56203, 56206, 56207, 56208, 56209, 56211, 56215, 57047, 66 };
+            // int[] tournaments = new int[] { 2 };
+            try
+            {
+                bool doParalel = true;
+                if (doParalel)
+                {
+                    var options = new System.Threading.Tasks.ParallelOptions { MaxDegreeOfParallelism = 2 };
+                    System.Threading.Tasks.Parallel.ForEach(tournaments, options, t => solver.Solve(ksi, t, dateActual));
+                }
+                else
+                {
+                    foreach (var t in tournaments)
+                    {
+                        solver.Solve(ksi, t, dateActual);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.IO.File.AppendAllText("errz.txt", string.Format("Message: {0}\nTrace: {1}\nInnerMessage: {2}", ex.Message, ex.StackTrace, ex.InnerException?.Message));
+                throw;
+            }
         }
     }
 }

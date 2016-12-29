@@ -13,10 +13,15 @@ namespace BetManager.Core.Domains.Events
             using (var conn = ConnectionFactory.GetConnection("DbModel"))
             {
                 tips = conn.Query<Team>(
-                    @"
-                    select distinct BM_Team.* from BM_Event
-                    inner join BM_Team on BM_Team.ID=BM_Event.ID_HomeTeam 
-                    where ID_Tournament=@ID_Tournament and (@ID_Season is null or ID_Season=@ID_Season)", input).ToList();
+@"
+                        select distinct BM_Team.* from BM_Event
+                        inner join BM_Team on BM_Team.ID=BM_Event.ID_HomeTeam 
+                        where ID_Tournament=@ID_Tournament and (@ID_Season is null or ID_Season=@ID_Season) and ID_Status >= 90
+                        union
+                        select distinct BM_Team.* from BM_Event
+                        inner join BM_Team on BM_Team.ID=BM_Event.ID_AwayTeam 
+                        where ID_Tournament=@ID_Tournament and (@ID_Season is null or ID_Season=@ID_Season) and ID_Status >= 90
+", input).ToList();
                 conn.Close();
             }
             return tips;
