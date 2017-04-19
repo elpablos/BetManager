@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetManager.App", "BetManage
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetManager.Solver", "BetManager.Solver\BetManager.Solver.csproj", "{0B9762FF-0AAE-4627-820A-1C1583D3E7FA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetManager.Tester", "BetManager.Tester\BetManager.Tester.csproj", "{D29D465F-EC95-42A5-9495-3BFA15B188F5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,14 @@ Global
 		{0B9762FF-0AAE-4627-820A-1C1583D3E7FA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0B9762FF-0AAE-4627-820A-1C1583D3E7FA}.Release|x64.ActiveCfg = Release|Any CPU
 		{0B9762FF-0AAE-4627-820A-1C1583D3E7FA}.Release|x64.Build.0 = Release|Any CPU
+		{D29D465F-EC95-42A5-9495-3BFA15B188F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D29D465F-EC95-42A5-9495-3BFA15B188F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D29D465F-EC95-42A5-9495-3BFA15B188F5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D29D465F-EC95-42A5-9495-3BFA15B188F5}.Debug|x64.Build.0 = Debug|Any CPU
+		{D29D465F-EC95-42A5-9495-3BFA15B188F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D29D465F-EC95-42A5-9495-3BFA15B188F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D29D465F-EC95-42A5-9495-3BFA15B188F5}.Release|x64.ActiveCfg = Release|Any CPU
+		{D29D465F-EC95-42A5-9495-3BFA15B188F5}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

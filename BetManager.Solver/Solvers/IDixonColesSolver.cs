@@ -2,7 +2,7 @@
 
 namespace BetManager.Solver.Solvers
 {
-    public interface IDixonColesSolver
+    public interface IDixonColesSolver : IDisposable
     {
         string LastReport { get; }
         double Solve(DateTime actualDate);

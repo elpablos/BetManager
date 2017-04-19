@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DixonCore", "DixonCore\Dixo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pokus", "Pokus\Pokus.csproj", "{A38B7B40-6661-487C-8DF4-1F1B0982CCFC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccordApp", "AccordApp\AccordApp.csproj", "{2F46DEAD-4B6D-4DC1-A010-4FE72D740D84}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{A38B7B40-6661-487C-8DF4-1F1B0982CCFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A38B7B40-6661-487C-8DF4-1F1B0982CCFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A38B7B40-6661-487C-8DF4-1F1B0982CCFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F46DEAD-4B6D-4DC1-A010-4FE72D740D84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F46DEAD-4B6D-4DC1-A010-4FE72D740D84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F46DEAD-4B6D-4DC1-A010-4FE72D740D84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F46DEAD-4B6D-4DC1-A010-4FE72D740D84}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

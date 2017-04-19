@@ -61,15 +61,15 @@ namespace BetManager.Solver.Solvers
             defence.SetBinding(_DixonManager.Teams, "AwayAttack", "Id");
 
             Decision rho = new Decision(Domain.RealRange(-1, 1), "rho");
-            Decision gama = new Decision(Domain.RealRange(1, 2), "gama");
+            Decision gama = new Decision(Domain.RealRange(0, 2), "gama");
 
             model.AddDecisions(attack, defence, rho, gama);
 
             // constraints
             model.AddConstraint("homeAttackCount",
                 Model.Sum(Model.ForEach(teams, t => attack[t])) == _DixonManager.Teams.Count);
-            model.AddConstraint("awayAttackCount",
-                Model.Sum(Model.ForEach(teams, t => defence[t])) == _DixonManager.Teams.Count);
+            //model.AddConstraint("awayAttackCount",
+            //    Model.Sum(Model.ForEach(teams, t => defence[t])) == _DixonManager.Teams.Count);
 
             Goal sum = model.AddGoal("sum", GoalKind.Maximize,
                 Model.Sum(
@@ -114,7 +114,7 @@ namespace BetManager.Solver.Solvers
             context.CheckModel();
 
             // solve
-            var solution = context.Solve();
+            var solution = context.Solve(new HybridLocalSearchDirective());
             LastReport = solution.GetReport().ToString();
 
             context.PropagateDecisions();
@@ -128,6 +128,11 @@ namespace BetManager.Solver.Solvers
 
             // navrat
             return _DixonManager.Summary;
+        }
+
+        public void Dispose()
+        {
+            // throw new NotImplementedException();
         }
     }
 }
