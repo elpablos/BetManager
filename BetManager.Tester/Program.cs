@@ -1,5 +1,4 @@
 ﻿using BetManager.Tester.Solving;
-using Microsoft.Win32;
 using System;
 using System.IO;
 
@@ -9,14 +8,16 @@ namespace BetManager.Tester
     {
         static void Main(string[] args)
         {
-            DateTime date = DateTime.Parse("2017-03-24");
+            // ID_Tournament: 1, ID_Season: 11733, ID_LastSeason: 10356, prvni zapas: 2016-08-13 11:30:00.000
+
+            DateTime date = DateTime.Parse("2017-04-14");
             var solver = new RDXSolver();
-            solver.HasSaveToDb = false;
+            solver.HasSaveToDb = true;
             try
             {
-                while (date > DateTime.Parse("2015-12-31"))
+                while (date > DateTime.Parse("2016-08-12"))
                 {
-                    solver.Solve(0.0065 / 3.5, 49, date);
+                    solver.Solve(0.0065 / 3.5, 1, 11733, 10356, date);
                     date = date.AddDays(-7);
                 }
             }

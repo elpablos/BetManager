@@ -27,6 +27,8 @@ namespace BetManager.Solver.Solvers
 
             // solver init
             SolverContext context = SolverContext.GetContext();
+            context.ClearModel();
+
             Model model = context.CreateModel();
 
             Set matches = new Set(Domain.Integer, "matches");

@@ -14,6 +14,8 @@ namespace BetManager.App.Solving
 {
     public class DXSolver
     {
+        public bool HasSaveToDb { get; internal set; }
+
         public void DoParallel(int count)
         {
             var ksiints = Enumerable.Range(0, count);
@@ -133,7 +135,7 @@ namespace BetManager.App.Solving
             return new DixonManager(matches, teams);
         }
 
-        protected virtual void SaveToDb(IDixonManager manager, DateTime dateActual, int idTournament)
+        protected virtual void SaveToDb(IDixonManager manager, DateTime dateActual, int idTournament, string predictionType)
         {
             IPredictionManager premanager = new PredictionManager();
             var prediction = new Prediction {
@@ -145,7 +147,8 @@ namespace BetManager.App.Solving
                 LikehoodValue = manager.MaximumLikehoodValue,
                 ID_Tournament = idTournament,
                 Summary = manager.Summary,
-                Description = manager.Description
+                Description = manager.Description,
+                ID_PredictionType = predictionType
             };
 
             var predictionTeams = manager.Teams.Select(t => new PredictionTeam
@@ -158,13 +161,31 @@ namespace BetManager.App.Solving
             premanager.Insert(prediction, predictionTeams);
         }
 
-        public virtual void Solve(double ksi, int idTournament, DateTime dateActual)
+        public void Solve(double ksi, int idTournament, DateTime dateActual)
+        {
+            Solve(ksi, idTournament, 0, 0, dateActual);
+        }
+
+        public void Solve(double ksi, int idTournament, int idSeason, int idLastSeason, DateTime dateActual)
         {
             try
             {
                 // prepare dixon
                 Console.WriteLine("Start solve ksi: {0}", ksi);
-                IDixonManager dixonManager = PrepareDataAll(idTournament, dateActual);
+
+                IDixonManager dixonManager = null;
+                string predictionType = null;
+                if (idSeason == 0 && idLastSeason == 0)
+                {
+                    dixonManager = PrepareDataAll(idTournament, dateActual);
+                    predictionType = "msSolverAllData";
+                }
+                else
+                {
+                    dixonManager = PrepareData(idTournament, idSeason, idLastSeason, dateActual);
+                    predictionType = "msSolverLastSeason";
+                }
+
                 dixonManager.Ksi = ksi;
 
                 // osetreni chyby
@@ -185,11 +206,16 @@ namespace BetManager.App.Solving
 
                 var result = dixonManager.ToString();
                 Console.WriteLine(result);
-                string filename = dateActual.ToString("yyyyMMdd-") + "result-ksi-" + ksi + "-t-" + idTournament + ".csv";
+                string filename = dateActual.ToString("yyyyMMdd-") + "result-ksi-" + ksi + "-t-" + idTournament + "-"+ predictionType + ".csv";
                 System.IO.File.WriteAllText(filename, result.Replace(",", "."));
-                Console.WriteLine("saving to DB");
-                SaveToDb(dixonManager, dateActual, idTournament);
-                Console.WriteLine("saved");
+
+                if (HasSaveToDb)
+                {
+                    Console.WriteLine("saving to DB");
+                    SaveToDb(dixonManager, dateActual, idTournament, predictionType);
+                    Console.WriteLine("saved");
+                }
+
                 Console.WriteLine(dixonManager.Summary);
             }
             catch (Exception ex)

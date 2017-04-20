@@ -14,5 +14,6 @@ namespace BetManager.Core.DbModels.Predictions
         public DateTime DateCreated { get; set; }
         public long Elapsed { get; set; }
         public string Description { get; set; }
+        public string ID_PredictionType { get; set; }
     }
 }

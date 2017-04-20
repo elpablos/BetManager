@@ -69,7 +69,7 @@ namespace BetManager.Tester.Solving
                 foreach (var team in dixonManager.Teams)
                 {
                     team.HomeAttack = engine.Evaluate($"res$par['Attack.{team.DisplayName}']").AsNumeric().First();
-                    team.AwayAttack = -1 * engine.Evaluate($"res$par['Defence.{team.DisplayName}']").AsNumeric().First();
+                    team.AwayAttack = -1 / engine.Evaluate($"res$par['Defence.{team.DisplayName}']").AsNumeric().First();
                 }
 
                 dixonManager.Rho = engine.Evaluate("res$par['RHO']").AsNumeric().First();
