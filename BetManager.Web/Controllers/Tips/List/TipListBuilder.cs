@@ -29,7 +29,7 @@ namespace BetManager.Web.Controllers.Tips.List
                     ID = x.ID,
                     DateStart = x.DateStart,
                     DisplayName = x.DisplayName,
-                    Form = x.Form,
+                    PredictTip = x.PredictTip,
                     Odd = x.Odd,
                     WinnerCode = x.WinnerCode
                 }).ToList()

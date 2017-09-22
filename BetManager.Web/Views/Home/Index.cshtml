@@ -62,7 +62,7 @@
                       return {
                           DateFrom: window.graphDate,
                           DateTo: window.graphDate,
-                          Form: $("#Form").val(),
+                          Category: $("#Category").val(),
                           Odd: $("#Odd").val().replace(",", ".")
                       }
                   },
@@ -70,14 +70,14 @@
               "columns": [
                 { data: "DisplayName" },
                 { data: "DateStart", render: function (d, t, r) { return moment(r.DateStart).format("YYYY-MM-DD HH:mm"); } },
-                { data: "Form" },
+                { data: "PredictTip" },
                 { data: "Odd" },
                 { data: "WinnerCode" },
                 { data: "ID", render: function (d, t, r) { return '<a href="/Tip/Detail/'+r.ID+'">Detail</a>' } },
               ],
               "order": [[1, "asc"]],
               createdRow: function (row, data, dataIndex) {
-                  if ((data.WinnerCode == 1 && data.Form > 20) || (data.WinnerCode == 2 && data.Form < -20) || (data.WinnerCode == 3 && data.Form >= -20 && data.Form <= 20)) {
+                  if (data.WinnerCode > 0 && data.PredictTip > 0 &&  (data.WinnerCode == data.PredictTip)) { // ((data.WinnerCode == 1 && data.Form > 20) || (data.WinnerCode == 2 && data.Form < -20) || (data.WinnerCode == 3 && data.Form >= -20 && data.Form <= 20)) {
                       $(row).addClass('success');
                   } else if (data.WinnerCode > 0) {
                       $(row).addClass('danger');
@@ -106,7 +106,7 @@
               data: {
                   DateFrom: changeDate($("#DateFrom").val()),
                   DateTo: changeDate($("#DateTo").val()),
-                  Form: $("#Form").val(),
+                  Category: $("#Category").val(),
                   Odd: $("#Odd").val().replace(",", ".")
               },
               success: function (data) {

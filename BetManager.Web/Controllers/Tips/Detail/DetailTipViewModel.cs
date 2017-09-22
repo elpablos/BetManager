@@ -35,8 +35,8 @@ namespace BetManager.Web.Controllers.Tips.Detail
         [Display(Name = "Url")]
         public string Url { get; set; }
 
-        [Display(Name = "Rozdíl forem")]
-        public int Form { get; set; }
+        [Display(Name = "Tip")]
+        public int PredictTip { get; set; }
 
         [Display(Name = "Kurz")]
         public double Odd { get; set; }
@@ -97,6 +97,24 @@ namespace BetManager.Web.Controllers.Tips.Detail
         public decimal SecondValue { get; set; }
 
         public int? SecondId { get; set; }
+
+        [Display(Name = "Domácí")]
+        public decimal Home { get; set; }
+
+        [Display(Name = "Remíza")]
+        public decimal Draw { get; set; }
+
+        [Display(Name = "Hosté")]
+        public decimal Away { get; set; }
+
+        [Display(Name = "Domácí")]
+        public decimal HomePercent { get; set; }
+
+        [Display(Name = "Remíza")]
+        public decimal DrawPercent { get; set; }
+
+        [Display(Name = "Hosté")]
+        public decimal AwayPercent { get; set; }
 
         public virtual ICollection<DetailTipPoissonViewModel> Poissons { get; set; }
 

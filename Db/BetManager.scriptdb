@@ -16,6 +16,9 @@
     <Table Name="BM_Tip" IsData="false" IsUpdate="false" IsDelete="false" IsBase="false" />
     <Table Name="BM_Tournament" IsData="false" IsUpdate="false" IsDelete="false" IsBase="false" />
     <Table Name="CR_User" IsData="false" IsUpdate="false" IsDelete="false" IsBase="false" />
+    <Table Name="BM_Prediction" IsData="false" IsUpdate="false" IsDelete="false" IsBase="false" />
+    <Table Name="BM_PredictionTeam" IsData="false" IsUpdate="false" IsDelete="false" IsBase="false" />
+    <Table Name="BM_PredictionType" IsData="false" IsUpdate="false" IsDelete="false" IsBase="false" />
   </Tables>
   <Procedures>
     <Procedure Name="BM_Event_ALL_Tournament" />
@@ -41,6 +44,14 @@
     <Procedure Name="BM_Event_ALL_Season" />
     <Procedure Name="BM_Event_DETAIL_Poisson_History" />
     <Procedure Name="BM_Event_ALL_Python" />
+    <Procedure Name="BM_Event_ALL_TournamentIds" />
+    <Procedure Name="BM_Event_DETAIL_Total" />
+    <Procedure Name="BM_Prediction_ALL_Today" />
+    <Procedure Name="BM_Prediction_DELETE_Duplicities" />
+    <Procedure Name="BM_SpecificPrediction_ALL" />
+    <Procedure Name="BM_Tournament_PREPARE_TestItem" />
+    <Procedure Name="BM_Prediction_ALL" />
+    <Procedure Name="BM_Prediction_ALL_Extend" />
   </Procedures>
   <Functions>
     <Function Name="BM_Event_DETAIL_LastEvent" InstallBeforeView="false" />
@@ -64,6 +75,11 @@
     <Function Name="BM_Genetic_Score_Extend" InstallBeforeView="false" />
     <Function Name="FN_Factorial" InstallBeforeView="false" />
     <Function Name="FN_Poisson" InstallBeforeView="false" />
+    <Function Name="BM_Prediction_Percentage" InstallBeforeView="false" />
+    <Function Name="BM_Prediction_Prop" InstallBeforeView="false" />
+    <Function Name="FN_AwayWinnerProp" InstallBeforeView="false" />
+    <Function Name="FN_DrawWinnerProp" InstallBeforeView="false" />
+    <Function Name="FN_HomeWinnerProp" InstallBeforeView="false" />
   </Functions>
   <BaseTables />
   <ProcedureTemplates>

@@ -27,7 +27,7 @@ namespace BetManager.Web.Controllers.Accounts.Detail
                 ID = user.ID,
                 UserName = user.UserName,
                 LastLogin = user.LastLogin,
-                Form = user.Form,
+                Category = user.Category,
                 Odd = user.Odd
             };
 

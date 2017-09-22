@@ -13,6 +13,6 @@ namespace BetManager.Web.ApiControllers.Tips.Graph
 
         public double Odd { get; set; }
 
-        public int Form { get; set; }
+        public string Category { get; set; }
     }
 }

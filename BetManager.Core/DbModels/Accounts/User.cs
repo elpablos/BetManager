@@ -28,7 +28,7 @@ namespace BetManager.Core.DbModels.Accounts
 
         public virtual ICollection<Role> Roles { get; set; }
 
-        public int Form { get; set; }
+        public string Category { get; set; }
 
         public double Odd { get; set; }
 

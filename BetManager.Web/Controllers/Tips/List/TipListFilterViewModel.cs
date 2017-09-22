@@ -26,8 +26,8 @@ namespace BetManager.Web.Controllers.Tips.List
         public double Odd { get; set; }
 
         [PersistInSession]
-        [Display(Name = "Forma")]
-        public int Form { get; set; }
+        [Display(Name = "Kategorie")]
+        public string Category { get; set; }
 
         public TipListFilterViewModel()
         {
@@ -38,7 +38,7 @@ namespace BetManager.Web.Controllers.Tips.List
             DateFrom = DateTime.Now;
             DateTo = DateTime.Now;
             Odd = double.Parse(identity.Claims.First(x => x.Type == "Odd").Value);
-            Form = int.Parse(identity.Claims.First(x => x.Type == "Form").Value);
+            Category = identity.Claims.First(x => x.Type == "Category").Value;
         }
 
         public void SetDefaultDashboard(ClaimsIdentity identity)
@@ -46,7 +46,7 @@ namespace BetManager.Web.Controllers.Tips.List
             DateFrom = DateTime.Now.AddDays(-8);
             DateTo = DateTime.Now.AddDays(-1);
             Odd = double.Parse(identity.Claims.First(x => x.Type == "Odd").Value);
-            Form = int.Parse(identity.Claims.First(x => x.Type == "Form").Value);
+            Category = identity.Claims.First(x => x.Type == "Category").Value;
         }
     }
 }

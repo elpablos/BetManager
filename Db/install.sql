@@ -1,5 +1,5 @@
 -- Database: BetManagerDevel
--- Date: 31.10.2016 14:05:14
+-- Date: 22.09.2017 18:45:45
 
 print 'CurrentTime: START - ' + convert(varchar, getdate(), 120)
 
@@ -16,6 +16,7 @@ from sysobjects as tables
 inner join sysobjects as constraints on constraints.parent_obj = object_id(tables.name)
 where tables.type = 'u'
 	and constraints.xtype in ('C', 'F', 'UQ', 'D')
+	and object_name(tables.id) in ('BM_Category', 'BM_Event', 'BM_ImportData', 'BM_ImportDataOld', 'BM_OddsRegular', 'BM_Score', 'BM_Season', 'BM_Sport', 'BM_Status', 'BM_Team', 'BM_Tip', 'BM_Tournament', 'CR_User', 'BM_Prediction', 'BM_PredictionTeam', 'BM_PredictionType')
 order by constraints.xtype asc
 
 open tbl
@@ -49,7 +50,7 @@ from
 where sysindexes.indid <> 0
 and (sysindexes.status & 64 = 0)
 and (sysindexes.status & 2048 = 0) -- not primary key
-and object_name(sysobjects.id) in ('BM_Category', 'BM_Event', 'BM_ImportData', 'BM_ImportDataOld', 'BM_OddsRegular', 'BM_Score', 'BM_Season', 'BM_Sport', 'BM_Status', 'BM_Team', 'BM_Tip', 'BM_Tournament', 'CR_User')
+and object_name(sysobjects.id) in ('BM_Category', 'BM_Event', 'BM_ImportData', 'BM_ImportDataOld', 'BM_OddsRegular', 'BM_Score', 'BM_Season', 'BM_Sport', 'BM_Status', 'BM_Team', 'BM_Tip', 'BM_Tournament', 'CR_User', 'BM_Prediction', 'BM_PredictionTeam', 'BM_PredictionType')
 
 open tbl_Indexy
 fetch next from tbl_Indexy into @drop
@@ -77,6 +78,7 @@ declare tbl cursor local forward_only static for
 select sys.tables.name, col.name
 from sys.computed_columns as col
 inner join sys.tables on col.object_id=sys.tables.object_id
+where sys.tables.name in  ('BM_Category', 'BM_Event', 'BM_ImportData', 'BM_ImportDataOld', 'BM_OddsRegular', 'BM_Score', 'BM_Season', 'BM_Sport', 'BM_Status', 'BM_Team', 'BM_Tip', 'BM_Tournament', 'CR_User', 'BM_Prediction', 'BM_PredictionTeam', 'BM_PredictionType')
 
 open tbl
 fetch next from tbl into @table, @column
@@ -100,8 +102,12 @@ GO
 -- Delete all triggers
 
 declare TblTriggers cursor local forward_only static for
-select name from sys.triggers
-declare @name varchar(250)
+select triggers.name from sys.triggers
+inner join sys.tables as tables on triggers.parent_id = tables.object_id 
+where tables.name in (
+'BM_Category', 'BM_Event', 'BM_ImportData', 'BM_ImportDataOld', 'BM_OddsRegular', 'BM_Score', 'BM_Season', 'BM_Sport', 'BM_Status', 'BM_Team', 'BM_Tip', 'BM_Tournament', 'CR_User', 'BM_Prediction', 'BM_PredictionTeam', 'BM_PredictionType')
+
+           declare @name varchar(250)
 open TblTriggers
 fetch next from TblTriggers into @name
 while (@@FETCH_STATUS=0)
@@ -248,6 +254,36 @@ begin
 	CREATE TABLE [CR_User]
 	(
 		[ID] int IDENTITY NOT NULL
+	)
+end
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME='BM_Prediction')
+begin
+	CREATE TABLE [BM_Prediction]
+	(
+		[ID] bigint IDENTITY NOT NULL
+	)
+end
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME='BM_PredictionTeam')
+begin
+	CREATE TABLE [BM_PredictionTeam]
+	(
+		[ID] bigint IDENTITY NOT NULL
+	)
+end
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME='BM_PredictionType')
+begin
+	CREATE TABLE [BM_PredictionType]
+	(
+		[ID] nvarchar(50)  NOT NULL
 	)
 end
 
@@ -1813,11 +1849,9 @@ else
 GO
 
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Team' and COLUMN_NAME='Slug')
-	alter table [BM_Team] add [Slug] nvarchar(255) NULL
-else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Team' and COLUMN_NAME='Slug' and IS_NULLABLE='YES')
-	alter table [BM_Team] alter column [Slug] nvarchar(255) NULL
+	alter table [BM_Team] add [Slug] nvarchar(500) NULL
 else
-	alter table [BM_Team] alter column [Slug] nvarchar(255) NOT NULL
+	alter table [BM_Team] alter column [Slug] nvarchar(500) NULL
 
 GO
 
@@ -1958,6 +1992,13 @@ else
 
 GO
 
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tip' and COLUMN_NAME='ID_Prediction')
+	alter table [BM_Tip] add [ID_Prediction] bigint NULL
+else
+	alter table [BM_Tip] alter column [ID_Prediction] bigint NULL
+
+GO
+
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tournament' and COLUMN_NAME='DisplayName')
 	alter table [BM_Tournament] add [DisplayName] nvarchar(255) NULL
 else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Tournament' and COLUMN_NAME='DisplayName' and IS_NULLABLE='YES')
@@ -2087,10 +2128,173 @@ GO
 
 if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='Form')
 	alter table [CR_User] add [Form] int NULL
-else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='Form' and IS_NULLABLE='YES')
-	alter table [CR_User] alter column [Form] int NULL
 else
-	alter table [CR_User] alter column [Form] int NOT NULL
+	alter table [CR_User] alter column [Form] int NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='Category')
+	alter table [CR_User] add [Category] nvarchar(255) NULL
+else
+	alter table [CR_User] alter column [Category] nvarchar(255) NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='ID_Tournament')
+	alter table [BM_Prediction] add [ID_Tournament] bigint NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='ID_Tournament' and IS_NULLABLE='YES')
+	alter table [BM_Prediction] alter column [ID_Tournament] bigint NULL
+else
+	alter table [BM_Prediction] alter column [ID_Tournament] bigint NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='DatePredict')
+	alter table [BM_Prediction] add [DatePredict] date NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='DatePredict' and IS_NULLABLE='YES')
+	alter table [BM_Prediction] alter column [DatePredict] date NULL
+else
+	alter table [BM_Prediction] alter column [DatePredict] date NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='Ksi')
+	alter table [BM_Prediction] add [Ksi] float NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='Ksi' and IS_NULLABLE='YES')
+	alter table [BM_Prediction] alter column [Ksi] float NULL
+else
+	alter table [BM_Prediction] alter column [Ksi] float NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='Gamma')
+	alter table [BM_Prediction] add [Gamma] float NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='Gamma' and IS_NULLABLE='YES')
+	alter table [BM_Prediction] alter column [Gamma] float NULL
+else
+	alter table [BM_Prediction] alter column [Gamma] float NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='Summary')
+	alter table [BM_Prediction] add [Summary] float NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='Summary' and IS_NULLABLE='YES')
+	alter table [BM_Prediction] alter column [Summary] float NULL
+else
+	alter table [BM_Prediction] alter column [Summary] float NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='LikehoodValue')
+	alter table [BM_Prediction] add [LikehoodValue] float NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='LikehoodValue' and IS_NULLABLE='YES')
+	alter table [BM_Prediction] alter column [LikehoodValue] float NULL
+else
+	alter table [BM_Prediction] alter column [LikehoodValue] float NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='DateCreated')
+	alter table [BM_Prediction] add [DateCreated] datetime NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='DateCreated' and IS_NULLABLE='YES')
+	alter table [BM_Prediction] alter column [DateCreated] datetime NULL
+else
+	alter table [BM_Prediction] alter column [DateCreated] datetime NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='Elapsed')
+	alter table [BM_Prediction] add [Elapsed] bigint NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='Elapsed' and IS_NULLABLE='YES')
+	alter table [BM_Prediction] alter column [Elapsed] bigint NULL
+else
+	alter table [BM_Prediction] alter column [Elapsed] bigint NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='Description')
+	alter table [BM_Prediction] add [Description] nvarchar(max) NULL
+else
+	alter table [BM_Prediction] alter column [Description] nvarchar(max) NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='ID_PredictionType')
+	alter table [BM_Prediction] add [ID_PredictionType] nvarchar(50) NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='ID_PredictionType' and IS_NULLABLE='YES')
+	alter table [BM_Prediction] alter column [ID_PredictionType] nvarchar(50) NULL
+else
+	alter table [BM_Prediction] alter column [ID_PredictionType] nvarchar(50) NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='IsEnabled')
+	alter table [BM_Prediction] add [IsEnabled] bit NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='IsEnabled' and IS_NULLABLE='YES')
+	alter table [BM_Prediction] alter column [IsEnabled] bit NULL
+else
+	alter table [BM_Prediction] alter column [IsEnabled] bit NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionTeam' and COLUMN_NAME='ID_Team')
+	alter table [BM_PredictionTeam] add [ID_Team] bigint NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionTeam' and COLUMN_NAME='ID_Team' and IS_NULLABLE='YES')
+	alter table [BM_PredictionTeam] alter column [ID_Team] bigint NULL
+else
+	alter table [BM_PredictionTeam] alter column [ID_Team] bigint NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionTeam' and COLUMN_NAME='Attack')
+	alter table [BM_PredictionTeam] add [Attack] float NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionTeam' and COLUMN_NAME='Attack' and IS_NULLABLE='YES')
+	alter table [BM_PredictionTeam] alter column [Attack] float NULL
+else
+	alter table [BM_PredictionTeam] alter column [Attack] float NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionTeam' and COLUMN_NAME='Defence')
+	alter table [BM_PredictionTeam] add [Defence] float NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionTeam' and COLUMN_NAME='Defence' and IS_NULLABLE='YES')
+	alter table [BM_PredictionTeam] alter column [Defence] float NULL
+else
+	alter table [BM_PredictionTeam] alter column [Defence] float NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionTeam' and COLUMN_NAME='ID_Prediction')
+	alter table [BM_PredictionTeam] add [ID_Prediction] bigint NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionTeam' and COLUMN_NAME='ID_Prediction' and IS_NULLABLE='YES')
+	alter table [BM_PredictionTeam] alter column [ID_Prediction] bigint NULL
+else
+	alter table [BM_PredictionTeam] alter column [ID_Prediction] bigint NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionType' and COLUMN_NAME='IsActive')
+	alter table [BM_PredictionType] add [IsActive] bit NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionType' and COLUMN_NAME='IsActive' and IS_NULLABLE='YES')
+	alter table [BM_PredictionType] alter column [IsActive] bit NULL
+else
+	alter table [BM_PredictionType] alter column [IsActive] bit NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionType' and COLUMN_NAME='DisplayName')
+	alter table [BM_PredictionType] add [DisplayName] nvarchar(255) NULL
+else if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionType' and COLUMN_NAME='DisplayName' and IS_NULLABLE='YES')
+	alter table [BM_PredictionType] alter column [DisplayName] nvarchar(255) NULL
+else
+	alter table [BM_PredictionType] alter column [DisplayName] nvarchar(255) NOT NULL
+
+GO
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionType' and COLUMN_NAME='Description')
+	alter table [BM_PredictionType] add [Description] nvarchar(max) NULL
+else
+	alter table [BM_PredictionType] alter column [Description] nvarchar(max) NULL
 
 GO
 
@@ -3065,6 +3269,239 @@ END
 
 GO
 
+if exists (select * from sysobjects where name='BM_Prediction_Percentage')
+begin
+  drop function BM_Prediction_Percentage
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 2017-09-21
+-- Description:	Prevod odds na procenta
+-- =============================================
+CREATE FUNCTION [dbo].[BM_Prediction_Percentage]
+(
+	@Home float,
+	@Draw float,
+	@Away float
+)
+RETURNS 
+@ret TABLE 
+(
+	HomePercent float,
+	DrawPercent float,
+	AwayPercent float
+)
+AS
+BEGIN
+	declare @total float
+	select @total=(1+ 1-(1/@Home + 1/@Draw + 1/@Away))
+
+	insert into @ret
+	select @total/@Home, @total/@Draw, @total/@Away
+
+	RETURN 
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Prediction_Prop')
+begin
+  drop function BM_Prediction_Prop
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 28.12.2016
+-- Description:	Odhady
+-- =============================================
+CREATE FUNCTION [dbo].[BM_Prediction_Prop]
+(
+	@homeAttack float, -- utok domacich
+	@homeDefence float, -- obrana domacich
+	@awayAttack float, -- utok hosti
+	@awayDefence float, -- obrana hosti
+	@gamma float -- vyhoda domaciho
+)
+RETURNS 
+@ret TABLE 
+(
+	Home float,
+	Draw float,
+	Away float,
+	TwoAndHalfMinus float,
+	TwoAndHalfPlus float,
+	OneAndHalfMinus float,
+	OneAndHalfPlus float
+)
+AS
+BEGIN
+	declare @h int = 0, @a int = 0, 
+	@home float = 0.0, @away float = 0.0, 
+	@resulthome float = 0.0, @resultdraw float = 0.0, 
+	@resultaway float = 0.0, @temp float = 0.0,
+	@TwoAndHalfMinus float = 0.0, @TwoAndHalfPlus float = 0.0,
+	@OneAndHalfMinus float = 0.0, @OneAndHalfPlus float = 0.0
+
+	select 
+		@home=@homeAttack*@awayDefence*@gamma,
+		@away=@awayAttack*@homeDefence
+	while(@h<=10)
+	begin
+		set @a=0
+		while(@a<=10)
+		begin
+			select @temp = [dbo].[FN_Poisson](@h, @home) * [dbo].[FN_Poisson](@a, @away)
+			select 
+				@resulthome+=case when @h>@a then @temp else 0 end,
+				@resultdraw+=case when @h=@a then @temp else 0 end,
+				@resultaway+=case when @h<@a then @temp else 0 end,
+				@TwoAndHalfMinus+= case when @h+@a<2.5 then @temp else 0 end,
+				@TwoAndHalfPlus+= case when @h+@a>2.5 then @temp else 0 end,
+				@OneAndHalfMinus+= case when @h+@a<1.5 then @temp else 0 end,
+				@OneAndHalfPlus+= case when @h+@a>1.5 then @temp else 0 end
+			set @a += 1
+		end
+		set @h += 1
+	end
+
+	insert into @ret values (@resulthome, @resultdraw, @resultaway, @TwoAndHalfMinus, @TwoAndHalfPlus, @OneAndHalfMinus, @OneAndHalfPlus)
+
+	RETURN 
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='FN_AwayWinnerProp')
+begin
+  drop function FN_AwayWinnerProp
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 28.12.2016
+-- Description:	Pravdepodobnost hostujiciho vitezstvi
+-- =============================================
+CREATE FUNCTION [dbo].[FN_AwayWinnerProp]
+(
+	@homeAttack float, -- utok domacich
+	@homeDefence float, -- obrana domacich
+	@awayAttack float, -- utok hosti
+	@awayDefence float, -- obrana hosti
+	@gamma float -- vyhoda domaciho
+)
+RETURNS float
+AS
+BEGIN
+	declare @ret float = 0.0, @h int = 0, @a int = 0, @home float, @away float
+	select 
+		@home=@homeAttack*@awayDefence*@gamma,
+		@away=@awayAttack*@homeDefence
+	while(@h<=10)
+	begin
+		set @a = @h+1
+		while(@a<=10)
+		begin
+			set @ret += [dbo].[FN_Poisson](@h, @home) * [dbo].[FN_Poisson](@a, @away)
+			set @a += 1
+		end
+		set @h += 1
+	end
+	return @ret
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='FN_DrawWinnerProp')
+begin
+  drop function FN_DrawWinnerProp
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 28.12.2016
+-- Description:	Pravdepodobnost plichty
+-- =============================================
+CREATE FUNCTION FN_DrawWinnerProp
+(
+	@homeAttack float, -- utok domacich
+	@homeDefence float, -- obrana domacich
+	@awayAttack float, -- utok hosti
+	@awayDefence float, -- obrana hosti
+	@gamma float -- vyhoda domaciho
+)
+RETURNS float
+AS
+BEGIN
+	declare @ret float = 0.0, @a int = 0, @home float, @away float
+	select 
+		@home=@homeAttack*@awayDefence*@gamma,
+		@away=@awayAttack*@homeDefence
+	while(@a<=10)
+	begin
+		set @ret += [dbo].[FN_Poisson](@a, @home) * [dbo].[FN_Poisson](@a, @away)
+		set @a += 1
+	end
+	return @ret
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='FN_HomeWinnerProp')
+begin
+  drop function FN_HomeWinnerProp
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 28.12.2016
+-- Description:	Pravdepodobnost domaciho vitezstvi
+-- =============================================
+CREATE FUNCTION [dbo].[FN_HomeWinnerProp]
+(
+	@homeAttack float, -- utok domacich
+	@homeDefence float, -- obrana domacich
+	@awayAttack float, -- utok hosti
+	@awayDefence float, -- obrana hosti
+	@gamma float -- vyhoda domaciho
+)
+RETURNS float
+AS
+BEGIN
+	declare @ret float = 0.0, @h int = 0, @a int = 0, @home float, @away float
+	select 
+		@home=@homeAttack*@awayDefence*@gamma,
+		@away=@awayAttack*@homeDefence
+	while(@a<=10)
+	begin
+		set @h = @a+1
+		while(@h<=10)
+		begin
+			set @ret += [dbo].[FN_Poisson](@h, @home) * [dbo].[FN_Poisson](@a, @away)
+			set @h += 1
+		end
+		set @a += 1
+	end
+	return @ret
+END
+
+
+GO
+
 print 'CurrentTime: Functions after views - ' + convert(varchar, getdate(), 120)
 
 GO
@@ -3128,6 +3565,22 @@ alter table [BM_OddsRegular] ADD CONSTRAINT [DF_OddsRegular_DateCreated] DEFAULT
 GO
 
 update [BM_OddsRegular] set [DateCreated]=(getdate()) where [DateCreated] is null
+
+GO
+
+alter table [BM_Prediction] ADD CONSTRAINT [DF_BM_Prediction_IsEnabled] DEFAULT (((1))) FOR [IsEnabled]
+
+GO
+
+update [BM_Prediction] set [IsEnabled]=((1)) where [IsEnabled] is null
+
+GO
+
+alter table [BM_PredictionType] ADD CONSTRAINT [DF_BM_PredictionType_IsActive] DEFAULT (((1))) FOR [IsActive]
+
+GO
+
+update [BM_PredictionType] set [IsActive]=((1)) where [IsActive] is null
 
 GO
 
@@ -3388,6 +3841,101 @@ if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_OddsRegu
 
 GO
 
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='ID' and IS_NULLABLE='YES')
+    alter table [BM_Prediction] alter column [ID] bigint NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='ID_Tournament' and IS_NULLABLE='YES')
+    alter table [BM_Prediction] alter column [ID_Tournament] bigint NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='DatePredict' and IS_NULLABLE='YES')
+    alter table [BM_Prediction] alter column [DatePredict] date NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='Ksi' and IS_NULLABLE='YES')
+    alter table [BM_Prediction] alter column [Ksi] float NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='Gamma' and IS_NULLABLE='YES')
+    alter table [BM_Prediction] alter column [Gamma] float NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='Summary' and IS_NULLABLE='YES')
+    alter table [BM_Prediction] alter column [Summary] float NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='LikehoodValue' and IS_NULLABLE='YES')
+    alter table [BM_Prediction] alter column [LikehoodValue] float NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='DateCreated' and IS_NULLABLE='YES')
+    alter table [BM_Prediction] alter column [DateCreated] datetime NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='Elapsed' and IS_NULLABLE='YES')
+    alter table [BM_Prediction] alter column [Elapsed] bigint NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='ID_PredictionType' and IS_NULLABLE='YES')
+    alter table [BM_Prediction] alter column [ID_PredictionType] nvarchar(50) NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Prediction' and COLUMN_NAME='IsEnabled' and IS_NULLABLE='YES')
+    alter table [BM_Prediction] alter column [IsEnabled] bit NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionTeam' and COLUMN_NAME='ID' and IS_NULLABLE='YES')
+    alter table [BM_PredictionTeam] alter column [ID] bigint NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionTeam' and COLUMN_NAME='ID_Team' and IS_NULLABLE='YES')
+    alter table [BM_PredictionTeam] alter column [ID_Team] bigint NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionTeam' and COLUMN_NAME='Attack' and IS_NULLABLE='YES')
+    alter table [BM_PredictionTeam] alter column [Attack] float NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionTeam' and COLUMN_NAME='Defence' and IS_NULLABLE='YES')
+    alter table [BM_PredictionTeam] alter column [Defence] float NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionTeam' and COLUMN_NAME='ID_Prediction' and IS_NULLABLE='YES')
+    alter table [BM_PredictionTeam] alter column [ID_Prediction] bigint NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionType' and COLUMN_NAME='ID' and IS_NULLABLE='YES')
+    alter table [BM_PredictionType] alter column [ID] nvarchar(50) NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionType' and COLUMN_NAME='IsActive' and IS_NULLABLE='YES')
+    alter table [BM_PredictionType] alter column [IsActive] bit NOT NULL
+
+GO
+
+if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_PredictionType' and COLUMN_NAME='DisplayName' and IS_NULLABLE='YES')
+    alter table [BM_PredictionType] alter column [DisplayName] nvarchar(255) NOT NULL
+
+GO
+
 if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Score' and COLUMN_NAME='ID_Event' and IS_NULLABLE='YES')
     alter table [BM_Score] alter column [ID_Event] bigint NOT NULL
 
@@ -3493,11 +4041,6 @@ if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Team' an
 
 GO
 
-if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Team' and COLUMN_NAME='Slug' and IS_NULLABLE='YES')
-    alter table [BM_Team] alter column [Slug] nvarchar(255) NOT NULL
-
-GO
-
 if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='BM_Team' and COLUMN_NAME='IsActive' and IS_NULLABLE='YES')
     alter table [BM_Team] alter column [IsActive] bit NOT NULL
 
@@ -3573,11 +4116,6 @@ if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' an
 
 GO
 
-if exists(select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='CR_User' and COLUMN_NAME='Form' and IS_NULLABLE='YES')
-    alter table [CR_User] alter column [Form] int NOT NULL
-
-GO
-
 print 'CurrentTime: Constraints: NotNull - ' + convert(varchar, getdate(), 120)
 
 GO
@@ -3587,13 +4125,23 @@ if not exists(select * from sys.indexes where name='PK_BM_Team' and is_primary_k
 
 GO
 
+if not exists(select * from sys.indexes where name='PK_CR_User' and is_primary_key=1)
+  alter table [CR_User] ADD CONSTRAINT [PK_CR_User] PRIMARY KEY ([ID])
+
+GO
+
 if not exists(select * from sys.indexes where name='PK_BM_Event' and is_primary_key=1)
   alter table [BM_Event] ADD CONSTRAINT [PK_BM_Event] PRIMARY KEY ([ID])
 
 GO
 
-if not exists(select * from sys.indexes where name='PK_CR_User' and is_primary_key=1)
-  alter table [CR_User] ADD CONSTRAINT [PK_CR_User] PRIMARY KEY ([ID])
+if not exists(select * from sys.indexes where name='PK_BM_PredictionType' and is_primary_key=1)
+  alter table [BM_PredictionType] ADD CONSTRAINT [PK_BM_PredictionType] PRIMARY KEY ([ID])
+
+GO
+
+if not exists(select * from sys.indexes where name='PK_BM_Prediction' and is_primary_key=1)
+  alter table [BM_Prediction] ADD CONSTRAINT [PK_BM_Prediction] PRIMARY KEY ([ID])
 
 GO
 
@@ -3624,6 +4172,11 @@ GO
 
 if not exists(select * from sys.indexes where name='PK_BM_Status' and is_primary_key=1)
   alter table [BM_Status] ADD CONSTRAINT [PK_BM_Status] PRIMARY KEY ([ID])
+
+GO
+
+if not exists(select * from sys.indexes where name='PK_BM_PredictionTeam' and is_primary_key=1)
+  alter table [BM_PredictionTeam] ADD CONSTRAINT [PK_BM_PredictionTeam] PRIMARY KEY ([ID])
 
 GO
 
@@ -4440,6 +4993,159 @@ else
 
 GO
 
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'BM_Prediction' and c.name = 'ID')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Jedinečné ID odhadu' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'ID'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Jedinečné ID odhadu' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'ID'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'BM_Prediction' and c.name = 'ID_Tournament')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Turnaj' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'ID_Tournament'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Turnaj' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'ID_Tournament'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'BM_Prediction' and c.name = 'DatePredict')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Datum odhadu' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'DatePredict'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Datum odhadu' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'DatePredict'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'BM_Prediction' and c.name = 'Ksi')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Časový parametr' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'Ksi'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Časový parametr' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'Ksi'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'BM_Prediction' and c.name = 'Gamma')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Výhoda domácího' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'Gamma'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Výhoda domácího' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'Gamma'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'BM_Prediction' and c.name = 'Summary')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Součet' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'Summary'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Součet' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'Summary'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'BM_Prediction' and c.name = 'LikehoodValue')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Kontrolní součet' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'LikehoodValue'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Kontrolní součet' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'LikehoodValue'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'BM_Prediction' and c.name = 'DateCreated')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Datum vytvoření' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'DateCreated'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Datum vytvoření' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'DateCreated'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'BM_Prediction' and c.name = 'Elapsed')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Počet tiků predikce' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'Elapsed'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Počet tiků predikce' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'Elapsed'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'BM_Prediction' and c.name = 'Description')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Popis' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'Description'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Popis' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'Description'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'BM_Prediction' and c.name = 'ID_PredictionType')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Typ' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'ID_PredictionType'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Typ' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'ID_PredictionType'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'BM_Prediction' and c.name = 'IsEnabled')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Zda je aktivní' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'IsEnabled'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Zda je aktivní' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_Prediction', @level2type=N'COLUMN',@level2name=N'IsEnabled'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'BM_PredictionTeam' and c.name = 'ID')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Jedinečné ID vazby odhadu a týmu' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_PredictionTeam', @level2type=N'COLUMN',@level2name=N'ID'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Jedinečné ID vazby odhadu a týmu' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_PredictionTeam', @level2type=N'COLUMN',@level2name=N'ID'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'BM_PredictionTeam' and c.name = 'ID_Team')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Tým' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_PredictionTeam', @level2type=N'COLUMN',@level2name=N'ID_Team'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Tým' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_PredictionTeam', @level2type=N'COLUMN',@level2name=N'ID_Team'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'BM_PredictionTeam' and c.name = 'Attack')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Útok' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_PredictionTeam', @level2type=N'COLUMN',@level2name=N'Attack'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Útok' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_PredictionTeam', @level2type=N'COLUMN',@level2name=N'Attack'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'BM_PredictionTeam' and c.name = 'Defence')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Obrana' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_PredictionTeam', @level2type=N'COLUMN',@level2name=N'Defence'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Obrana' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_PredictionTeam', @level2type=N'COLUMN',@level2name=N'Defence'
+
+GO
+
+if exists(select *
+        from sys.columns c inner join sys.extended_properties ex ON  ex.major_id = c.object_id and c.column_id=ex.minor_id
+        where OBJECT_NAME(c.object_id) = 'BM_PredictionTeam' and c.name = 'ID_Prediction')
+    EXEC sys.sp_updateextendedproperty @name=N'MS_Description', @value=N'Odhad' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_PredictionTeam', @level2type=N'COLUMN',@level2name=N'ID_Prediction'
+else
+    EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Odhad' , @level0type=N'SCHEMA', @level0name=N'dbo', @level1type=N'TABLE', @level1name=N'BM_PredictionTeam', @level2type=N'COLUMN',@level2name=N'ID_Prediction'
+
+GO
+
 print 'CurrentTime: Description - ' + convert(varchar, getdate(), 120)
 
 GO
@@ -4460,11 +5166,19 @@ alter table [BM_Event] ADD CONSTRAINT [FK_BM_Event_BM_TeamAway] FOREIGN KEY ([ID
 
 GO
 
+alter table [BM_PredictionTeam] ADD CONSTRAINT [FK_BM_PredictionTeam_BM_Team] FOREIGN KEY ([ID_Team]) REFERENCES [BM_Team]([ID])
+
+GO
+
 alter table [BM_OddsRegular] ADD CONSTRAINT [FK_OddsRegular_BM_Event] FOREIGN KEY ([ID_Event]) REFERENCES [BM_Event]([ID])
 
 GO
 
 alter table [BM_Score] ADD CONSTRAINT [FK_BM_Score_BM_Event] FOREIGN KEY ([ID_Event]) REFERENCES [BM_Event]([ID])
+
+GO
+
+alter table [BM_PredictionTeam] ADD CONSTRAINT [FK_BM_PredictionTeam_BM_Prediction] FOREIGN KEY ([ID_Prediction]) REFERENCES [BM_Prediction]([ID])
 
 GO
 
@@ -4481,6 +5195,10 @@ alter table [BM_Category] ADD CONSTRAINT [FK_BM_Category_BM_Sport] FOREIGN KEY (
 GO
 
 alter table [BM_Event] ADD CONSTRAINT [FK_BM_Event_BM_Tournament] FOREIGN KEY ([ID_Tournament]) REFERENCES [BM_Tournament]([ID])
+
+GO
+
+alter table [BM_Prediction] ADD CONSTRAINT [FK_BM_Prediction_BM_Tournament] FOREIGN KEY ([ID_Tournament]) REFERENCES [BM_Tournament]([ID])
 
 GO
 
@@ -5073,10 +5791,11 @@ end
 
 GO
 
+
 -- =============================================
 -- Author:		Pavel Lorenz
 -- Create date: 13.09.2016
--- Update date: 16.09.2016
+-- Update date: 20.07.2017
 -- Description:	Import dat z tabulky ImportData do ostatních tabulek
 -- =============================================
 CREATE PROCEDURE [dbo].[BM_ImportData_IMPORT]
@@ -5158,9 +5877,9 @@ BEGIN
 	USING 
 	(
 		select TournamentId, max(TournamentName),
-		TournamentSlug, TournamentUniqueId, CategoryId
+		TournamentSlug, max(TournamentUniqueId), CategoryId
 		from BM_ImportData
-		group by TournamentId, TournamentSlug, TournamentUniqueId, CategoryId
+		group by TournamentId, TournamentSlug, CategoryId
 	) AS [source] (TournamentId, TournamentName, TournamentSlug, TournamentUniqueId, CategoryId)
 	ON ([target].ID = [source].TournamentId)
 	WHEN matched THEN
@@ -5189,18 +5908,27 @@ BEGIN
 	BEGIN		
 		  print @Date
 
+			-- odmazu duplicity z aktualni dle
+			;with cte AS 
+			(		
+				select EventId, row_number() OVER(PARTITION BY EventId ORDER BY ID desc) AS [rn], ID 
+				from BM_ImportData where [date]=@Date
+			)
+			delete from cte where rn>1
+
+			print 'team'
 		  -- Team
 			MERGE [dbo].[BM_Team] AS [target]
 			USING 
 			(
-				select TeamId, max(Name) as Name, Slug, Gender
+				select TeamId, max(Name) as Name, max(Slug) as Slug, max(Gender) as Gender
 				from
 				(
-				select distinct HomeTeamId as TeamId, HomeTeamName as Name, HomeTeamSlug as Slug, HomeTeamGender as Gender  from BM_ImportData where [Date]=@Date
-				union
-				select distinct AwayTeamId as TeamId, AwayTeamName as Name, AwayTeamSlug as Slug, AwayTeamGender as Gender from BM_ImportData where [Date]=@Date
+					select distinct HomeTeamId as TeamId, HomeTeamName as Name, HomeTeamSlug as Slug, HomeTeamGender as Gender  from BM_ImportData where [Date]=@Date
+					union
+					select distinct AwayTeamId as TeamId, AwayTeamName as Name, AwayTeamSlug as Slug, AwayTeamGender as Gender from BM_ImportData where [Date]=@Date
 				) x
-				group by TeamId, Slug, Gender
+				group by TeamId
 			) AS [source] (TeamId, Name, Slug, Gender)
 			ON ([target].ID = [source].TeamId)
 			WHEN matched THEN
@@ -5223,13 +5951,13 @@ BEGIN
 				--convert(datetime, convert(nvarchar(19), EventChanges), 126) as [Changes],
 				--HomeTeamId, AwayTeamId, TournamentId, SeasonId, CategoryId, StatusCode, StatusDescription, HomeScoreCurrent, AwayScoreCurrent
 				--from BM_ImportData where [Date]=@Date
-				select EventId, max(EventName) as EventName, EventSlug, EventCustomId, EventFirstToServe, EventHasDraw, max(EventWinnerCode) as EventWinnerCode, 
+				select EventId, max(EventName) as EventName, EventSlug, EventCustomId, max(EventFirstToServe) as EventFirstToServe, EventHasDraw, max(EventWinnerCode) as EventWinnerCode, 
 				max(convert(datetime, convert(nvarchar(10),EventStartDate) +' '+ convert(nvarchar(8), EventStartTime), 104)) as EventDateStart,
 				max(convert(datetime, convert(nvarchar(19), EventChanges), 126)) as [Changes],
 				HomeTeamId, AwayTeamId, TournamentId, SeasonId, CategoryId, max(StatusCode) as StatusCode, max(StatusDescription) as StatusDescription, 
 				max(HomeScoreCurrent) as HomeScoreCurrent, max(AwayScoreCurrent) as AwayScoreCurrent
 				from BM_ImportData where [Date]=@Date
-				group by EventId, EventSlug, EventCustomId, EventFirstToServe, EventHasDraw, HomeTeamId, 
+				group by EventId, EventSlug, EventCustomId, EventHasDraw, HomeTeamId, 
 				AwayTeamId, TournamentId, SeasonId, CategoryId
 			) AS [source]
 			ON ([target].ID = [source].EventId)
@@ -5523,59 +6251,95 @@ GO
 -- Description:	Přehled tipů
 -- =============================================
 CREATE PROCEDURE [dbo].[BM_Tip_ALL]
-	@Form int = 30,
+	@Category nvarchar(255) = null,
 	@Odd decimal(9,2) = 2.0,
 	@DateFrom date = null,
 	@DateTo date = null,
 	@WithoutTournament bit = 0
 AS
 BEGIN
-	select 
-		BM_Event.ID,
-		'Url'='http://www.sofascore.com/'+BM_Event.Slug+'/'+BM_Event.CustomId,
-		BM_Event.DisplayName,
-		BM_Category.Slug,
-		BM_Event.DateStart,
-		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
-			else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) * -1 end) as Form,
-		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) as Odd,
-		(case when BM_Event.WinnerCode=0 then 0 else (case when BM_Event.HomeScoreCurrent>BM_Event.AwayScoreCurrent then 1 else (case when BM_Event.HomeScoreCurrent<BM_Event.AwayScoreCurrent then 2 else 3 end) end) end) as WinnerCode,
-		BM_Event.HomeScoreCurrent,
-		BM_Event.AwayScoreCurrent,
-		BM_Event.ID_Status,
-        BM_Tip.[HomeLastForm],
-        BM_Tip.[HomeLastGiven],
-        BM_Tip.[HomeLastTaken],
-        BM_Tip.[HomeSeasonForm],
-        BM_Tip.[HomeSeasonGiven],
-        BM_Tip.[HomeSeasonTaken],
-		BM_Tip.[HomeSeasonCount],
-        BM_Tip.[AwayLastForm],
-        BM_Tip.[AwayLastGiven],
-        BM_Tip.[AwayLastTaken],
-        BM_Tip.[AwaySeasonForm],
-        BM_Tip.[AwaySeasonGiven],
-        BM_Tip.[AwaySeasonTaken],
-		BM_Tip.[AwaySeasonCount],
-		'ID_Category'=BM_Category.ID,
-		'Category'=BM_Category.DisplayName,
-		'ID_Season'=BM_Season.ID,
-		'Season'=BM_Season.DisplayName,
-		BM_OddsRegular.FirstValue,
-		BM_OddsRegular.XValue,
-		BM_OddsRegular.SecondValue
-	from BM_Tip
-		inner join BM_Event on BM_Event.ID=BM_Tip.ID
-		inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
-		inner join BM_Category on BM_Category.ID=BM_Event.ID_Category
-		left join BM_Season on BM_Season.ID=BM_Event.ID_Season
-	where (case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
-			else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) end) >= @Form
-		and (case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) >= @Odd
-		and (@DateFrom is null or BM_Event.DateStart >= @DateFrom)
-		and (@DateTo is null or BM_Event.DateStart < dateadd(day, 1, @DateTo))
-		and ((@WithoutTournament=1 and BM_Category.Slug not like 'international%') or @WithoutTournament=0)
-	order by BM_Event.DateStart
+
+	;with Predict 
+	as
+	(
+		select *,
+			'PredictTip'=case 
+					when Home > Draw AND Home > Away AND Home > HomePercent then 1
+					when Away > Draw AND Away > Home AND Away > AwayPercent then 2
+					when Draw > Away AND Draw > Home AND Draw > DrawPercent then 3
+					else 0
+				end,
+			'Odd'=case 
+					when Home > Draw AND Home > Away AND Home > HomePercent then FirstValue
+					when Away > Draw AND Away > Home AND Away > AwayPercent then SecondValue
+					when Draw > Away AND Draw > Home AND Draw > DrawPercent then XValue
+					else 0
+				end
+		from
+		(
+			select 
+				BM_Event.ID,
+				'Url'='http://www.sofascore.com/'+BM_Event.Slug+'/'+BM_Event.CustomId,
+				BM_Event.DisplayName,
+				BM_Category.Slug,
+				BM_Event.DateStart,
+				(case when BM_Event.WinnerCode=0 then 0 else (case when BM_Event.HomeScoreCurrent>BM_Event.AwayScoreCurrent then 1 else (case when BM_Event.HomeScoreCurrent<BM_Event.AwayScoreCurrent then 2 else 3 end) end) end) as WinnerCode,
+				BM_Event.HomeScoreCurrent,
+				BM_Event.AwayScoreCurrent,
+				BM_Event.ID_Status,
+				BM_Tip.[HomeLastForm],
+				BM_Tip.[HomeLastGiven],
+				BM_Tip.[HomeLastTaken],
+				BM_Tip.[HomeSeasonForm],
+				BM_Tip.[HomeSeasonGiven],
+				BM_Tip.[HomeSeasonTaken],
+				BM_Tip.[HomeSeasonCount],
+				BM_Tip.[AwayLastForm],
+				BM_Tip.[AwayLastGiven],
+				BM_Tip.[AwayLastTaken],
+				BM_Tip.[AwaySeasonForm],
+				BM_Tip.[AwaySeasonGiven],
+				BM_Tip.[AwaySeasonTaken],
+				BM_Tip.[AwaySeasonCount],
+				'ID_Category'=BM_Category.ID,
+				'Category'=BM_Category.DisplayName,
+				'ID_Season'=BM_Season.ID,
+				'Season'=BM_Season.DisplayName,
+				Props.Home, 
+				Props.Draw, 
+				Props.Away,
+				Props.TwoAndHalfMinus,
+				Props.TwoAndHalfPlus,
+				Props.OneAndHalfMinus,
+				Props.OneAndHalfPlus,
+				BM_OddsRegular.FirstValue,
+				BM_OddsRegular.XValue,
+				BM_OddsRegular.SecondValue,
+				Odds.HomePercent,
+				Odds.DrawPercent,
+				Odds.AwayPercent
+			from BM_Tip
+				inner join BM_Event on BM_Event.ID=BM_Tip.ID
+				inner join BM_Prediction on BM_Prediction.ID=BM_Tip.ID_Prediction
+				inner join BM_PredictionTeam BM_HomePredTeam on BM_HomePredTeam.ID_Prediction=BM_Prediction.ID AND BM_HomePredTeam.ID_Team=BM_Event.ID_HomeTeam
+				inner join BM_PredictionTeam BM_AwayPredTeam on BM_AwayPredTeam.ID_Prediction=BM_Prediction.ID AND BM_AwayPredTeam.ID_Team=BM_Event.ID_AwayTeam
+				left join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
+				cross apply dbo.BM_Prediction_Prop(BM_HomePredTeam.Attack, BM_HomePredTeam.Defence, BM_AwayPredTeam.Attack, BM_AwayPredTeam.Defence, BM_Prediction.Gamma) as Props
+				cross apply [dbo].[BM_Prediction_Percentage](BM_OddsRegular.FirstValue,BM_OddsRegular.XValue,BM_OddsRegular.SecondValue) as Odds
+				inner join BM_Category on BM_Category.ID=BM_Event.ID_Category
+				left join BM_Season on BM_Season.ID=BM_Event.ID_Season
+			where 
+				(IsNull(@Category,'')='' or BM_Category.DisplayName like '%'+@Category+'%')
+				and (@DateFrom is null or BM_Event.DateStart >= @DateFrom)
+				and (@DateTo is null or BM_Event.DateStart < dateadd(day, 1, @DateTo))
+				and ((@WithoutTournament=1 and BM_Category.Slug not like 'international%') or @WithoutTournament=0)
+		) x
+	)
+	select *
+	from Predict
+	where Odd > @Odd
+	order by Predict.DateStart
+
 END
 
 
@@ -5597,52 +6361,81 @@ CREATE PROCEDURE [dbo].[BM_Tip_DETAIL]
 	@ID int
 AS
 BEGIN
-	select 
-		BM_Event.ID,
-		'Url'='http://www.sofascore.com/'+BM_Event.Slug+'/'+BM_Event.CustomId,
-		BM_Event.DisplayName,
-		BM_Event.DateStart,
-		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
-			else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) * -1 end) as Form,
-		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then FirstValue else SecondValue end) as Odd,
-		(case when BM_Event.WinnerCode=0 then 0 else (case when BM_Event.HomeScoreCurrent>BM_Event.AwayScoreCurrent then 1 else (case when BM_Event.HomeScoreCurrent<BM_Event.AwayScoreCurrent then 2 else 3 end) end) end) as WinnerCode,
-		BM_Event.ID_Status,
-		'ID_Category'=BM_Category.ID,
-		'Category'=BM_Category.DisplayName,
-		'ID_Season'=BM_Season.ID,
-		'Season'=BM_Season.DisplayName,
-		'HomeTeam'=BM_HomeTeam.DisplayName,
-		'AwayTeam'=BM_AwayTeam.DisplayName,
-		BM_Event.HomeScoreCurrent,
-		BM_Event.AwayScoreCurrent,
-        BM_Tip.[HomeLastForm],
-        BM_Tip.[HomeLastGiven],
-        BM_Tip.[HomeLastTaken],
-        BM_Tip.[HomeSeasonForm],
-        BM_Tip.[HomeSeasonGiven],
-        BM_Tip.[HomeSeasonTaken],
-		BM_Tip.[HomeSeasonCount],
-        BM_Tip.[AwayLastForm],
-        BM_Tip.[AwayLastGiven],
-        BM_Tip.[AwayLastTaken],
-        BM_Tip.[AwaySeasonForm],
-        BM_Tip.[AwaySeasonGiven],
-        BM_Tip.[AwaySeasonTaken],
-		BM_Tip.[AwaySeasonCount],
-		BM_OddsRegular.FirstId,
-		BM_OddsRegular.FirstValue,
-		BM_OddsRegular.XId,
-		BM_OddsRegular.XValue,
-		BM_OddsRegular.SecondId,
-		BM_OddsRegular.SecondValue
-	from BM_Tip
-	inner join BM_Event on BM_Event.ID=BM_Tip.ID
-	inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
-	inner join BM_Team BM_HomeTeam on BM_HomeTeam.ID=BM_Event.ID_HomeTeam
-	inner join BM_Team BM_AwayTeam on BM_AwayTeam.ID=BM_Event.ID_AwayTeam
-	left join BM_Category on BM_Category.ID=BM_Event.ID_Category
-	left join BM_Season on BM_Season.ID=BM_Event.ID_Season
-	where BM_Event.ID=@ID
+
+	select *,
+		'PredictTip'=case 
+				when Home > Draw AND Home > Away AND Home > HomePercent then 1
+				when Away > Draw AND Away > Home AND Away > AwayPercent then 2
+				when Draw > Away AND Draw > Home AND Draw > DrawPercent then 3
+				else 0
+			end,
+		'Odd'=case 
+				when Home > Draw AND Home > Away AND Home > HomePercent then FirstValue
+				when Away > Draw AND Away > Home AND Away > AwayPercent then SecondValue
+				when Draw > Away AND Draw > Home AND Draw > DrawPercent then XValue
+				else 0
+			end
+	from
+	(
+		select 
+			BM_Event.ID,
+			'Url'='http://www.sofascore.com/'+BM_Event.Slug+'/'+BM_Event.CustomId,
+			BM_Event.DisplayName,
+			BM_Event.DateStart,
+			(case when BM_Event.WinnerCode=0 then 0 else (case when BM_Event.HomeScoreCurrent>BM_Event.AwayScoreCurrent then 1 else (case when BM_Event.HomeScoreCurrent<BM_Event.AwayScoreCurrent then 2 else 3 end) end) end) as WinnerCode,
+			BM_Event.ID_Status,
+			'ID_Category'=BM_Category.ID,
+			'Category'=BM_Category.DisplayName,
+			'ID_Season'=BM_Season.ID,
+			'Season'=BM_Season.DisplayName,
+			'HomeTeam'=BM_HomeTeam.DisplayName,
+			'AwayTeam'=BM_AwayTeam.DisplayName,
+			BM_Event.HomeScoreCurrent,
+			BM_Event.AwayScoreCurrent,
+			BM_Tip.[HomeLastForm],
+			BM_Tip.[HomeLastGiven],
+			BM_Tip.[HomeLastTaken],
+			BM_Tip.[HomeSeasonForm],
+			BM_Tip.[HomeSeasonGiven],
+			BM_Tip.[HomeSeasonTaken],
+			BM_Tip.[HomeSeasonCount],
+			BM_Tip.[AwayLastForm],
+			BM_Tip.[AwayLastGiven],
+			BM_Tip.[AwayLastTaken],
+			BM_Tip.[AwaySeasonForm],
+			BM_Tip.[AwaySeasonGiven],
+			BM_Tip.[AwaySeasonTaken],
+			BM_Tip.[AwaySeasonCount],
+			BM_OddsRegular.FirstId,
+			BM_OddsRegular.FirstValue,
+			BM_OddsRegular.XId,
+			BM_OddsRegular.XValue,
+			BM_OddsRegular.SecondId,
+			BM_OddsRegular.SecondValue,
+			Props.Home, 
+			Props.Draw, 
+			Props.Away,
+			Props.TwoAndHalfMinus,
+			Props.TwoAndHalfPlus,
+			Props.OneAndHalfMinus,
+			Props.OneAndHalfPlus,
+			Odds.HomePercent,
+			Odds.DrawPercent,
+			Odds.AwayPercent
+		from BM_Tip
+			inner join BM_Event on BM_Event.ID=BM_Tip.ID
+			inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
+			inner join BM_Team BM_HomeTeam on BM_HomeTeam.ID=BM_Event.ID_HomeTeam
+			inner join BM_Team BM_AwayTeam on BM_AwayTeam.ID=BM_Event.ID_AwayTeam
+			left join BM_Category on BM_Category.ID=BM_Event.ID_Category
+			left join BM_Season on BM_Season.ID=BM_Event.ID_Season
+			inner join BM_Prediction on BM_Prediction.ID=BM_Tip.ID_Prediction
+			inner join BM_PredictionTeam BM_HomePredTeam on BM_HomePredTeam.ID_Prediction=BM_Prediction.ID AND BM_HomePredTeam.ID_Team=BM_Event.ID_HomeTeam
+			inner join BM_PredictionTeam BM_AwayPredTeam on BM_AwayPredTeam.ID_Prediction=BM_Prediction.ID AND BM_AwayPredTeam.ID_Team=BM_Event.ID_AwayTeam
+			cross apply dbo.BM_Prediction_Prop(BM_HomePredTeam.Attack, BM_HomePredTeam.Defence, BM_AwayPredTeam.Attack, BM_AwayPredTeam.Defence, BM_Prediction.Gamma) as Props
+			cross apply [dbo].[BM_Prediction_Percentage](BM_OddsRegular.FirstValue,BM_OddsRegular.XValue,BM_OddsRegular.SecondValue) as Odds
+		where BM_Event.ID=@ID
+	) x
 END
 
 
@@ -5673,9 +6466,9 @@ BEGIN
 	select BM_Event.ID, BM_Event.ID_HomeTeam, BM_Event.ID_AwayTeam
 	from BM_Event
 	inner join BM_Category on BM_Category.ID=BM_Event.ID_Category
-	inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
+	left join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
 	where BM_Category.ID_Sport=1
-		and DateStart >= CAST(GETDATE() AS DATE)
+		and CAST(DateStart AS DATE) >= CAST(GETDATE() AS DATE)
 	order by BM_Event.DateStart
 
 	OPEN db_cursor   
@@ -5870,7 +6663,7 @@ GO
 
 -- =============================================
 -- Author:		Pavel Lorenz
--- Create date: 23.10.2016
+-- Create date: 2017-09-22
 -- Description:	Graf ziskovosti
 -- =============================================
 CREATE PROCEDURE [dbo].[BM_Tip_DETAIL_Graph]
@@ -5878,69 +6671,95 @@ CREATE PROCEDURE [dbo].[BM_Tip_DETAIL_Graph]
 	@Odd decimal(9,2) = 2.0,
 	@DateFrom date = '2016-10-01',
 	@DateTo date = '2016-10-23',
-	@Form int = 50,
+	@Category nvarchar(255) = null,
 	@price decimal = 100
 AS
 BEGIN
 select DateStart, count(*) as Total, sum(GoodBet) as Correct, avg(Odd) as AverageOdd, sum(Price) as Price,
 cast(cast(sum(GoodBet) as decimal(9,2))/cast(count(*) as decimal(9,2)) * 100 as decimal(9,2)) as Percentile from
 (
-select Form, DisplayName, GoodBet, Odd,
-	(case when GoodBet=1 then @price*Odd else 0 end) - @price as Price, DateStart
-from
-(
-select ID, DisplayName, Form, Odd, WinnerCode, 
-	case when WinnerCode=
-	(case when Form >= @Limit then 1 else case when Form <= -@Limit then 2 else 3 end end)
-	then 1 else 0 end as GoodBet,
-	--round(abs(Form), -1) as [Group]
-	CAST(DateStart AS DATE) as DateStart
-from 
-(
-	select 
-		BM_Event.ID,
-		'Url'='http://www.sofascore.com/'+BM_Event.Slug+'/'+BM_Event.CustomId,
-		BM_Event.DisplayName,
-		BM_Event.DateStart,
-		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
-			else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) * -1 end) as Form,
-		(case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) as Odd,
-		(case when BM_Event.WinnerCode=0 then 0 else (case when BM_Event.HomeScoreCurrent>BM_Event.AwayScoreCurrent then 1 else (case when BM_Event.HomeScoreCurrent<BM_Event.AwayScoreCurrent then 2 else 3 end) end) end) as WinnerCode,
-		BM_Event.ID_Status,
-        BM_Tip.[HomeLastForm],
-        BM_Tip.[HomeLastGiven],
-        BM_Tip.[HomeLastTaken],
-        BM_Tip.[HomeSeasonForm],
-        BM_Tip.[HomeSeasonGiven],
-        BM_Tip.[HomeSeasonTaken],
-		BM_Tip.[HomeSeasonCount],
-        BM_Tip.[AwayLastForm],
-        BM_Tip.[AwayLastGiven],
-        BM_Tip.[AwayLastTaken],
-        BM_Tip.[AwaySeasonForm],
-        BM_Tip.[AwaySeasonGiven],
-        BM_Tip.[AwaySeasonTaken],
-		BM_Tip.[AwaySeasonCount],
-		'ID_Category'=BM_Category.ID,
-		'Category'=BM_Category.DisplayName,
-		'ID_Season'=BM_Season.ID,
-		'Season'=BM_Season.DisplayName,
-		BM_OddsRegular.FirstValue,
-		BM_OddsRegular.XValue,
-		BM_OddsRegular.SecondValue
-	from BM_Tip
-	inner join BM_Event on BM_Event.ID=BM_Tip.ID
-	inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
-	left join BM_Category on BM_Category.ID=BM_Event.ID_Category
-	left join BM_Season on BM_Season.ID=BM_Event.ID_Season
-	where (case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwaySeasonForm) then ((HomeLastForm + HomeSeasonForm) - (AwayLastForm + AwaySeasonForm)) 
-			else ((AwayLastForm + AwaySeasonForm) - (HomeLastForm + HomeSeasonForm)) end) >= @Limit
-		AND (case when (HomeLastForm + HomeSeasonForm) > (AwayLastForm + AwayLastForm) then FirstValue else SecondValue end) > @Odd
-		and (@DateFrom is null or BM_Event.DateStart >= @DateFrom)
-		and (@DateTo is null or BM_Event.DateStart < dateadd(day, 1, @DateTo))
-) Tips
-) Bet
-where abs(Form) >= @Form
+	select PredictTip, DisplayName, GoodBet, Odd,
+		(case when GoodBet=1 then @price*Odd else 0 end) - @price as Price, DateStart
+	from
+	(
+		select ID, DisplayName, PredictTip, Odd, WinnerCode, 
+			case when WinnerCode=PredictTip
+			then 1 else 0 end as GoodBet,
+			--round(abs(Form), -1) as [Group]
+			CAST(DateStart AS DATE) as DateStart
+		from 
+		(
+			select *,
+				'PredictTip'=case 
+						when Home > Draw AND Home > Away AND Home > HomePercent then 1
+						when Away > Draw AND Away > Home AND Away > AwayPercent then 2
+						when Draw > Away AND Draw > Home AND Draw > DrawPercent then 3
+						else 0
+					end,
+				'Odd'=case 
+						when Home > Draw AND Home > Away AND Home > HomePercent then FirstValue
+						when Away > Draw AND Away > Home AND Away > AwayPercent then SecondValue
+						when Draw > Away AND Draw > Home AND Draw > DrawPercent then XValue
+						else 0
+					end
+			from
+			(
+				select 
+					BM_Event.ID,
+					'Url'='http://www.sofascore.com/'+BM_Event.Slug+'/'+BM_Event.CustomId,
+					BM_Event.DisplayName,
+					BM_Event.DateStart,
+					(case when BM_Event.WinnerCode=0 then 0 else (case when BM_Event.HomeScoreCurrent>BM_Event.AwayScoreCurrent then 1 else (case when BM_Event.HomeScoreCurrent<BM_Event.AwayScoreCurrent then 2 else 3 end) end) end) as WinnerCode,
+					BM_Event.ID_Status,
+					BM_Tip.[HomeLastForm],
+					BM_Tip.[HomeLastGiven],
+					BM_Tip.[HomeLastTaken],
+					BM_Tip.[HomeSeasonForm],
+					BM_Tip.[HomeSeasonGiven],
+					BM_Tip.[HomeSeasonTaken],
+					BM_Tip.[HomeSeasonCount],
+					BM_Tip.[AwayLastForm],
+					BM_Tip.[AwayLastGiven],
+					BM_Tip.[AwayLastTaken],
+					BM_Tip.[AwaySeasonForm],
+					BM_Tip.[AwaySeasonGiven],
+					BM_Tip.[AwaySeasonTaken],
+					BM_Tip.[AwaySeasonCount],
+					'ID_Category'=BM_Category.ID,
+					'Category'=BM_Category.DisplayName,
+					'ID_Season'=BM_Season.ID,
+					'Season'=BM_Season.DisplayName,
+					Props.Home, 
+					Props.Draw, 
+					Props.Away,
+					Props.TwoAndHalfMinus,
+					Props.TwoAndHalfPlus,
+					Props.OneAndHalfMinus,
+					Props.OneAndHalfPlus,
+					BM_OddsRegular.FirstValue,
+					BM_OddsRegular.XValue,
+					BM_OddsRegular.SecondValue,
+					Odds.HomePercent,
+					Odds.DrawPercent,
+					Odds.AwayPercent
+				from BM_Tip
+					inner join BM_Event on BM_Event.ID=BM_Tip.ID
+					inner join BM_Prediction on BM_Prediction.ID=BM_Tip.ID_Prediction
+					inner join BM_PredictionTeam BM_HomePredTeam on BM_HomePredTeam.ID_Prediction=BM_Prediction.ID AND BM_HomePredTeam.ID_Team=BM_Event.ID_HomeTeam
+					inner join BM_PredictionTeam BM_AwayPredTeam on BM_AwayPredTeam.ID_Prediction=BM_Prediction.ID AND BM_AwayPredTeam.ID_Team=BM_Event.ID_AwayTeam
+					left join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
+					cross apply dbo.BM_Prediction_Prop(BM_HomePredTeam.Attack, BM_HomePredTeam.Defence, BM_AwayPredTeam.Attack, BM_AwayPredTeam.Defence, BM_Prediction.Gamma) as Props
+					cross apply [dbo].[BM_Prediction_Percentage](BM_OddsRegular.FirstValue,BM_OddsRegular.XValue,BM_OddsRegular.SecondValue) as Odds
+					left join BM_Category on BM_Category.ID=BM_Event.ID_Category
+					left join BM_Season on BM_Season.ID=BM_Event.ID_Season
+				where 
+					(IsNull(@Category,'')='' or BM_Category.DisplayName like '%'+@Category+'%')
+					and (@DateFrom is null or BM_Event.DateStart >= @DateFrom)
+					and (@DateTo is null or BM_Event.DateStart < dateadd(day, 1, @DateTo))
+			) x
+		) Tips
+		where Odd > @Odd
+	) Bet
 ) x
 group by DateStart
 END
@@ -6606,7 +7425,7 @@ GO
 
 -- =============================================
 -- Author:		Pavel Lorenz
--- Update date: 31.10.2016
+-- Update date: 2017-09-22
 -- Description:	Dopočítání statistiky dle Poissonova rozdělení
 --
 -- =============================================
@@ -6615,76 +7434,18 @@ CREATE PROCEDURE [dbo].[BM_Event_DETAIL_Poisson]
 AS
 BEGIN
 	declare
-		@ID_Season int,
-		@ID_HomeTeam int,
-		@ID_AwayTeam int,
-		@HomeLambda decimal(9,4),
-		@AwayLambda decimal(9,4),
 		@HomeMi decimal(9,4),
 		@AwayMi decimal(9,4)
 
-	-- dotažení parametrů
-	select @ID_Season=ID_Season, 
-		@ID_HomeTeam=ID_HomeTeam, 
-		@ID_AwayTeam=ID_AwayTeam 
-	from BM_Event where ID=@ID
-
-	-- prumerny pocet strel jako domaci nebo hoste
-	select @HomeLambda=avg(HomeScoreCurrent * 1.0),
-		@AwayLambda=avg(AwayScoreCurrent * 1.0)
-	from BM_Event
-	where BM_Event.ID_Season=@ID_Season 
-		AND BM_Event.ID < @ID
-		AND BM_Event.ID_Status >= 90
-
 	select
-		@HomeMi =
-		((
-			-- domaci utok
-			select case when count(*)=0 then 0 else sum(HomeScoreCurrent) * 1.0/count(*)/@HomeLambda end
-			from BM_Event
-			where BM_Event.ID_Season=@ID_Season 
-				AND BM_Event.ID < @ID
-				AND BM_Event.ID_Status >= 90
-				AND BM_Event.ID_HomeTeam=@ID_HomeTeam
-		) 
-		*
-		(
-			-- hoste obrana
-			select case when count(*)=0 then 0 else sum(HomeScoreCurrent) * 1.0/count(*)/@HomeLambda end
-			from BM_Event
-			where BM_Event.ID_Season=@ID_Season 
-				AND BM_Event.ID < @ID
-				AND BM_Event.ID_Status >= 90
-				AND BM_Event.ID_AwayTeam=@ID_AwayTeam
-		) 
-		*
-		@HomeLambda),
-		@AwayMi=
-		-- hoste
-		((
-			-- hoste utok
-			select case when count(*)=0 then 0 else sum(AwayScoreCurrent) * 1.0/count(*)/@AwayLambda end
-			from BM_Event
-			where BM_Event.ID_Season=@ID_Season 
-				AND BM_Event.ID < @ID
-				AND BM_Event.ID_Status >= 90
-				AND BM_Event.ID_AwayTeam=@ID_AwayTeam
-		) 
-		*
-		(
-			-- domaci obrana
-			select case when count(*)=0 then 0 else sum(HomeScoreCurrent) * 1.0/count(*)/@AwayLambda end
-			from BM_Event
-			where BM_Event.ID_Season=@ID_Season 
-				AND BM_Event.ID < @ID
-				AND BM_Event.ID_Status >= 90
-				AND BM_Event.ID_HomeTeam=@ID_HomeTeam
-		) 
-		*
-		@AwayLambda)
-	from BM_Event
-	where BM_Event.ID=@ID
+		@HomeMi=BM_HomePredTeam.Attack * BM_AwayPredTeam.Defence * BM_Prediction.Gamma,
+		@AwayMi=BM_HomePredTeam.Defence * BM_AwayPredTeam.Attack
+	from BM_Tip
+		inner join BM_Event on BM_Event.ID=BM_Tip.ID
+		inner join BM_Prediction on BM_Prediction.ID=BM_Tip.ID_Prediction
+		inner join BM_PredictionTeam BM_HomePredTeam on BM_HomePredTeam.ID_Prediction=BM_Prediction.ID AND BM_HomePredTeam.ID_Team=BM_Event.ID_HomeTeam
+		inner join BM_PredictionTeam BM_AwayPredTeam on BM_AwayPredTeam.ID_Prediction=BM_Prediction.ID AND BM_AwayPredTeam.ID_Team=BM_Event.ID_AwayTeam
+	where BM_Tip.ID=@ID
 
 	-- poisson tabulka
 	(
@@ -6911,6 +7672,790 @@ END
 
 GO
 
+if exists (select * from sysobjects where name='BM_Event_ALL_Season')
+begin
+  drop procedure BM_Event_ALL_Season
+end
+
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE BM_Event_ALL_Season
+	@ID_Tournament int = 49,
+	@ID_Season int = 10406
+AS
+BEGIN
+	select BM_Event.ID,
+		BM_Event.DateStart,
+		BM_Event.DisplayName,
+		BM_Season.DisplayName as Season,
+		BM_Event.ID_HomeTeam,
+		HomeTeam.DisplayName as HomeTeam,
+		BM_Event.ID_AwayTeam,
+		AwayTeam.DisplayName as AwayTeam,
+		BM_Event.HomeScoreCurrent,
+		BM_Event.AwayScoreCurrent
+	from BM_Event 
+	inner join BM_Season on BM_Season.ID=BM_Event.ID_Season
+	inner join BM_Team as HomeTeam on BM_Event.ID_HomeTeam=HomeTeam.ID 
+	inner join BM_Team as AwayTeam on BM_Event.ID_AwayTeam=AwayTeam.ID
+	where BM_Event.ID_Tournament=@ID_Tournament 
+		AND BM_Event.ID_Season=@ID_Season
+		AND BM_Event.ID_Status >= 90
+	order by DateStart
+
+	select distinct --BM_Event.ID_HomeTeam, 
+		HomeTeam.DisplayName,
+		HomeScore.*,
+		AwayScore.*
+	from BM_Event
+	inner join BM_Team as HomeTeam on BM_Event.ID_HomeTeam=HomeTeam.ID 
+	inner join (
+		select HomeEvents.ID_HomeTeam, count(*) as HomeRound, sum(HomeScoreCurrent) as HomeGiven, sum(AwayScoreCurrent) as HomeTaken
+		from BM_Event HomeEvents
+		where HomeEvents.ID_Tournament=@ID_Tournament 
+			AND HomeEvents.ID_Season=@ID_Season
+			AND HomeEvents.ID_Status >= 90
+		group by HomeEvents.ID_HomeTeam
+	) as HomeScore on HomeScore.ID_HomeTeam=BM_Event.ID_HomeTeam 
+	inner join (
+		select AwayEvents.ID_AwayTeam, count(*) as AwayRound, sum(AwayScoreCurrent) as AwayGiven, sum(HomeScoreCurrent) as AwayTaken
+		from BM_Event AwayEvents
+		where AwayEvents.ID_Tournament=@ID_Tournament 
+			AND AwayEvents.ID_Season=@ID_Season
+			AND AwayEvents.ID_Status >= 90
+		group by AwayEvents.ID_AwayTeam
+	) as AwayScore on AwayScore.ID_AwayTeam=BM_Event.ID_HomeTeam 
+	where BM_Event.ID_Tournament=@ID_Tournament 
+		AND BM_Event.ID_Season=@ID_Season
+		AND BM_Event.ID_Status >= 90
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Event_DETAIL_Poisson_History')
+begin
+  drop procedure BM_Event_DETAIL_Poisson_History
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Update date: 31.10.2016
+-- Description:	Dopočítání statistiky dle Poissonova rozdělení
+-- počítá z komplet historie
+-- =============================================
+CREATE PROCEDURE [dbo].[BM_Event_DETAIL_Poisson_History]
+	@ID int
+AS
+BEGIN
+	declare
+		@ID_Tournament int,
+		@ID_HomeTeam int,
+		@ID_AwayTeam int,
+		@HomeLambda decimal(9,4),
+		@AwayLambda decimal(9,4),
+		@HomeMi decimal(9,4),
+		@AwayMi decimal(9,4)
+
+	-- dotažení parametrů
+	select @ID_Tournament=ID_Tournament, 
+		@ID_HomeTeam=ID_HomeTeam, 
+		@ID_AwayTeam=ID_AwayTeam 
+	from BM_Event where ID=@ID
+
+	-- prumerny pocet strel jako domaci nebo hoste
+	select @HomeLambda=avg(HomeScoreCurrent * 1.0),
+		@AwayLambda=avg(AwayScoreCurrent * 1.0)
+	from BM_Event
+	where BM_Event.ID_Tournament=@ID_Tournament
+		AND BM_Event.ID < @ID
+		AND BM_Event.ID_Status >= 90
+
+	select
+		@HomeMi =
+		((
+			-- domaci utok (počet vstřelených za domácí/počet/průměrný domácí útok v lize)
+			select case when sum(HomeScoreCurrent)=0 then 0 else ((1.0*count(*))/sum(HomeScoreCurrent))/@HomeLambda end
+			from BM_Event
+			where BM_Event.ID_Tournament=@ID_Tournament
+				AND BM_Event.ID < @ID
+				AND BM_Event.ID_Status >= 90
+				AND BM_Event.ID_HomeTeam=@ID_HomeTeam
+		) 
+		*
+		(
+			-- hoste obrana (počet obdržených gólů za hostí/počet/průměrný domácí útok v lize)
+			select case when sum(HomeScoreCurrent)=0 then 0 else ((1.0*count(*))/sum(HomeScoreCurrent))/@HomeLambda end
+			from BM_Event
+			where BM_Event.ID_Tournament=@ID_Tournament
+				AND BM_Event.ID < @ID
+				AND BM_Event.ID_Status >= 90
+				AND BM_Event.ID_AwayTeam=@ID_AwayTeam
+		) 
+		*
+		@HomeLambda),
+		@AwayMi=
+		-- hoste
+		((
+			-- hoste utok (počet vstřelených za hostí/počet/průměrný domácí útok v lize)
+			select case when sum(AwayScoreCurrent)=0 then 0 else ((1.0*count(*))/sum(AwayScoreCurrent))/@AwayLambda end
+			from BM_Event
+			where BM_Event.ID_Tournament=@ID_Tournament
+				AND BM_Event.ID < @ID
+				AND BM_Event.ID_Status >= 90
+				AND BM_Event.ID_AwayTeam=@ID_AwayTeam
+		) 
+		*
+		(
+			-- domaci obrana (počet obdržených gólů za domácí/počet/průměrný domácí útok v lize)
+			select case when sum(AwayScoreCurrent)=0 then 0 else ((1.0*count(*))/sum(AwayScoreCurrent))/@AwayLambda end
+			from BM_Event
+			where BM_Event.ID_Tournament=@ID_Tournament
+				AND BM_Event.ID < @ID
+				AND BM_Event.ID_Status >= 90
+				AND BM_Event.ID_HomeTeam=@ID_HomeTeam
+		) 
+		*
+		@AwayLambda)
+	from BM_Event
+	where BM_Event.ID=@ID
+
+	-- poisson tabulka
+	(
+		select 
+			1 as TeamCode,
+			dbo.FN_Poisson(0, @HomeMi) * 100 as GoalZero,
+			dbo.FN_Poisson(1, @HomeMi) * 100 as GoalOne,
+			dbo.FN_Poisson(2, @HomeMi) * 100 as GoalTwo,
+			dbo.FN_Poisson(3, @HomeMi) * 100 as GoalThree,
+			dbo.FN_Poisson(4, @HomeMi) * 100 as GoalFour,
+			dbo.FN_Poisson(5, @HomeMi) * 100 as GoalFive,
+			WinnerCode,
+			HomeScoreCurrent as Score,
+			BM_Team.DisplayName,
+			@HomeMi as Tip
+		from BM_Event
+		inner join BM_Team on BM_Team.ID=BM_Event.ID_HomeTeam
+		where BM_Event.ID=@ID
+	union
+		select 
+			2 as TeamCode,
+			dbo.FN_Poisson(0, @AwayMi) * 100 as GoalZero,
+			dbo.FN_Poisson(1, @AwayMi) * 100 as GoalOne,
+			dbo.FN_Poisson(2, @AwayMi) * 100 as GoalTwo,
+			dbo.FN_Poisson(3, @AwayMi) * 100 as GoalThree,
+			dbo.FN_Poisson(4, @AwayMi) * 100 as GoalFour,
+			dbo.FN_Poisson(5, @AwayMi) * 100 as GoalFive,
+			WinnerCode,
+			AwayScoreCurrent as Score,
+			BM_Team.DisplayName,
+			@AwayMi as Tip
+		from BM_Event
+		inner join BM_Team on BM_Team.ID=BM_Event.ID_AwayTeam
+		where BM_Event.ID=@ID
+	)
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Event_ALL_Python')
+begin
+  drop procedure BM_Event_ALL_Python
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 10.11.2016
+-- Description: Prepared data for Python..
+-- =============================================
+CREATE PROCEDURE [dbo].[BM_Event_ALL_Python]
+	@ID_Tournament int,
+	@ID_Season int = null
+AS
+BEGIN
+	declare @true bit = 1, @false bit = 0
+	select
+		[BM_Event].ID,
+		convert(varchar(20), [BM_Event].DateStart, 126) as DateStart,
+		[BM_Event].[ID_HomeTeam],
+		[BM_Event].[ID_AwayTeam],
+		[BM_Event].[HomeScoreCurrent],
+		[BM_Event].[AwayScoreCurrent],
+
+		[BM_Event].DisplayName,
+		[BM_Event].[WinnerCode],
+		[BM_OddsRegular].FirstValue,
+		[BM_OddsRegular].XValue,
+		[BM_OddsRegular].SecondValue,
+
+		-- results
+		'Home'=case when [BM_Event].[WinnerCode]=1 then @true else @false end,
+		'Draw'=case when [BM_Event].[WinnerCode]=3 then @true else @false end,
+		'Away'=case when [BM_Event].[WinnerCode]=2 then @true else @false end
+	from [dbo].[BM_Event] 
+	inner join [BM_Season] on [BM_Season].ID=[BM_Event].ID_Season
+	left join [BM_OddsRegular] on [BM_OddsRegular].ID_Event=[BM_Event].ID
+	where [BM_Event].ID_Tournament=@ID_Tournament 
+	and ID_Status >= 90
+	and (@ID_Season is null or BM_Event.ID_Season=@ID_Season)
+	order by [BM_Event].[DateStart]
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Event_ALL_TournamentIds')
+begin
+  drop procedure BM_Event_ALL_TournamentIds
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 28.12.2016
+-- Description:	Vypise nasledujici IDs turnaju vyjma tech vygenerovanych
+-- =============================================
+CREATE PROCEDURE BM_Event_ALL_TournamentIds
+	@DateStart date
+AS
+BEGIN
+	declare @ids nvarchar(max) = ''
+	select @ids += ','+convert(nvarchar(255),ID_Tournament) from
+	(
+	select distinct ID_Tournament from BM_Event
+	where convert(date, DateStart)=@DateStart
+	except
+	select distinct ID_Tournament from BM_Prediction
+	) x
+	order by ID_Tournament
+	select @ids
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Event_DETAIL_Total')
+begin
+  drop procedure BM_Event_DETAIL_Total
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Update date: 31.10.2016
+-- Description:	Dopočítání statistiky dle Poissonova rozdělení
+--
+-- =============================================
+CREATE PROCEDURE [dbo].[BM_Event_DETAIL_Total]
+	@ID int
+AS
+BEGIN
+
+	declare 
+		@top int = 10,
+		@ID_Tournament int,
+		@ID_AwayTeam int,
+		@ID_HomeTeam int,
+		@DateStart datetime
+
+	declare @HomeLastGames
+	table
+	( 
+		ID int,
+		DisplayName nvarchar(500),
+		DateStart datetime,
+		HomeScoreCurrent int,
+		AwayScoreCurrent int,
+		WinnerCode int,
+		IsWinner int
+	)
+	declare @AwayLastGames
+	table
+	( 
+		ID int,
+		DisplayName nvarchar(500),
+		DateStart datetime,
+		HomeScoreCurrent int,
+		AwayScoreCurrent int,
+		WinnerCode int,
+		IsWinner int
+	)
+	declare @H2HGames
+	table
+	( 
+		ID int,
+		DisplayName nvarchar(500),
+		DateStart datetime,
+		ID_HomeTeam int,
+		ID_AwayTeam int,
+		HomeScoreCurrent int,
+		AwayScoreCurrent int,
+		WinnerCode int
+	)
+
+	-- dotazeni hodnot z eventu
+	select 
+		@ID_Tournament=ID_Tournament,
+		@ID_AwayTeam=ID_AwayTeam,
+		@ID_HomeTeam=ID_HomeTeam,
+		@DateStart=DateStart
+	from BM_Event 
+	where BM_Event.ID=@ID
+
+	-- home team
+	insert into @HomeLastGames
+	select top (@top)
+		ID,
+		DisplayName,
+		DateStart,
+		HomeScoreCurrent,
+		AwayScoreCurrent,
+		WinnerCode,
+		IsWinner
+	from
+	(
+		select *, (case when WinnerCode=2 then 1 else 0 end) as IsWinner from BM_Event 
+		where ID_AwayTeam=@ID_HomeTeam and ID_Status=100 and DateStart < @DateStart
+		union
+		select *, (case when WinnerCode=1 then 1 else 0 end) as IsWinner from BM_Event 
+		where ID_HomeTeam=@ID_HomeTeam and ID_Status=100 and DateStart < @DateStart
+	) x
+	order by DateStart desc
+
+	-- away team
+	insert into @AwayLastGames
+	select top (@top)
+		ID,
+		DisplayName,
+		DateStart,
+		HomeScoreCurrent,
+		AwayScoreCurrent,
+		WinnerCode,
+		IsWinner
+	from
+	(
+		select *, (case when WinnerCode=2 then 1 else 0 end) as IsWinner from BM_Event 
+		where ID_AwayTeam=@ID_AwayTeam and ID_Status=100 and DateStart < @DateStart
+		union
+		select *, (case when WinnerCode=1 then 1 else 0 end) as IsWinner from BM_Event 
+		where ID_HomeTeam=@ID_AwayTeam and ID_Status=100 and DateStart < @DateStart
+	) x
+	order by DateStart desc
+
+	-- h2h
+	insert into @H2HGames
+	select top (@top)
+		ID,
+		DisplayName,
+		DateStart,
+		ID_HomeTeam,
+		ID_AwayTeam,
+		HomeScoreCurrent,
+		AwayScoreCurrent,
+		WinnerCode
+	from
+	(
+		select * from BM_Event 
+		where ID_AwayTeam=@ID_AwayTeam and ID_HomeTeam=@ID_HomeTeam and ID_Status=100 and DateStart < @DateStart
+		union
+		select * from BM_Event 
+		where ID_HomeTeam=@ID_AwayTeam and ID_AwayTeam=@ID_HomeTeam and ID_Status=100 and DateStart < @DateStart 
+	) x
+	order by DateStart desc
+
+	;with prediction 
+	as
+	(
+		select 
+			BM_Event.ID,
+			BM_Event.DisplayName,
+			(select count(*) from @HomeLastGames) as HomeGameCount,
+			(select count(*) from @AwayLastGames) as AwayGameCount,
+			(select count(*) from @H2HGames) as H2HGameCount,
+			((select sum(IsWinner) from @HomeLastGames) * 100.0/(select count(*) from @HomeLastGames) * 1.0) as HomeScore,
+			((select sum(IsWinner) from @AwayLastGames) * 100.0/(select count(*) from @AwayLastGames) * 1.0) as AwayScore,
+			(
+				((select count(*) from @H2HGames where ID_HomeTeam=BM_Event.ID_HomeTeam and WinnerCode=1)
+				+ (select count(*) from @H2HGames where ID_AwayTeam=BM_Event.ID_HomeTeam and WinnerCode=2)) * 100.0
+				/ (select count(*) from @H2HGames)
+			) as H2HHomeWin,
+			(
+				((select count(*) from @H2HGames where ID_HomeTeam=BM_Event.ID_AwayTeam and WinnerCode=1)
+				+ (select count(*) from @H2HGames where ID_AwayTeam=BM_Event.ID_AwayTeam and WinnerCode=2)) * 100.0
+				/ (select count(*) from @H2HGames)
+			) as H2HAwayWin,
+	
+			(200.0-(100.0/BM_OddsRegular.FirstValue + 100.0/BM_OddsRegular.XValue + 100.0/BM_OddsRegular.SecondValue))/BM_OddsRegular.FirstValue as FirstValue,
+			(200.0-(100.0/BM_OddsRegular.FirstValue + 100.0/BM_OddsRegular.XValue + 100.0/BM_OddsRegular.SecondValue))/BM_OddsRegular.XValue as XValue,
+			(200.0-(100.0/BM_OddsRegular.FirstValue + 100.0/BM_OddsRegular.XValue + 100.0/BM_OddsRegular.SecondValue))/BM_OddsRegular.SecondValue as SecondValue
+		from BM_Event
+		inner join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
+		where BM_Event.ID=@ID
+	)
+
+	select 
+		ID,
+		DisplayName,
+
+		(HomeScore + H2HHomeWin) / 2.0 as HomePredict, 
+		100.0 - ((HomeScore + H2HHomeWin)+(AwayScore + H2HAwayWin))/2.0 as XPredict,
+		(AwayScore + H2HAwayWin) / 2.0 as AwayPredict,
+
+		FirstValue,
+		XValue,
+		SecondValue,
+
+		HomeGameCount,
+		AwayGameCount,
+		H2HGameCount,
+
+		HomeScore,
+		H2HHomeWin,
+		AwayScore,
+		H2HAwayWin
+
+	from prediction
+
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Prediction_ALL_Today')
+begin
+  drop procedure BM_Prediction_ALL_Today
+end
+
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[BM_Prediction_ALL_Today] 
+AS
+BEGIN
+	select BM_Event.ID,
+		BM_Event.DisplayName,
+		BM_Event.DateStart,
+		BM_Event.ID_Tournament,
+		BM_Tournament.DisplayName as Tournament,
+		BM_Category.DisplayName as Category,
+		BM_Prediction.ID as ID_Prediction,
+		BM_Prediction.Gamma,
+		BM_HomePredTeam.Attack as HomeAttack,
+		BM_HomePredTeam.Defence as HomeDefence,
+		BM_AwayPredTeam.Attack as AwayAttack,
+		BM_AwayPredTeam.Defence as AwayDefence,
+		Props.Home, 
+		Props.Draw, 
+		Props.Away
+	from BM_Event
+	inner join BM_Tournament on BM_Tournament.ID=BM_Event.ID_Tournament
+	inner join BM_Category on BM_Category.ID=BM_Tournament.ID_Category
+	inner join BM_Prediction on BM_Prediction.ID_Tournament=BM_Tournament.ID
+	inner join BM_PredictionTeam BM_HomePredTeam on BM_HomePredTeam.ID_Prediction=BM_Prediction.ID AND BM_HomePredTeam.ID_Team=BM_Event.ID_HomeTeam
+	inner join BM_PredictionTeam BM_AwayPredTeam on BM_AwayPredTeam.ID_Prediction=BM_Prediction.ID AND BM_AwayPredTeam.ID_Team=BM_Event.ID_AwayTeam
+	cross apply dbo.BM_Prediction_Prop(BM_HomePredTeam.Attack, BM_HomePredTeam.Defence, BM_AwayPredTeam.Attack, BM_AwayPredTeam.Defence, BM_Prediction.Gamma) as Props
+	where BM_Event.DateStart between '2016-12-28 23:59' and '2016-12-29 23:59'
+		and BM_Category.ID_Sport=1
+	order by BM_Event.DateStart
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Prediction_DELETE_Duplicities')
+begin
+  drop procedure BM_Prediction_DELETE_Duplicities
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 21.04.2017
+-- Description:	promazani duplicit
+-- =============================================
+CREATE PROCEDURE BM_Prediction_DELETE_Duplicities
+AS
+BEGIN
+
+	--select min(ID), ID_Tournament, ID_PredictionType, DatePredict, count(*) from BM_Prediction 
+	--group by ID_Tournament, ID_PredictionType, DatePredict
+	--having count(*)>1
+
+	delete from BM_PredictionTeam where ID_Prediction in 
+	(
+		select min(ID) from BM_Prediction 
+		group by ID_Tournament, ID_PredictionType, DatePredict
+		having count(*)>1
+	)
+
+	delete from BM_Prediction where ID in 
+	(
+		select min(ID) from BM_Prediction 
+		group by ID_Tournament, ID_PredictionType, DatePredict
+		having count(*)>1
+	)
+
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_SpecificPrediction_ALL')
+begin
+  drop procedure BM_SpecificPrediction_ALL
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 29.12.2016
+-- Description:	Přehled odhadů
+-- =============================================
+CREATE PROCEDURE [dbo].[BM_SpecificPrediction_ALL] 
+	@DateFrom date = null,
+	@DateTo date = null
+AS
+BEGIN
+	select 
+		BM_Event.ID,
+		BM_Event.DisplayName,
+		'Url'='http://www.sofascore.com/'+BM_Event.Slug+'/'+BM_Event.CustomId,
+		BM_Event.DateStart,
+		BM_Event.ID_Tournament,
+		BM_Tournament.DisplayName as Tournament,
+		BM_Category.DisplayName as Category,
+		BM_Prediction.ID as ID_Prediction,
+		BM_Prediction.Gamma,
+		BM_HomePredTeam.Attack as HomeAttack,
+		BM_HomePredTeam.Defence as HomeDefence,
+		BM_AwayPredTeam.Attack as AwayAttack,
+		BM_AwayPredTeam.Defence as AwayDefence,
+		Props.Home, 
+		Props.Draw, 
+		Props.Away,
+		Props.TwoAndHalfMinus,
+		Props.TwoAndHalfPlus,
+		Props.OneAndHalfMinus,
+		Props.OneAndHalfPlus
+	from BM_Event
+	inner join BM_Tournament on BM_Tournament.ID=BM_Event.ID_Tournament
+	inner join BM_Category on BM_Category.ID=BM_Tournament.ID_Category
+	inner join BM_Prediction on BM_Prediction.ID_Tournament=BM_Tournament.ID
+	inner join BM_PredictionTeam BM_HomePredTeam on BM_HomePredTeam.ID_Prediction=BM_Prediction.ID AND BM_HomePredTeam.ID_Team=BM_Event.ID_HomeTeam
+	inner join BM_PredictionTeam BM_AwayPredTeam on BM_AwayPredTeam.ID_Prediction=BM_Prediction.ID AND BM_AwayPredTeam.ID_Team=BM_Event.ID_AwayTeam
+	cross apply dbo.BM_Prediction_Prop(BM_HomePredTeam.Attack, BM_HomePredTeam.Defence, BM_AwayPredTeam.Attack, BM_AwayPredTeam.Defence, BM_Prediction.Gamma) as Props
+	where --BM_Event.DateStart between '2016-12-28 23:59' and '2016-12-29 23:59'
+		BM_Category.ID_Sport=1
+		and (@DateFrom is null or BM_Event.DateStart >= @DateFrom)
+		and (@DateTo is null or BM_Event.DateStart < dateadd(day, 1, @DateTo))
+	order by BM_Event.DateStart
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Tournament_PREPARE_TestItem')
+begin
+  drop procedure BM_Tournament_PREPARE_TestItem
+end
+
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE BM_Tournament_PREPARE_TestItem
+AS
+BEGIN
+select 'new TestItem(', ID_Tournament, ', ', ID_Season,', ', ID_LastSeason, '),' from
+(
+	select distinct BM_Event.ID_Tournament, BM_Event.ID_Season,
+	ID_LastSeason = 
+	(
+		select max(lastSeason.ID_Season) from BM_Event as lastSeason 
+		inner join BM_Season on BM_Season.ID=lastSeason.ID_Season
+		where lastSeason.ID_Tournament=BM_Event.ID_Tournament and BM_Season.ID <> BM_Event.ID_Season
+	)
+	from BM_Event 
+	inner join BM_Category on BM_Category.ID=BM_Event.ID_Category
+	where DateStart between '2017-04-22 0:00:00' and '2017-04-22 23:59:59'
+		and ID_Season is not null and BM_Category.ID_Sport=1
+) x 
+where x.ID_Season is not null AND ID_LastSeason is not null
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Prediction_ALL')
+begin
+  drop procedure BM_Prediction_ALL
+end
+
+GO
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 2017-09-19
+-- Description:	Finalni verze tipu, jen je potreba provezt vyse uvedene!
+-- =============================================
+CREATE PROCEDURE BM_Prediction_ALL
+	@DateFrom date = null,
+	@DateTo date = null
+AS
+BEGIN
+	select 
+		BM_Event.ID,
+		BM_Event.DisplayName,
+		'Url'='http://www.sofascore.com/'+BM_Event.Slug+'/'+BM_Event.CustomId,
+		BM_Event.DateStart,
+		BM_Event.ID_Tournament,
+		BM_Tournament.DisplayName as Tournament,
+		BM_Category.DisplayName as Category,
+		BM_Prediction.ID as ID_Prediction,
+		BM_Prediction.Gamma,
+		BM_HomePredTeam.Attack as HomeAttack,
+		BM_HomePredTeam.Defence as HomeDefence,
+		BM_AwayPredTeam.Attack as AwayAttack,
+		BM_AwayPredTeam.Defence as AwayDefence,
+		Props.Home, 
+		Props.Draw, 
+		Props.Away,
+		Props.TwoAndHalfMinus,
+		Props.TwoAndHalfPlus,
+		Props.OneAndHalfMinus,
+		Props.OneAndHalfPlus,
+		BM_Event.WinnerCode,
+		BM_OddsRegular.FirstValue,
+		BM_OddsRegular.XValue,
+		BM_OddsRegular.SecondValue
+	from BM_Event
+	inner join BM_Tip on BM_Tip.ID=BM_Event.ID
+	inner join BM_Tournament on BM_Tournament.ID=BM_Event.ID_Tournament
+	inner join BM_Category on BM_Category.ID=BM_Tournament.ID_Category
+	inner join BM_Prediction on BM_Prediction.ID=BM_Tip.ID_Prediction
+	inner join BM_PredictionTeam BM_HomePredTeam on BM_HomePredTeam.ID_Prediction=BM_Prediction.ID AND BM_HomePredTeam.ID_Team=BM_Event.ID_HomeTeam
+	inner join BM_PredictionTeam BM_AwayPredTeam on BM_AwayPredTeam.ID_Prediction=BM_Prediction.ID AND BM_AwayPredTeam.ID_Team=BM_Event.ID_AwayTeam
+	left join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
+	cross apply dbo.BM_Prediction_Prop(BM_HomePredTeam.Attack, BM_HomePredTeam.Defence, BM_AwayPredTeam.Attack, BM_AwayPredTeam.Defence, BM_Prediction.Gamma) as Props
+	where --BM_Event.DateStart between '2016-12-28 23:59' and '2016-12-29 23:59'
+		BM_Category.ID_Sport=1
+		and (@DateFrom is null or BM_Event.DateStart >= @DateFrom)
+		and (@DateTo is null or BM_Event.DateStart < dateadd(day, 1, @DateTo))
+		--and BM_Prediction.DatePredict between dateadd(DAY, -1, @DateFrom) and @DateTo --  in (11279, 11278)
+	order by BM_Event.DateStart
+END
+
+
+GO
+
+if exists (select * from sysobjects where name='BM_Prediction_ALL_Extend')
+begin
+  drop procedure BM_Prediction_ALL_Extend
+end
+
+GO
+
+
+-- =============================================
+-- Author:		Pavel Lorenz
+-- Create date: 2017-09-21
+-- Description:	Finalni verze tipu, jen je potreba provezt vyse uvedene!
+-- =============================================
+CREATE PROCEDURE [dbo].[BM_Prediction_ALL_Extend]
+	@DateFrom date = null,
+	@DateTo date = null
+AS
+BEGIN
+
+;with Predict 
+as
+(
+	select 
+		BM_Event.ID,
+		BM_Event.DisplayName,
+		'Url'='http://www.sofascore.com/'+BM_Event.Slug+'/'+BM_Event.CustomId,
+		BM_Event.DateStart,
+		BM_Event.ID_Tournament,
+		BM_Tournament.DisplayName as Tournament,
+		BM_Category.DisplayName as Category,
+		BM_Prediction.ID as ID_Prediction,
+		BM_Prediction.Gamma,
+		BM_HomePredTeam.Attack as HomeAttack,
+		BM_HomePredTeam.Defence as HomeDefence,
+		BM_AwayPredTeam.Attack as AwayAttack,
+		BM_AwayPredTeam.Defence as AwayDefence,
+		Props.Home, 
+		Props.Draw, 
+		Props.Away,
+		Props.TwoAndHalfMinus,
+		Props.TwoAndHalfPlus,
+		Props.OneAndHalfMinus,
+		Props.OneAndHalfPlus,
+		BM_Event.WinnerCode,
+		BM_OddsRegular.FirstValue,
+		BM_OddsRegular.XValue,
+		BM_OddsRegular.SecondValue,
+		Odds.HomePercent,
+		Odds.DrawPercent,
+		Odds.AwayPercent
+	from BM_Event
+	inner join BM_Tip on BM_Tip.ID=BM_Event.ID
+	inner join BM_Tournament on BM_Tournament.ID=BM_Event.ID_Tournament
+	inner join BM_Category on BM_Category.ID=BM_Tournament.ID_Category
+	inner join BM_Prediction on BM_Prediction.ID=BM_Tip.ID_Prediction
+	inner join BM_PredictionTeam BM_HomePredTeam on BM_HomePredTeam.ID_Prediction=BM_Prediction.ID AND BM_HomePredTeam.ID_Team=BM_Event.ID_HomeTeam
+	inner join BM_PredictionTeam BM_AwayPredTeam on BM_AwayPredTeam.ID_Prediction=BM_Prediction.ID AND BM_AwayPredTeam.ID_Team=BM_Event.ID_AwayTeam
+	left join BM_OddsRegular on BM_OddsRegular.ID_Event=BM_Event.ID
+	cross apply dbo.BM_Prediction_Prop(BM_HomePredTeam.Attack, BM_HomePredTeam.Defence, BM_AwayPredTeam.Attack, BM_AwayPredTeam.Defence, BM_Prediction.Gamma) as Props
+	cross apply [dbo].[BM_Prediction_Percentage](BM_OddsRegular.FirstValue,BM_OddsRegular.XValue,BM_OddsRegular.SecondValue) as Odds
+	where --BM_Event.DateStart between '2016-12-28 23:59' and '2016-12-29 23:59'
+		BM_Category.ID_Sport=1
+		and (@DateFrom is null or BM_Event.DateStart >= @DateFrom)
+		and (@DateTo is null or BM_Event.DateStart < dateadd(day, 1, @DateTo))
+		--and BM_Prediction.DatePredict between dateadd(DAY, -1, @DateFrom) and @DateTo --  in (11279, 11278)
+)
+
+select *,
+	'Tip'=case 
+			when Home > Draw AND Home > Away AND Home > HomePercent then 1
+			when Away > Draw AND Away > Home AND Away > AwayPercent then 2
+			when Draw > Away AND Draw > Home AND Draw > DrawPercent then 3
+			else 0
+		end,
+	'Odd'=case 
+			when Home > Draw AND Home > Away AND Home > HomePercent then FirstValue
+			when Away > Draw AND Away > Home AND Away > AwayPercent then SecondValue
+			when Draw > Away AND Draw > Home AND Draw > DrawPercent then XValue
+			else 0
+		end
+from Predict
+order by DateStart
+END
+
+
+GO
+
 print 'CurrentTime: Procedures - ' + convert(varchar, getdate(), 120)
 
 GO
@@ -7123,7 +8668,7 @@ from
     inner join sys.tables on sys.tables.object_id=sys.columns.object_id 
 where 
     sys.tables.name='BM_Tip' 
-    and sys.columns.name not in ('ID', 'HomeLastForm', 'HomeLastGiven', 'HomeLastTaken', 'HomeSeasonForm', 'HomeSeasonGiven', 'HomeSeasonTaken', 'HomeSeasonCount', 'AwayLastForm', 'AwayLastGiven', 'AwayLastTaken', 'AwaySeasonForm', 'AwaySeasonGiven', 'AwaySeasonTaken', 'AwaySeasonCount') 
+    and sys.columns.name not in ('ID', 'HomeLastForm', 'HomeLastGiven', 'HomeLastTaken', 'HomeSeasonForm', 'HomeSeasonGiven', 'HomeSeasonTaken', 'HomeSeasonCount', 'AwayLastForm', 'AwayLastGiven', 'AwayLastTaken', 'AwaySeasonForm', 'AwaySeasonGiven', 'AwaySeasonTaken', 'AwaySeasonCount', 'ID_Prediction') 
 
 if @Message<>'' 
 begin 
@@ -7157,11 +8702,62 @@ from
     inner join sys.tables on sys.tables.object_id=sys.columns.object_id 
 where 
     sys.tables.name='CR_User' 
-    and sys.columns.name not in ('ID', 'IsActive', 'UserName', 'Password', 'Salt', 'LastLogin', 'DateCreated', 'DateUpdated', 'Odd', 'Form') 
+    and sys.columns.name not in ('ID', 'IsActive', 'UserName', 'Password', 'Salt', 'LastLogin', 'DateCreated', 'DateUpdated', 'Odd', 'Form', 'Category') 
 
 if @Message<>'' 
 begin 
     set @Message = 'Tabulka CR_User obsahuje navíc sloupce: ' + substring(@Message, 1, len(@Message)-1) 
+    raiserror (@Message, 16, 1) 
+end
+
+GO
+
+declare @Message nvarchar(500) = '' 
+select @Message = @Message + sys.columns.name + ', ' 
+from 
+    sys.columns 
+    inner join sys.tables on sys.tables.object_id=sys.columns.object_id 
+where 
+    sys.tables.name='BM_Prediction' 
+    and sys.columns.name not in ('ID', 'ID_Tournament', 'DatePredict', 'Ksi', 'Gamma', 'Summary', 'LikehoodValue', 'DateCreated', 'Elapsed', 'Description', 'ID_PredictionType', 'IsEnabled') 
+
+if @Message<>'' 
+begin 
+    set @Message = 'Tabulka BM_Prediction obsahuje navíc sloupce: ' + substring(@Message, 1, len(@Message)-1) 
+    raiserror (@Message, 16, 1) 
+end
+
+GO
+
+declare @Message nvarchar(500) = '' 
+select @Message = @Message + sys.columns.name + ', ' 
+from 
+    sys.columns 
+    inner join sys.tables on sys.tables.object_id=sys.columns.object_id 
+where 
+    sys.tables.name='BM_PredictionTeam' 
+    and sys.columns.name not in ('ID', 'ID_Team', 'Attack', 'Defence', 'ID_Prediction') 
+
+if @Message<>'' 
+begin 
+    set @Message = 'Tabulka BM_PredictionTeam obsahuje navíc sloupce: ' + substring(@Message, 1, len(@Message)-1) 
+    raiserror (@Message, 16, 1) 
+end
+
+GO
+
+declare @Message nvarchar(500) = '' 
+select @Message = @Message + sys.columns.name + ', ' 
+from 
+    sys.columns 
+    inner join sys.tables on sys.tables.object_id=sys.columns.object_id 
+where 
+    sys.tables.name='BM_PredictionType' 
+    and sys.columns.name not in ('ID', 'IsActive', 'DisplayName', 'Description') 
+
+if @Message<>'' 
+begin 
+    set @Message = 'Tabulka BM_PredictionType obsahuje navíc sloupce: ' + substring(@Message, 1, len(@Message)-1) 
     raiserror (@Message, 16, 1) 
 end
 

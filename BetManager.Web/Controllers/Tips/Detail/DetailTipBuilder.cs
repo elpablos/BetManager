@@ -38,7 +38,7 @@ namespace BetManager.Web.Controllers.Tips.Detail
                 DisplayName = tip.DisplayName,
                 FirstId = tip.FirstId,
                 FirstValue = tip.FirstValue,
-                Form = tip.Form,
+                PredictTip = tip.PredictTip,
                 HomeLastForm = tip.HomeLastForm,
                 HomeLastGiven = tip.HomeLastGiven,
                 HomeLastTaken = tip.HomeLastTaken,
@@ -55,6 +55,12 @@ namespace BetManager.Web.Controllers.Tips.Detail
                 WinnerCode = tip.WinnerCode,
                 XId = tip.XId,
                 Xvalue = tip.Xvalue,
+                Home = tip.Home * 100,
+                Draw = tip.Draw * 100,
+                Away = tip.Away * 100,
+                HomePercent = tip.HomePercent * 100,
+                DrawPercent = tip.DrawPercent * 100,
+                AwayPercent = tip.AwayPercent * 100,
                 Poissons = _tipManager.GetAllPoisson(new { id = tip.ID }).Select(x => new DetailTipPoissonViewModel
                 {
                     DisplayName = x.DisplayName,

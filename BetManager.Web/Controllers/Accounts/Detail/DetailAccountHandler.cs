@@ -24,7 +24,7 @@ namespace BetManager.Web.Controllers.Accounts.Detail
             {
                 ID = model.ID,
                 Odd = model.Odd,
-                Form = model.Form
+                Category = model.Category
             });
 
             result.Data = x > 0;

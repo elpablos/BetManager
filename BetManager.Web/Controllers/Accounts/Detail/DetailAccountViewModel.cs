@@ -19,8 +19,8 @@ namespace BetManager.Web.Controllers.Accounts.Detail
         [Display(Name = "Výchozí kurz")]
         public double Odd { get; set; }
 
-        [Display(Name = "Výchozí forma")]
-        public int Form { get; set; }
+        [Display(Name = "Výchozí kategorie")]
+        public string Category { get; set; }
 
     }
 }

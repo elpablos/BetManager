@@ -48,7 +48,7 @@
 //-->
 </style>
 <h1>Databáze: BetManagerDevel</h1>
-<p>datum vygenerování: 31.10.2016 14:05:17</p>
+<p>datum vygenerování: 22.09.2017 18:45:49</p>
 <h2>Seznam tabulek</h2>
 <ul>
 <li><a href="#BM_Category">BM_Category</a></li>
@@ -64,6 +64,9 @@
 <li><a href="#BM_Tip">BM_Tip</a></li>
 <li><a href="#BM_Tournament">BM_Tournament</a></li>
 <li><a href="#CR_User">CR_User</a></li>
+<li><a href="#BM_Prediction">BM_Prediction</a></li>
+<li><a href="#BM_PredictionTeam">BM_PredictionTeam</a></li>
+<li><a href="#BM_PredictionType">BM_PredictionType</a></li>
 </ul>
 <a name="BM_Category"></a>
 <h3>Tabulka: BM_Category</h3>
@@ -1481,7 +1484,7 @@
 <tr>
 <td>Slug</td>
 <td>Text</td>
-<td>ano</td>
+<td>ne</td>
 <td>Zkratka</td>
 </tr>
 <tr>
@@ -1605,6 +1608,12 @@
 <tr>
 <td>AwaySeasonCount</td>
 <td>Celé číslo</td>
+<td>ne</td>
+<td></td>
+</tr>
+<tr>
+<td>ID_Prediction</td>
+<td>bigint</td>
 <td>ne</td>
 <td></td>
 </tr>
@@ -1733,8 +1742,170 @@
 <tr>
 <td>Form</td>
 <td>Celé číslo</td>
-<td>ano</td>
+<td>ne</td>
 <td>Výchozí forma</td>
+</tr>
+<tr>
+<td>Category</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
+</tr>
+</table>
+<a name="BM_Prediction"></a>
+<h3>Tabulka: BM_Prediction</h3>
+<table cellspacing="0">
+<tr>
+<th>Vlastnost</th>
+<th>Typ</th>
+<th>Povinný</th>
+<th>Popis</th>
+</tr>
+<tr>
+<td><strong>ID</strong></td>
+<td>bigint</td>
+<td>ano</td>
+<td>Jedinečné ID odhadu</td>
+</tr>
+<tr>
+<td><a href="#BM_Tournament" title="FK_BM_Prediction_BM_Tournament (BM_Tournament.ID)">ID_Tournament</a></td>
+<td>bigint</td>
+<td>ano</td>
+<td>Turnaj</td>
+</tr>
+<tr>
+<td>DatePredict</td>
+<td>Datum</td>
+<td>ano</td>
+<td>Datum odhadu</td>
+</tr>
+<tr>
+<td>Ksi</td>
+<td>Desetinné číslo</td>
+<td>ano</td>
+<td>Časový parametr</td>
+</tr>
+<tr>
+<td>Gamma</td>
+<td>Desetinné číslo</td>
+<td>ano</td>
+<td>Výhoda domácího</td>
+</tr>
+<tr>
+<td>Summary</td>
+<td>Desetinné číslo</td>
+<td>ano</td>
+<td>Součet</td>
+</tr>
+<tr>
+<td>LikehoodValue</td>
+<td>Desetinné číslo</td>
+<td>ano</td>
+<td>Kontrolní součet</td>
+</tr>
+<tr>
+<td>DateCreated</td>
+<td>Datum a čas</td>
+<td>ano</td>
+<td>Datum vytvoření</td>
+</tr>
+<tr>
+<td>Elapsed</td>
+<td>bigint</td>
+<td>ano</td>
+<td>Počet tiků predikce</td>
+</tr>
+<tr>
+<td>Description</td>
+<td>Text</td>
+<td>ne</td>
+<td>Popis</td>
+</tr>
+<tr>
+<td>ID_PredictionType</td>
+<td>Text</td>
+<td>ano</td>
+<td>Typ</td>
+</tr>
+<tr>
+<td>IsEnabled</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ano</td>
+<td>Zda je aktivní</td>
+</tr>
+</table>
+<a name="BM_PredictionTeam"></a>
+<h3>Tabulka: BM_PredictionTeam</h3>
+<table cellspacing="0">
+<tr>
+<th>Vlastnost</th>
+<th>Typ</th>
+<th>Povinný</th>
+<th>Popis</th>
+</tr>
+<tr>
+<td><strong>ID</strong></td>
+<td>bigint</td>
+<td>ano</td>
+<td>Jedinečné ID vazby odhadu a týmu</td>
+</tr>
+<tr>
+<td><a href="#BM_Team" title="FK_BM_PredictionTeam_BM_Team (BM_Team.ID)">ID_Team</a></td>
+<td>bigint</td>
+<td>ano</td>
+<td>Tým</td>
+</tr>
+<tr>
+<td>Attack</td>
+<td>Desetinné číslo</td>
+<td>ano</td>
+<td>Útok</td>
+</tr>
+<tr>
+<td>Defence</td>
+<td>Desetinné číslo</td>
+<td>ano</td>
+<td>Obrana</td>
+</tr>
+<tr>
+<td><a href="#BM_Prediction" title="FK_BM_PredictionTeam_BM_Prediction (BM_Prediction.ID)">ID_Prediction</a></td>
+<td>bigint</td>
+<td>ano</td>
+<td>Odhad</td>
+</tr>
+</table>
+<a name="BM_PredictionType"></a>
+<h3>Tabulka: BM_PredictionType</h3>
+<table cellspacing="0">
+<tr>
+<th>Vlastnost</th>
+<th>Typ</th>
+<th>Povinný</th>
+<th>Popis</th>
+</tr>
+<tr>
+<td><strong>ID</strong></td>
+<td>Text</td>
+<td>ano</td>
+<td></td>
+</tr>
+<tr>
+<td>IsActive</td>
+<td>Logická hodnota (ano/ne)</td>
+<td>ano</td>
+<td></td>
+</tr>
+<tr>
+<td>DisplayName</td>
+<td>Text</td>
+<td>ano</td>
+<td></td>
+</tr>
+<tr>
+<td>Description</td>
+<td>Text</td>
+<td>ne</td>
+<td></td>
 </tr>
 </table>
 <p>vygenerováno aplikací ScriptDb - <a href="http://skeleton.cz">Skeleton Software</a></p>

@@ -19,11 +19,11 @@ namespace BetManager.Core.Domains.Accounts
         private const string SqlInsert = @"insert into CR_User ([UserName], [Password], [Salt], [LastLogin])
 values (@UserName, @Password, @Salt, @LastLogin)";
 
-        private const string SqlLogin = @"select ID, Password, Salt, Odd, Form from CR_User where UserName=@UserName";
+        private const string SqlLogin = @"select ID, Password, Salt, Odd, Category from CR_User where UserName=@UserName";
 
-        private const string SqlUpdate = "update CR_User set Odd=@Odd, Form=@Form where ID=@ID";
+        private const string SqlUpdate = "update CR_User set Odd=@Odd, Category=@Category where ID=@ID";
 
-        private const string SqlSelect = @"select ID, IsActive, UserName, LastLogin, Odd, Form from CR_User where ID=@ID";
+        private const string SqlSelect = @"select ID, IsActive, UserName, LastLogin, Odd, Category from CR_User where ID=@ID";
 
         private const string SqlUpdateLogin = "update CR_User set LastLogin=@LastLogin where ID=@ID";
 
@@ -96,7 +96,7 @@ values (@UserName, @Password, @Salt, @LastLogin)";
                         claims.Add(new Claim(ClaimTypes.NameIdentifier, user.UserName));
                         claims.Add(new Claim(ClaimTypes.Name, user.UserName));
                         claims.Add(new Claim("Odd", loggedUser.Odd.ToString()));
-                        claims.Add(new Claim("Form", loggedUser.Form.ToString()));
+                        claims.Add(new Claim("Category", loggedUser.Category ?? ""));
 
                         var identity = new ClaimsIdentity(claims, DefaultAuthenticationTypes.ApplicationCookie);
 

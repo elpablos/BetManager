@@ -62,7 +62,7 @@ namespace BetManager.App.Solving
                 AwayTeamId = x.ID_AwayTeam,
                 Days = (dateActual - x.DateStart).Days
             })
-            .Where(x => x.Days >= 0)
+            .Where(x => x.Days > 0)
             .OrderBy(x => x.DateStart)
             .ToList();
 
@@ -127,7 +127,7 @@ namespace BetManager.App.Solving
                 Days = (dateActual - x.DateStart).Days
             })
             )
-            .Where(x => x.Days >= 0)
+            .Where(x => x.Days > 0)
             .OrderBy(x => x.DateStart)
             .ToList();
 

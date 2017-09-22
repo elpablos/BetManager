@@ -36,8 +36,8 @@ namespace BetManager.Core.DbModels.Tips
         [Display(Name = "Url")]
         public string Url { get; set; }
 
-        [Display(Name = "Rozdíl forem")]
-        public int Form { get; set; }
+        [Display(Name = "Tip")]
+        public int PredictTip { get; set; }
 
         [Display(Name = "Kurz")]
         public double Odd { get; set; }
@@ -98,5 +98,11 @@ namespace BetManager.Core.DbModels.Tips
         public decimal SecondValue { get; set; }
 
         public int? SecondId { get; set; }
+        public decimal Home { get; set; }
+        public decimal Draw { get; set; }
+        public decimal Away { get; set; }
+        public decimal HomePercent { get; set; }
+        public decimal DrawPercent { get; set; }
+        public decimal AwayPercent { get; set; }
     }
 }

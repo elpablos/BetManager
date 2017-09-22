@@ -29,7 +29,7 @@
               responsive: true,
               order: [[1, "asc"]],
               createdRow: function (row, data, dataIndex) {
-                  if ((data[4] == 1 && data[2] > 20) || (data[4] == 2 && data[2] < -20) || (data[4] == 3 && data[2] >= -20 && data[2] <= 20)) {
+                  if (data[4] > 0 && data[2] > 0 && (data[4] == data[2])) { //(data[4] == 1 && data[2] > 20) || (data[4] == 2 && data[2] < -20) || (data[4] == 3 && data[2] >= -20 && data[2] <= 20)) {
                       $(row).addClass('success');
                   } else if (data[4] > 0) {
                       $(row).addClass('danger');

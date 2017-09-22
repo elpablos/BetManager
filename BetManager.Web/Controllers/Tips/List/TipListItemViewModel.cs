@@ -20,8 +20,8 @@ namespace BetManager.Web.Controllers.Tips.List
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd HH:mm}", ApplyFormatInEditMode = true)]
         public DateTime DateStart { get; set; }
 
-        [Display(Name = "Rozdíl forem")]
-        public int Form { get; set; }
+        [Display(Name = "Tip")]
+        public int PredictTip { get; set; }
 
         [Display(Name = "Kurz")]
         public double Odd { get; set; }
