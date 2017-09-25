@@ -104,5 +104,9 @@ namespace BetManager.Core.DbModels.Tips
         public decimal HomePercent { get; set; }
         public decimal DrawPercent { get; set; }
         public decimal AwayPercent { get; set; }
+        public decimal TwoAndHalfMinus { get; set; }
+        public decimal TwoAndHalfPlus { get; set; }
+        public decimal OneAndHalfMinus { get; set; }
+        public decimal OneAndHalfPlus { get; set; }
     }
 }

@@ -83,7 +83,8 @@
     <Compile Include="DbModels\Predictions\PredictionTeam.cs" />
     <Compile Include="DbModels\Predictions\SpecificPredicition.cs" />
     <Compile Include="DbModels\Tips\Tip.cs" />
-    <Compile Include="DbModels\Tips\TipAllPoisson.cs" />
+    <Compile Include="DbModels\Tips\TipDetailGoal.cs" />
+    <Compile Include="DbModels\Tips\TipDetailPoisson.cs" />
     <Compile Include="DbModels\Tips\TipDetailGraph.cs" />
     <Compile Include="Domains\Accounts\IUserManager.cs" />
     <Compile Include="Domains\Accounts\UserManager.cs" />

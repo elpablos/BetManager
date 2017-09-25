@@ -116,14 +116,25 @@ namespace BetManager.Web.Controllers.Tips.Detail
         [Display(Name = "Hosté")]
         public decimal AwayPercent { get; set; }
 
+        public decimal TwoAndHalfMinus { get; set; }
+
+        public decimal TwoAndHalfPlus { get; set; }
+
+        public decimal OneAndHalfMinus { get; set; }
+
+        public decimal OneAndHalfPlus { get; set; }
+
         public virtual ICollection<DetailTipPoissonViewModel> Poissons { get; set; }
 
         public virtual ICollection<DetailTipPoissonViewModel> PoissonHistories { get; set; }
+
+        public virtual ICollection<DetailTipGoalViewModel> Goals { get; set; }
 
         public DetailTipViewModel()
         {
             Poissons = new List<DetailTipPoissonViewModel>();
             PoissonHistories = new List<DetailTipPoissonViewModel>();
+            Goals = new List<DetailTipGoalViewModel>();
         }
     }
 }

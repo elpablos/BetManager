@@ -205,6 +205,7 @@
     <Compile Include="Controllers\Predictions\List\PredictionListViewModel.cs" />
     <Compile Include="Controllers\TipController.cs" />
     <Compile Include="Controllers\Tips\Detail\DetailTipBuilder.cs" />
+    <Compile Include="Controllers\Tips\Detail\DetailTipGoalViewModel.cs" />
     <Compile Include="Controllers\Tips\Detail\DetailTipPoissonViewModel.cs" />
     <Compile Include="Controllers\Tips\Detail\DetailTipTeamViewModel.cs" />
     <Compile Include="Controllers\Tips\Detail\DetailTipViewModel.cs" />
@@ -590,6 +591,7 @@
     <Content Include="Views\Tip\_DetailPoisson.cshtml" />
     <Content Include="Views\Admin\Index.cshtml" />
     <Content Include="Views\Admin\CreateJob.cshtml" />
+    <Content Include="Views\Tip\_DetailGoal.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

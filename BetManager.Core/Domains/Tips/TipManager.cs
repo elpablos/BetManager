@@ -58,23 +58,34 @@ namespace BetManager.Core.Domains.Tips
             return ret;
         }
 
-        public virtual ICollection<TipAllPoisson> GetAllPoisson(object input)
+        public virtual ICollection<TipDetailPoisson> GetDetailPoisson(object input)
         {
-            ICollection<TipAllPoisson> tips = null;
+            ICollection<TipDetailPoisson> tips = null;
             using (var conn = ConnectionFactory.GetConnection("DbModel"))
             {
-                tips = conn.Query<TipAllPoisson>("BM_Event_DETAIL_Poisson", input, commandType: CommandType.StoredProcedure).ToList();
+                tips = conn.Query<TipDetailPoisson>("BM_Event_DETAIL_Poisson", input, commandType: CommandType.StoredProcedure).ToList();
                 conn.Close();
             }
             return tips;
         }
 
-        public virtual ICollection<TipAllPoisson> GetAllPoissonHistory(object input)
+        public virtual ICollection<TipDetailGoal> GetDetailGoal(object input)
         {
-            ICollection<TipAllPoisson> tips = null;
+            ICollection<TipDetailGoal> tips = null;
             using (var conn = ConnectionFactory.GetConnection("DbModel"))
             {
-                tips = conn.Query<TipAllPoisson>("BM_Event_DETAIL_Poisson_History", input, commandType: CommandType.StoredProcedure).ToList();
+                tips = conn.Query<TipDetailGoal>("BM_Event_DETAIL_Goals", input, commandType: CommandType.StoredProcedure).ToList();
+                conn.Close();
+            }
+            return tips;
+        }
+
+        public virtual ICollection<TipDetailPoisson> GetAllPoissonHistory(object input)
+        {
+            ICollection<TipDetailPoisson> tips = null;
+            using (var conn = ConnectionFactory.GetConnection("DbModel"))
+            {
+                tips = conn.Query<TipDetailPoisson>("BM_Event_DETAIL_Poisson_History", input, commandType: CommandType.StoredProcedure).ToList();
                 conn.Close();
             }
             return tips;

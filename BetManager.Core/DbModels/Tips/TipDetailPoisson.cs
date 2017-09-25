@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BetManager.Core.DbModels.Tips
 {
-    public class TipAllPoisson
+    public class TipDetailPoisson
     {
         public double GoalZero { get; set; }
 
