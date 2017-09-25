@@ -1,7 +1,7 @@
 ﻿@model BetManager.Web.Controllers.Tips.Detail.DetailTipViewModel
 
 @{
-    ViewBag.Title = $"[{Model.Category}] {Model.DisplayName}";
+    ViewBag.Title = string.Format("[{0}] {1}", Model.Category, Model.DisplayName);
     ViewBag.EnCulture = new System.Globalization.CultureInfo("en-US");
 }
 
