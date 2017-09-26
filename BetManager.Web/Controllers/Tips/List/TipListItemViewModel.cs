@@ -29,13 +29,13 @@ namespace BetManager.Web.Controllers.Tips.List
         [Display(Name = "Kód vítěze")]
         public int WinnerCode { get; set; }
 
-        [Display(Name = "1")]
+        [Display(Name = "1 (%)")]
         public decimal Home { get; set; }
 
-        [Display(Name = "X")]
+        [Display(Name = "X (%)")]
         public decimal Draw { get; set; }
 
-        [Display(Name = "2")]
+        [Display(Name = "2 (%)")]
         public decimal Away { get; set; }
     }
 }
