@@ -18,13 +18,13 @@
           <th data-priority="1">
             @Html.DisplayNameFor(model => model.Home)
           </th>
-          <th  data-priority="1">
+          <th data-priority="1">
             @Html.DisplayNameFor(model => model.Draw)
           </th>
-          <th  data-priority="1">
+          <th data-priority="1">
             @Html.DisplayNameFor(model => model.Away)
           </th>
-          <th  data-priority="1">
+          <th data-priority="2">
             @Html.DisplayNameFor(model => model.Odd)
           </th>
           <th>
@@ -62,7 +62,7 @@
                 @Html.DisplayFor(modelItem => item.WinnerCode)
               </td>
               <td>
-                @Html.ActionLink("Detail", "Detail", new { id = item.ID }, htmlAttributes: new { @class= "btn btn-primary" })
+                @Html.ActionLink("Detail", "Detail", new { id = item.ID }, htmlAttributes: new { @class = "btn btn-primary" })
               </td>
             </tr>
         }
