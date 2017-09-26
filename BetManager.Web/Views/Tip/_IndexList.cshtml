@@ -9,11 +9,8 @@
           <th class="all">
             @Html.DisplayNameFor(model => model.DisplayName)
           </th>
-          <th class="tablet-p">
+          <th class="min-tablet-p">
             @Html.DisplayNameFor(model => model.DateStart)
-          </th>
-          <th>
-            @Html.DisplayNameFor(model => model.PredictTip)
           </th>
           <th class="all">
             @Html.DisplayNameFor(model => model.Home)
@@ -24,13 +21,28 @@
           <th class="all">
             @Html.DisplayNameFor(model => model.Away)
           </th>
-          <th class="tablet-p">
+          <th class="min-tablet-l">
+            @Html.DisplayNameFor(model => model.FirstValue)
+          </th>
+          <th class="min-tablet-l">
+            @Html.DisplayNameFor(model => model.Xvalue)
+          </th>
+          <th class="min-tablet-l">
+            @Html.DisplayNameFor(model => model.SecondValue)
+          </th>
+          <th class="min-tablet-l">
+            @Html.DisplayNameFor(model => model.Category)
+          </th>
+          <th class="min-tablet-l">
+            @Html.DisplayNameFor(model => model.PredictTip)
+          </th>
+          <th class="min-tablet-p">
             @Html.DisplayNameFor(model => model.Odd)
           </th>
-          <th>
+          <th class="min-tablet-l">
             @Html.DisplayNameFor(model => model.WinnerCode)
           </th>
-          <th></th>
+          <th class="min-tablet-l"></th>
         </tr>
       </thead>
       <tbody>
@@ -44,9 +56,6 @@
                 @Html.DisplayFor(modelItem => item.DateStart)
               </td>
               <td>
-                @Html.DisplayFor(modelItem => item.PredictTip)
-              </td>
-              <td>
                 @Html.DisplayFor(modelItem => item.Home)
               </td>
               <td>
@@ -54,6 +63,21 @@
               </td>
               <td>
                 @Html.DisplayFor(modelItem => item.Away)
+              </td>
+              <td>
+                @Html.DisplayFor(modelItem => item.FirstValue)
+              </td>
+              <td>
+                @Html.DisplayFor(modelItem => item.Xvalue)
+              </td>
+              <td>
+                @Html.DisplayFor(modelItem => item.SecondValue)
+              </td>
+              <td>
+                @Html.DisplayFor(modelItem => item.Category)
+              </td>
+              <td>
+                @Html.DisplayFor(modelItem => item.PredictTip)
               </td>
               <td>
                 @Html.DisplayFor(modelItem => item.Odd)

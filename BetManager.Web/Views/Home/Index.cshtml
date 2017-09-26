@@ -71,10 +71,14 @@
               "columns": [
                 { data: "DisplayName" },
                 { data: "DateStart", render: function (d, t, r) { return moment(r.DateStart).format("YYYY-MM-DD HH:mm"); } },
-                { data: "PredictTip" },
                 { data: "Home", render: function (d, t, r) { return '<button type="button" class="btn btn-sm">' + r.Home.toFixed(1) + '</button>' } },
                 { data: "Draw", render: function (d, t, r) { return '<button type="button" class="btn btn-sm">' + r.Draw.toFixed(1) + '</button>' } },
                 { data: "Away", render: function (d, t, r) { return '<button type="button" class="btn btn-sm">' + r.Away.toFixed(1) + '</button>' } },
+                { data: "FirstValue" },
+                { data: "Xvalue" },
+                { data: "SecondValue" },
+                { data: "Category" },
+                { data: "PredictTip" },
                 { data: "Odd" },
                 { data: "WinnerCode" },
                 { data: "ID" , render: function (d, t, r) { return '<a href="/Tip/Detail/' + r.ID + '" class="btn btn-primary">Detail</a>' } },
@@ -94,13 +98,13 @@
                   // vyber tipu
                   var cssType = data.WinnerCode > 0 ? (isEqual ? 'btn-success' : 'btn-danger') : 'btn-info';
                   if (data.PredictTip == 1) {
-                      $('td', row).eq(3).find(":button").addClass(cssType);
+                      $('td', row).eq(2).find(":button").addClass(cssType);
                   }
                   else if (data.PredictTip == 3) {
-                      $('td', row).eq(4).find(":button").addClass(cssType);
+                      $('td', row).eq(3).find(":button").addClass(cssType);
                   }
                   else if (data.PredictTip == 2) {
-                      $('td', row).eq(5).find(":button").addClass(cssType);
+                      $('td', row).eq(4).find(":button").addClass(cssType);
                   }
                   else {
                       // nic

@@ -20,6 +20,9 @@ namespace BetManager.Web.Controllers.Tips.List
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd HH:mm}", ApplyFormatInEditMode = true)]
         public DateTime DateStart { get; set; }
 
+        [Display(Name = "Kategorie")]
+        public string Category { get; set; }
+
         [Display(Name = "Tip")]
         public int PredictTip { get; set; }
 
@@ -40,5 +43,17 @@ namespace BetManager.Web.Controllers.Tips.List
         [Display(Name = "2%")]
         [DisplayFormat(DataFormatString = "{0:00.0}", ApplyFormatInEditMode = true)]
         public decimal Away { get; set; }
+
+        [Display(Name = "Kurz: 1")]
+        [DisplayFormat(DataFormatString = "{0:0.0}", ApplyFormatInEditMode = true)]
+        public decimal FirstValue { get; set; }
+
+        [Display(Name = "Kurz: X")]
+        [DisplayFormat(DataFormatString = "{0:0.0}", ApplyFormatInEditMode = true)]
+        public decimal Xvalue { get; set; }
+
+        [Display(Name = "Kurz: 2")]
+        [DisplayFormat(DataFormatString = "{0:0.0}", ApplyFormatInEditMode = true)]
+        public decimal SecondValue { get; set; }
     }
 }
