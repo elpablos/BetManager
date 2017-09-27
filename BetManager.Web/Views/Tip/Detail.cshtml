@@ -5,6 +5,8 @@
     ViewBag.EnCulture = new System.Globalization.CultureInfo("en-US");
 }
 
+@Styles.Render("~/Content/morris")
+
 <div class="row">
   <h2>@ViewBag.Title</h2>
 
@@ -92,7 +94,7 @@
       </div>
       <div id="panel-tip" class="panel-body panel-collapse collapse in">
         <div class="row">
-          <div class="col-md-6">
+          <div class="col-md-4">
             <div class="panel panel-default">
               <div class="panel-heading">
                 <a data-toggle="collapse" href="#panel-bet-1x2">
@@ -173,7 +175,7 @@
             </div>
           </div>
 
-          <div class="col-md-6">
+          <div class="col-md-4">
             <div class="panel panel-default">
               <div class="panel-heading">
                 <a data-toggle="collapse" href="#panel-bet-uu">
@@ -206,6 +208,24 @@
               </div>
             </div>
           </div>
+
+          <div class="col-md-4">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <a data-toggle="collapse" href="#panel-bet-progress">
+                  <h5 class="">Progress</h5>
+                </a>
+              </div>
+              <div id="panel-bet-progress" class="panel-body panel-collapse collapse in" style="height: 200px">
+                <div class="row">
+                  <div class="col-md-12"
+                    <div id="morris-area-chart" style="height: 180px"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         <div class="panel panel-default">
@@ -403,3 +423,40 @@
     </div>
   </div>
 </div>
+
+@section scripts {
+  @Scripts.Render("~/bundles/morris")
+
+  <script type="text/javascript">
+      $(document).ready(function () {
+          var chart = Morris.Line({
+              element: 'morris-area-chart',
+              xkey: 'DatePredict',
+              ykeys: ['Home', 'Away'],
+              labels: ['Domácí', 'Hosté'],
+              pointSize: 2,
+              hideHover: 'auto',
+              yLabelFormat: function (y) { return y.toFixed(1); },
+              dateFormat: function (x) { return moment(x).format("YYYY-MM-DD"); },
+              resize: true
+          }).on('click', function (i, row) {
+              window.graphDate = row.DatePredict;
+              datatable.ajax.reload();
+          });
+
+          $.ajax({
+              type: "POST",
+              url: "/api/progress",
+
+              data: {
+                  ID: @Model.ID
+              },
+              success: function (data) {
+                  if (data) {
+                      chart.setData(data);
+                  }
+              }
+          });
+      });
+  </script>
+}

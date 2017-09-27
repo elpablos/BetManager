@@ -65,7 +65,7 @@ namespace BetManager.Web.Controllers.Tips.Detail
                 TwoAndHalfPlus = tip.TwoAndHalfPlus * 100,
                 OneAndHalfMinus = tip.OneAndHalfMinus * 100,
                 OneAndHalfPlus = tip.OneAndHalfPlus * 100,
-                Poissons = _tipManager.GetDetailPoisson(new { id = tip.ID }).Select(x => new DetailTipPoissonViewModel
+                Poissons = _tipManager.GetAllPoisson(new { id = tip.ID }).Select(x => new DetailTipPoissonViewModel
                 {
                     DisplayName = x.DisplayName,
                     GoalFive = x.GoalFive,
@@ -89,7 +89,7 @@ namespace BetManager.Web.Controllers.Tips.Detail
                     Score = x.Score,
                     Tip = x.Tip
                 }).ToList(),
-                Goals = _tipManager.GetDetailGoal(new { id = tip.ID }).Select(x => new DetailTipGoalViewModel
+                Goals = _tipManager.GetAllGoal(new { id = tip.ID }).Select(x => new DetailTipGoalViewModel
                 {
                     Id = x.Id,
                     Prob = x.Prob

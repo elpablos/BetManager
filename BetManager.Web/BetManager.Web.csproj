@@ -179,6 +179,9 @@
     <Compile Include="ApiControllers\Tips\Graph\GraphTipBuilder.cs" />
     <Compile Include="ApiControllers\Tips\Graph\GraphTipFilterViewModel.cs" />
     <Compile Include="ApiControllers\Tips\Graph\GraphTipViewModel.cs" />
+    <Compile Include="ApiControllers\Tips\Progress\ProgressTipBuilder.cs" />
+    <Compile Include="ApiControllers\Tips\Progress\ProgressTipFilterViewModel.cs" />
+    <Compile Include="ApiControllers\Tips\Progress\ProgressTipViewModel.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />

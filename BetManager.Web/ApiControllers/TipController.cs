@@ -1,11 +1,8 @@
 ﻿using BetManager.Web.ApiControllers.Tips.Graph;
+using BetManager.Web.ApiControllers.Tips.Progress;
 using BetManager.Web.Controllers.Tips.List;
 using BetManager.Web.Mvc;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Web.Http;
 
 namespace BetManager.Web.ApiControllers
@@ -19,6 +16,14 @@ namespace BetManager.Web.ApiControllers
         public IEnumerable<GraphTipViewModel> GetGraphTip(GraphTipFilterViewModel filter)
         {
             var result = Handler.Get<GraphTipBuilder>().Build(filter);
+            return result.Model;
+        }
+
+        [HttpPost]
+        [Route("api/progress")]
+        public IEnumerable<ProgressTipViewModel> GetProgressTip(ProgressTipFilterViewModel filter)
+        {
+            var result = Handler.Get<ProgressTipBuilder>().Build(filter);
             return result.Model;
         }
 

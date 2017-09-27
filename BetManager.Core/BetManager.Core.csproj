@@ -86,6 +86,7 @@
     <Compile Include="DbModels\Tips\TipDetailGoal.cs" />
     <Compile Include="DbModels\Tips\TipDetailPoisson.cs" />
     <Compile Include="DbModels\Tips\TipDetailGraph.cs" />
+    <Compile Include="DbModels\Tips\TipDetailProgress.cs" />
     <Compile Include="Domains\Accounts\IUserManager.cs" />
     <Compile Include="Domains\Accounts\UserManager.cs" />
     <Compile Include="Domains\BaseManager.cs" />

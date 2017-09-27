@@ -58,7 +58,7 @@ namespace BetManager.Core.Domains.Tips
             return ret;
         }
 
-        public virtual ICollection<TipDetailPoisson> GetDetailPoisson(object input)
+        public virtual ICollection<TipDetailPoisson> GetAllPoisson(object input)
         {
             ICollection<TipDetailPoisson> tips = null;
             using (var conn = ConnectionFactory.GetConnection("DbModel"))
@@ -69,7 +69,7 @@ namespace BetManager.Core.Domains.Tips
             return tips;
         }
 
-        public virtual ICollection<TipDetailGoal> GetDetailGoal(object input)
+        public virtual ICollection<TipDetailGoal> GetAllGoal(object input)
         {
             ICollection<TipDetailGoal> tips = null;
             using (var conn = ConnectionFactory.GetConnection("DbModel"))
@@ -86,6 +86,17 @@ namespace BetManager.Core.Domains.Tips
             using (var conn = ConnectionFactory.GetConnection("DbModel"))
             {
                 tips = conn.Query<TipDetailPoisson>("BM_Event_DETAIL_Poisson_History", input, commandType: CommandType.StoredProcedure).ToList();
+                conn.Close();
+            }
+            return tips;
+        }
+
+        public virtual ICollection<TipDetailProgress> GetAllProgress(object input)
+        {
+            ICollection<TipDetailProgress> tips = null;
+            using (var conn = ConnectionFactory.GetConnection("DbModel"))
+            {
+                tips = conn.Query<TipDetailProgress>("BM_Event_DETAIL_Progress", input, commandType: CommandType.StoredProcedure).ToList();
                 conn.Close();
             }
             return tips;
