@@ -32,6 +32,17 @@
   @Scripts.Render("~/bundles/morris")
 
   <script type="text/javascript">
+
+      var update_size = function () {
+          var table = $('#example');
+          table.width(table.parent().width());
+      }
+
+      $(window).resize(function () {
+          clearTimeout(window.refresh_size);
+          window.refresh_size = setTimeout(function () { update_size(); }, 250);
+      });
+
       $(document).ready(function () {
 
           function changeDate(date) {
@@ -52,6 +63,7 @@
 
           var datatable = $('#example').DataTable({
               responsive: true,
+              "AutoWidth": true,
               "serverSide": false,
               "processing": true,
               "pagingType": "simple",

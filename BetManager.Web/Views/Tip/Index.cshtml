@@ -13,8 +13,18 @@
 
 @section scripts {
   <script type="text/javascript">
-      $(document).ready(function () {
 
+      var update_size = function () {
+          var table = $('#example');
+          table.width(table.parent().width());
+      }
+
+      $(window).resize(function () {
+          clearTimeout(window.refresh_size);
+          window.refresh_size = setTimeout(function () { update_size(); }, 250);
+      });
+
+      $(document).ready(function () {
           $('#datepickerFrom').datetimepicker({
               locale: 'cs',
               format: 'L'
@@ -29,6 +39,7 @@
               responsive: true,
               order: [[1, "asc"]],
               "pagingType": "simple",
+              "AutoWidth": true,
               columns: [
                 { data: "DisplayName" },
                 { data: "DateStart", render: function (d, t, r) { return moment(r.DateStart).format("YYYY-MM-DD HH:mm"); } },
