@@ -129,6 +129,13 @@ namespace BetManager.Web.Controllers.Tips.Detail
         public virtual ICollection<DetailTipPoissonViewModel> PoissonHistories { get; set; }
 
         public virtual ICollection<DetailTipGoalViewModel> Goals { get; set; }
+        public decimal HomeOdd { get; internal set; }
+        public decimal DrawOdd { get; internal set; }
+        public decimal AwayOdd { get; internal set; }
+        public decimal TwoAndHalfMinusOdd { get; internal set; }
+        public decimal TwoAndHalfPlusOdd { get; internal set; }
+        public decimal OneAndHalfPlusOdd { get; internal set; }
+        public decimal OneAndHalfMinusOdd { get; internal set; }
 
         public DetailTipViewModel()
         {

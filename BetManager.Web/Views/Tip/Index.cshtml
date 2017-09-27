@@ -43,9 +43,12 @@
               columns: [
                 { data: "DisplayName" },
                 { data: "DateStart", render: function (d, t, r) { return moment(r.DateStart).format("YYYY-MM-DD HH:mm"); } },
-                { data: "Home", render: function (d, t, r) { return '<button type="button" class="btn btn-sm" data-toggle="tooltip" data-placement="top" title="' + r.FirstValue + '" >' + r.Home + '</button>' } },
-                { data: "Draw", render: function (d, t, r) { return '<button type="button" class="btn btn-sm" data-toggle="tooltip" data-placement="top" title="' + r.Xvalue + '" >' + r.Draw + '</button>' } },
-                { data: "Away", render: function (d, t, r) { return '<button type="button" class="btn btn-sm" data-toggle="tooltip" data-placement="top" title="' + r.SecondValue + '" >' + r.Away + '</button>' } },
+                { data: "Home", render: function (d, t, r) { return '<button type="button" class="btn btn-sm" data-toggle="tooltip" data-placement="top" title="' + r.HomeOdd + '" >' + r.Home + '</button>' } },
+                { data: "Draw", render: function (d, t, r) { return '<button type="button" class="btn btn-sm" data-toggle="tooltip" data-placement="top" title="' + r.DrawOdd + '" >' + r.Draw + '</button>' } },
+                { data: "Away", render: function (d, t, r) { return '<button type="button" class="btn btn-sm" data-toggle="tooltip" data-placement="top" title="' + r.AwayOdd + '" >' + r.Away + '</button>' } },
+                { data: "HomeOdd" },
+                { data: "DrawOdd" },
+                { data: "AwayOdd" },
                 { data: "FirstValue" },
                 { data: "Xvalue" },
                 { data: "SecondValue" },
@@ -77,8 +80,8 @@
                   else if (data.PredictTip == 2) {
                       $('td', row).eq(4).find(":button").addClass(cssType);
                   }
-                  else {
-                      // pokud neni tip, tak zlute podbarvim viteze
+                  // pokud neni tip, tak zlute podbarvim viteze
+                  if (data.WinnerCode > 0 && !isEqual) {
                       cssType = 'btn-warning';
                       if (data.WinnerCode == 1) {
                           $('td', row).eq(2).find(":button").addClass(cssType);

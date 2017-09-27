@@ -45,15 +45,18 @@ namespace BetManager.Web.Controllers.Tips.List
         public decimal Away { get; set; }
 
         [Display(Name = "Kurz: 1")]
-        [DisplayFormat(DataFormatString = "{0:0.0}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:0.00}", ApplyFormatInEditMode = true)]
         public decimal FirstValue { get; set; }
 
         [Display(Name = "Kurz: X")]
-        [DisplayFormat(DataFormatString = "{0:0.0}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:0.00}", ApplyFormatInEditMode = true)]
         public decimal Xvalue { get; set; }
 
         [Display(Name = "Kurz: 2")]
-        [DisplayFormat(DataFormatString = "{0:0.0}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:0.00}", ApplyFormatInEditMode = true)]
         public decimal SecondValue { get; set; }
+        public decimal HomeOdd { get; internal set; }
+        public decimal DrawOdd { get; internal set; }
+        public decimal AwayOdd { get; internal set; }
     }
 }

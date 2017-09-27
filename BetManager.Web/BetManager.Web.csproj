@@ -175,6 +175,8 @@
   <ItemGroup>
     <Compile Include="ApiControllers\ImportDatas\Import\ImportDataImportFilterViewModel.cs" />
     <Compile Include="ApiControllers\ImportDatas\Import\ImportDataImportHandler.cs" />
+    <Compile Include="ApiControllers\Predictions\Generate\PredictionGenerateHandler.cs" />
+    <Compile Include="ApiControllers\Predictions\Generate\PredictionGenerateFilterViewModel.cs" />
     <Compile Include="ApiControllers\TipController.cs" />
     <Compile Include="ApiControllers\Tips\Graph\GraphTipBuilder.cs" />
     <Compile Include="ApiControllers\Tips\Graph\GraphTipFilterViewModel.cs" />

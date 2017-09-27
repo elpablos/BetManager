@@ -14,5 +14,6 @@ namespace BetManager.Core.Domains.Tips
         ICollection<TipDetailProgress> GetAllProgress(object input);
 
         int TipGenerate();
+        int PredictionGenerate();
     }
 }

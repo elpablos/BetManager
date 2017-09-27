@@ -58,13 +58,25 @@ namespace BetManager.Web.Controllers.Tips.Detail
                 Home = tip.Home * 100,
                 Draw = tip.Draw * 100,
                 Away = tip.Away * 100,
+
+                HomeOdd = tip.HomeOdd,
+                DrawOdd = tip.DrawOdd,
+                AwayOdd = tip.AwayOdd,
+
                 HomePercent = tip.HomePercent * 100,
                 DrawPercent = tip.DrawPercent * 100,
                 AwayPercent = tip.AwayPercent * 100,
+
                 TwoAndHalfMinus = tip.TwoAndHalfMinus * 100,
                 TwoAndHalfPlus = tip.TwoAndHalfPlus * 100,
                 OneAndHalfMinus = tip.OneAndHalfMinus * 100,
                 OneAndHalfPlus = tip.OneAndHalfPlus * 100,
+
+                TwoAndHalfMinusOdd = tip.TwoAndHalfMinusOdd,
+                TwoAndHalfPlusOdd = tip.TwoAndHalfPlusOdd,
+                OneAndHalfPlusOdd = tip.OneAndHalfPlusOdd,
+                OneAndHalfMinusOdd = tip.OneAndHalfMinusOdd,
+
                 Poissons = _tipManager.GetAllPoisson(new { id = tip.ID }).Select(x => new DetailTipPoissonViewModel
                 {
                     DisplayName = x.DisplayName,

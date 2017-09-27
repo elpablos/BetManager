@@ -31,6 +31,12 @@ namespace BetManager.Web.Controllers.Tips.UnderUpper
                     OneAndHalfPlus = x.OneAndHalfPlus * 100,
                     TwoAndHalfMinus = x.TwoAndHalfMinus * 100,
                     TwoAndHalfPlus = x.TwoAndHalfPlus * 100,
+
+                    TwoAndHalfMinusOdd = x.TwoAndHalfMinusOdd,
+                    TwoAndHalfPlusOdd = x.TwoAndHalfPlusOdd,
+                    OneAndHalfPlusOdd = x.OneAndHalfPlusOdd,
+                    OneAndHalfMinusOdd = x.OneAndHalfMinusOdd,
+
                     WinnerCode = x.WinnerCode,
                     Goals = x.HomeScoreCurrent.HasValue && x.AwayScoreCurrent.HasValue ? x.HomeScoreCurrent.Value + x.AwayScoreCurrent.Value : (int?)null
                 }).ToList()

@@ -38,5 +38,9 @@ namespace BetManager.Web.Controllers.Tips.UnderUpper
 
         [Display(Name = "Kód vítěze")]
         public int WinnerCode { get; set; }
+        public decimal OneAndHalfPlusOdd { get; internal set; }
+        public decimal TwoAndHalfPlusOdd { get; internal set; }
+        public decimal TwoAndHalfMinusOdd { get; internal set; }
+        public decimal OneAndHalfMinusOdd { get; internal set; }
     }
 }

@@ -107,6 +107,9 @@ namespace BetManager.Core.DbModels.Tips
         public decimal Home { get; set; }
         public decimal Draw { get; set; }
         public decimal Away { get; set; }
+        public decimal HomeOdd { get; set; }
+        public decimal DrawOdd { get; set; }
+        public decimal AwayOdd { get; set; }
         public decimal HomePercent { get; set; }
         public decimal DrawPercent { get; set; }
         public decimal AwayPercent { get; set; }
@@ -114,5 +117,10 @@ namespace BetManager.Core.DbModels.Tips
         public decimal TwoAndHalfPlus { get; set; }
         public decimal OneAndHalfMinus { get; set; }
         public decimal OneAndHalfPlus { get; set; }
+
+        public decimal TwoAndHalfMinusOdd { get; set; }
+        public decimal TwoAndHalfPlusOdd { get; set; }
+        public decimal OneAndHalfMinusOdd { get; set; }
+        public decimal OneAndHalfPlusOdd { get; set; }
     }
 }

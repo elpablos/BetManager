@@ -21,6 +21,15 @@
           <th class="all">
             @Html.DisplayNameFor(model => model.Away)
           </th>
+          <th class="never">
+            @Html.DisplayNameFor(model => model.HomeOdd)
+          </th>
+          <th class="never">
+            @Html.DisplayNameFor(model => model.DrawOdd)
+          </th>
+          <th class="never">
+            @Html.DisplayNameFor(model => model.AwayOdd)
+          </th>
           <th class="min-desktop">
             @Html.DisplayNameFor(model => model.FirstValue)
           </th>
@@ -63,6 +72,15 @@
               </td>
               <td>
                 @Html.DisplayFor(modelItem => item.Away)
+              </td>
+              <td>
+                @Html.DisplayFor(modelItem => item.HomeOdd)
+              </td>
+              <td>
+                @Html.DisplayFor(modelItem => item.DrawOdd)
+              </td>
+              <td>
+                @Html.DisplayFor(modelItem => item.AwayOdd)
               </td>
               <td>
                 @Html.DisplayFor(modelItem => item.FirstValue)

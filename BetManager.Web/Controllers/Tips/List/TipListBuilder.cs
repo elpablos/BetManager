@@ -34,6 +34,11 @@ namespace BetManager.Web.Controllers.Tips.List
                     Away = x.Away * 100,
                     Draw = x.Draw * 100,
                     Home = x.Home * 100,
+
+                    HomeOdd = x.HomeOdd,
+                    DrawOdd = x.DrawOdd,
+                    AwayOdd = x.AwayOdd,
+
                     FirstValue = x.FirstValue,
                     Xvalue = x.Xvalue,
                     SecondValue = x.SecondValue,

@@ -1,6 +1,7 @@
 ﻿using BetManager.Core.DbModels;
 using BetManager.Core.Domains.ImportDatas;
 using BetManager.Web.ApiControllers.ImportDatas.Import;
+using BetManager.Web.ApiControllers.Predictions.Generate;
 using BetManager.Web.Mvc;
 using System;
 using System.Collections.Generic;
@@ -64,6 +65,19 @@ namespace BetManager.Web.ApiControllers
             var vm = new ImportDataImportFilterViewModel();
             vm.Date = DateTime.Now.AddDays(-1);
             var result = Handler.Get<ImportDataImportHandler>().Handle(vm);
+
+            return (int)result.Data;
+        }
+
+        [Authorize]
+        [HttpGet]
+        [Route("api/Prediction")]
+        public int Prediction()
+        {
+            HttpContext.Current.Server.ScriptTimeout = 300;
+
+            var vm = new PredictionGenerateFilterViewModel();
+            var result = Handler.Get<PredictionGenerateHandler>().Handle(vm);
 
             return (int)result.Data;
         }

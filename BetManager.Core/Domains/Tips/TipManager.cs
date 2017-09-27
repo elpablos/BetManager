@@ -58,6 +58,17 @@ namespace BetManager.Core.Domains.Tips
             return ret;
         }
 
+        public virtual int PredictionGenerate()
+        {
+            int ret = -1;
+            using (var conn = ConnectionFactory.GetConnection("DbModel"))
+            {
+                ret = conn.Execute("BM_Tip_ALL_EDIT_Prediction", null, commandType: CommandType.StoredProcedure, commandTimeout: LONG_TIMEOUT);
+                conn.Close();
+            }
+            return ret;
+        }
+
         public virtual ICollection<TipDetailPoisson> GetAllPoisson(object input)
         {
             ICollection<TipDetailPoisson> tips = null;
