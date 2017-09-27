@@ -120,13 +120,13 @@
                   <div class="col-md-12">
                     <label>Kurzy (Bet365)</label>
                     <div class="progress">
-                      <div class="progress-bar @(Model.HomePercent > Model.DrawPercent && Model.HomePercent > Model.AwayPercent ? "progress-bar-success" : Model.HomePercent < Model.DrawPercent && Model.HomePercent < Model.AwayPercent ? "progress-bar-danger" : "progress-bar-warning")" style="width: @Model.HomePercent.ToString("##",ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@((@Model.HomePercent != 0 ? 100m/@Model.HomePercent : 0).ToString("#.##", ViewBag.EnCulture))" >
+                      <div class="progress-bar @(Model.HomePercent > Model.DrawPercent && Model.HomePercent > Model.AwayPercent ? "progress-bar-success" : Model.HomePercent < Model.DrawPercent && Model.HomePercent < Model.AwayPercent ? "progress-bar-danger" : "progress-bar-warning")" style="width: @Model.HomePercent.ToString("##",ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@((@Model.HomePercent != 0 ? 100m/@Model.HomePercent : 0).ToString("#.##", ViewBag.EnCulture))">
                         <span>@Html.DisplayFor(model => model.HomePercent) %</span>
                       </div>
-                      <div class="progress-bar @(Model.DrawPercent > Model.HomePercent && Model.DrawPercent > Model.AwayPercent ? "progress-bar-success" : Model.DrawPercent < Model.HomePercent && Model.DrawPercent < Model.AwayPercent ? "progress-bar-danger" : "progress-bar-warning")" style="width: @Model.DrawPercent.ToString("##",ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@((@Model.DrawPercent != 0 ? 100m/@Model.DrawPercent : 0).ToString("#.##", ViewBag.EnCulture))" >
+                      <div class="progress-bar @(Model.DrawPercent > Model.HomePercent && Model.DrawPercent > Model.AwayPercent ? "progress-bar-success" : Model.DrawPercent < Model.HomePercent && Model.DrawPercent < Model.AwayPercent ? "progress-bar-danger" : "progress-bar-warning")" style="width: @Model.DrawPercent.ToString("##",ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@((@Model.DrawPercent != 0 ? 100m/@Model.DrawPercent : 0).ToString("#.##", ViewBag.EnCulture))">
                         <span>@Html.DisplayFor(model => model.DrawPercent) %</span>
                       </div>
-                      <div class="progress-bar @(Model.AwayPercent > Model.DrawPercent && Model.AwayPercent > Model.HomePercent ? "progress-bar-success" : Model.AwayPercent < Model.DrawPercent && Model.AwayPercent < Model.HomePercent ? "progress-bar-danger" : "progress-bar-warning")" style="width: @Model.AwayPercent.ToString("##",ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@((@Model.AwayPercent != 0 ? 100m/@Model.AwayPercent : 0).ToString("#.##", ViewBag.EnCulture))" >
+                      <div class="progress-bar @(Model.AwayPercent > Model.DrawPercent && Model.AwayPercent > Model.HomePercent ? "progress-bar-success" : Model.AwayPercent < Model.DrawPercent && Model.AwayPercent < Model.HomePercent ? "progress-bar-danger" : "progress-bar-warning")" style="width: @Model.AwayPercent.ToString("##",ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@((@Model.AwayPercent != 0 ? 100m/@Model.AwayPercent : 0).ToString("#.##", ViewBag.EnCulture))">
                         <span>@Html.DisplayFor(model => model.AwayPercent) %</span>
                       </div>
                     </div>
@@ -136,34 +136,34 @@
                       <div class="col-md-4 col-sm-4 col-xs-4 text-center">
                         @if (Model.FirstId.HasValue)
                         {
-                            @Html.Raw(string.Format("<a href=\"http://www.bet365.com/instantbet/default.asp?participantid={0}\" target=\"_blank\" class=\"btn btn-default {1}\">", Model.FirstId, Model.PredictTip == 1 ? "btn-success" : ""))
+                        @Html.Raw(string.Format("<a href=\"http://www.bet365.com/instantbet/default.asp?participantid={0}\" target=\"_blank\" class=\"btn btn-default {1}\">", Model.FirstId, Model.PredictTip == 1 ? "btn-success" : ""))
                         }
                         @Html.DisplayFor(model => model.FirstValue)
                         @if (Model.FirstId.HasValue)
                         {
-                            @Html.Raw("</a>")
+                        @Html.Raw("</a>")
                         }
                       </div>
                       <div class="col-md-4 col-sm-4 col-xs-4 text-center">
                         @if (Model.XId.HasValue)
                         {
-                            @Html.Raw(string.Format("<a href=\"http://www.bet365.com/instantbet/default.asp?participantid={0}\" target=\"_blank\" class=\"btn btn-default {1}\">", Model.XId, Model.PredictTip == 3 ? "btn-success" : ""))
+                        @Html.Raw(string.Format("<a href=\"http://www.bet365.com/instantbet/default.asp?participantid={0}\" target=\"_blank\" class=\"btn btn-default {1}\">", Model.XId, Model.PredictTip == 3 ? "btn-success" : ""))
                         }
                         @Html.DisplayFor(model => model.Xvalue)
                         @if (Model.FirstId.HasValue)
                         {
-                            @Html.Raw("</a>")
+                        @Html.Raw("</a>")
                         }
                       </div>
                       <div class="col-md-4 col-sm-4 col-xs-4 text-center">
                         @if (Model.SecondId.HasValue)
                         {
-                            @Html.Raw(string.Format("<a href=\"http://www.bet365.com/instantbet/default.asp?participantid={0}\" target=\"_blank\" class=\"btn btn-default {1}\">", Model.SecondId, Model.PredictTip == 2 ? "btn-success" : ""))
+                        @Html.Raw(string.Format("<a href=\"http://www.bet365.com/instantbet/default.asp?participantid={0}\" target=\"_blank\" class=\"btn btn-default {1}\">", Model.SecondId, Model.PredictTip == 2 ? "btn-success" : ""))
                         }
                         @Html.DisplayFor(model => model.SecondValue)
                         @if (Model.FirstId.HasValue)
                         {
-                            @Html.Raw("</a>")
+                        @Html.Raw("</a>")
                         }
                       </div>
                     </div>
@@ -187,19 +187,19 @@
                   <div class="col-md-12">
                     <label>1.5- / 1.5+</label>
                     <div class="progress input-group-lg">
-                      <div class="progress-bar @(Model.OneAndHalfMinus > Model.OneAndHalfPlus ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.OneAndHalfMinus.ToString("##", ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@(@Model.OneAndHalfMinusOdd.ToString("#.##", ViewBag.EnCulture))" >
+                      <div class="progress-bar @(Model.OneAndHalfMinus > Model.OneAndHalfPlus ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.OneAndHalfMinus.ToString("##", ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@(@Model.OneAndHalfMinusOdd.ToString("#.##", ViewBag.EnCulture))">
                         <span>@Html.DisplayFor(model => model.OneAndHalfMinus) %</span>
                       </div>
-                      <div class="progress-bar @(Model.OneAndHalfPlus > Model.OneAndHalfMinus ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.OneAndHalfPlus.ToString("##",ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@(@Model.OneAndHalfPlusOdd.ToString("#.##", ViewBag.EnCulture))" >
+                      <div class="progress-bar @(Model.OneAndHalfPlus > Model.OneAndHalfMinus ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.OneAndHalfPlus.ToString("##",ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@(@Model.OneAndHalfPlusOdd.ToString("#.##", ViewBag.EnCulture))">
                         <span>@Html.DisplayFor(model => model.OneAndHalfPlus) %</span>
                       </div>
                     </div>
                     <label>2.5- / 2.5+</label>
                     <div class="progress input-group-lg">
-                      <div class="progress-bar @(Model.TwoAndHalfMinus > Model.TwoAndHalfPlus ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.TwoAndHalfMinus.ToString("##",ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@(@Model.TwoAndHalfMinusOdd.ToString("#.##", ViewBag.EnCulture))" >
+                      <div class="progress-bar @(Model.TwoAndHalfMinus > Model.TwoAndHalfPlus ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.TwoAndHalfMinus.ToString("##",ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@(@Model.TwoAndHalfMinusOdd.ToString("#.##", ViewBag.EnCulture))">
                         <span>@Html.DisplayFor(model => model.TwoAndHalfMinus) %</span>
                       </div>
-                      <div class="progress-bar @(Model.TwoAndHalfPlus > Model.TwoAndHalfMinus ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.TwoAndHalfPlus.ToString("##",ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@(@Model.TwoAndHalfPlusOdd.ToString("#.##", ViewBag.EnCulture))" >
+                      <div class="progress-bar @(Model.TwoAndHalfPlus > Model.TwoAndHalfMinus ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.TwoAndHalfPlus.ToString("##",ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@(@Model.TwoAndHalfPlusOdd.ToString("#.##", ViewBag.EnCulture))">
                         <span>@Html.DisplayFor(model => model.TwoAndHalfPlus) %</span>
                       </div>
                     </div>
@@ -218,7 +218,7 @@
               </div>
               <div id="panel-bet-progress" class="panel-body panel-collapse collapse in" style="height: 200px">
                 <div class="row">
-                  <div class="col-md-12"
+                  <div class="col-md-12">
                     <div id="morris-area-chart" style="height: 180px"></div>
                   </div>
                 </div>
@@ -227,29 +227,32 @@
           </div>
 
         </div>
-
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <a data-toggle="collapse" href="#panel-goal-detail">
-              <h4 class="">Odhad skóre</h4>
-            </a>
+        <div class="row">
+          <div class="col-md-6 col-lg-6">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <a data-toggle="collapse" href="#panel-goal-detail">
+                  <h5 class="">Odhad skóre</h5>
+                </a>
+              </div>
+              <div id="panel-goal-detail" class="panel-body panel-collapse collapse in">
+                @Html.Partial("_DetailGoal", Model.Goals)
+              </div>
+            </div>
           </div>
-          <div id="panel-goal-detail" class="panel-body panel-collapse collapse in">
-            @Html.Partial("_DetailGoal", Model.Goals)
+          <div class="col-md-6 col-lg-6">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <a data-toggle="collapse" href="#panel-poisson-detail">
+                  <h5 class="">Odhad gólů</h5>
+                </a>
+              </div>
+              <div id="panel-poisson-detail" class="panel-body panel-collapse collapse in">
+                @Html.Partial("_DetailPoisson", Model.Poissons)
+              </div>
+            </div>
           </div>
         </div>
-
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <a data-toggle="collapse" href="#panel-poisson-detail">
-              <h5 class="">Odhad gólů</h5>
-            </a>
-          </div>
-          <div id="panel-poisson-detail" class="panel-body panel-collapse collapse in">
-            @Html.Partial("_DetailPoisson", Model.Poissons)
-          </div>
-        </div>
-
         @*<div class="panel panel-default">
             <div class="panel-heading">
               <a data-toggle="collapse" href="#panel-poisson-detail">
@@ -450,7 +453,7 @@
 
               data: {
                   ID: @Model.ID
-              },
+                  },
               success: function (data) {
                   if (data) {
                       chart.setData(data);
