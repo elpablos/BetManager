@@ -1,7 +1,7 @@
 ﻿@model BetManager.Web.Controllers.Tips.List.TipListViewModel
 
 @{
-    ViewBag.Title = "Tipy";
+    ViewBag.Title = "Tipy 1x2";
 }
 
 <div class="row">
@@ -43,9 +43,9 @@
               columns: [
                 { data: "DisplayName" },
                 { data: "DateStart", render: function (d, t, r) { return moment(r.DateStart).format("YYYY-MM-DD HH:mm"); } },
-                { data: "Home", render: function (d, t, r) { return '<button type="button" class="btn">' + r.Home + '</button>' } },
-                { data: "Draw", render: function (d, t, r) { return '<button type="button" class="btn">' + r.Draw + '</button>' } },
-                { data: "Away", render: function (d, t, r) { return '<button type="button" class="btn">' + r.Away + '</button>' } },
+                { data: "Home", render: function (d, t, r) { return '<button type="button" class="btn btn-sm" data-toggle="tooltip" data-placement="top" title="' + r.FirstValue + '" >' + r.Home + '</button>' } },
+                { data: "Draw", render: function (d, t, r) { return '<button type="button" class="btn btn-sm" data-toggle="tooltip" data-placement="top" title="' + r.Xvalue + '" >' + r.Draw + '</button>' } },
+                { data: "Away", render: function (d, t, r) { return '<button type="button" class="btn btn-sm" data-toggle="tooltip" data-placement="top" title="' + r.SecondValue + '" >' + r.Away + '</button>' } },
                 { data: "FirstValue" },
                 { data: "Xvalue" },
                 { data: "SecondValue" },
@@ -78,7 +78,17 @@
                       $('td', row).eq(4).find(":button").addClass(cssType);
                   }
                   else {
-                      // nic
+                      // pokud neni tip, tak zlute podbarvim viteze
+                      cssType = 'btn-warning';
+                      if (data.WinnerCode == 1) {
+                          $('td', row).eq(2).find(":button").addClass(cssType);
+                      }
+                      else if (data.WinnerCode == 3) {
+                          $('td', row).eq(3).find(":button").addClass(cssType);
+                      }
+                      else if (data.WinnerCode == 2) {
+                          $('td', row).eq(4).find(":button").addClass(cssType);
+                      }
                   }
               }
           });

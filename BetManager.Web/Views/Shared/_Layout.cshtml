@@ -65,7 +65,10 @@
               <a href="@Url.Action("Index", "Home")"><i class="fa fa-dashboard fa-fw" aria-hidden="true"></i> Dashboard</a>
             </li>
             <li>
-              <a href="@Url.Action("Index", "Tip")"><i class="fa fa-soccer-ball-o fa-fw" aria-hidden="true"></i> Tipy</a>
+              <a href="@Url.Action("Index", "Tip")"><i class="fa fa-soccer-ball-o fa-fw" aria-hidden="true"></i> Tipy 1x2</a>
+            </li>
+            <li>
+              <a href="@Url.Action("UnderUpper", "Tip")"><i class="fa fa-soccer-ball-o fa-fw" aria-hidden="true"></i> Tipy nad/pod</a>
             </li>
             <li>
               @if (User.Identity.Name == "admin")
@@ -107,6 +110,12 @@
     @Scripts.Render("~/bundles/metisMenu")
     @Scripts.Render("~/bundles/sb")
 
+  <script>
+      $(document).ready(function () {
+          $('[data-toggle="tooltip"]').tooltip();
+          $('body').tooltip({ selector: '[data-toggle="tooltip"]' });
+      });
+  </script>
     @RenderSection("scripts", required: false)
   </body>
 </html>

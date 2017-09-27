@@ -106,13 +106,13 @@
                   <div class="col-md-12">
                     <label>Odhady</label>
                     <div class="progress input-group-lg">
-                      <div class="progress-bar @(Model.Home > Model.Draw && Model.Home > Model.Away ? "progress-bar-success" : Model.Home < Model.Draw && Model.Home < Model.Away ? "progress-bar-danger" : "progress-bar-warning")" style="width: @Model.Home.ToString("##", ViewBag.EnCulture)%">
+                      <div class="progress-bar @(Model.Home > Model.Draw && Model.Home > Model.Away ? "progress-bar-success" : Model.Home < Model.Draw && Model.Home < Model.Away ? "progress-bar-danger" : "progress-bar-warning")" style="width: @Model.Home.ToString("##", ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@((@Model.OneAndHalfMinus != 0 ? 100m/@Model.Home : 0).ToString("#.##", ViewBag.EnCulture))">
                         <span>@Html.DisplayFor(model => model.Home) %</span>
                       </div>
-                      <div class="progress-bar @(Model.Draw > Model.Home && Model.Draw > Model.Away ? "progress-bar-success" : Model.Draw < Model.Home && Model.Draw < Model.Away ? "progress-bar-danger" : "progress-bar-warning")" style="width: @Model.Draw.ToString("##", ViewBag.EnCulture)%">
+                      <div class="progress-bar @(Model.Draw > Model.Home && Model.Draw > Model.Away ? "progress-bar-success" : Model.Draw < Model.Home && Model.Draw < Model.Away ? "progress-bar-danger" : "progress-bar-warning")" style="width: @Model.Draw.ToString("##", ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@((@Model.OneAndHalfMinus != 0 ? 100m/@Model.Draw : 0).ToString("#.##", ViewBag.EnCulture))">
                         <span>@Html.DisplayFor(model => model.Draw) %</span>
                       </div>
-                      <div class="progress-bar @(Model.Away > Model.Draw && Model.Away > Model.Home ? "progress-bar-success" : Model.Away < Model.Draw && Model.Away < Model.Home ? "progress-bar-danger" : "progress-bar-warning")" style="width: @Model.Away.ToString("##",ViewBag.EnCulture)%">
+                      <div class="progress-bar @(Model.Away > Model.Draw && Model.Away > Model.Home ? "progress-bar-success" : Model.Away < Model.Draw && Model.Away < Model.Home ? "progress-bar-danger" : "progress-bar-warning")" style="width: @Model.Away.ToString("##",ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@((@Model.OneAndHalfMinus != 0 ? 100m/@Model.Away : 0).ToString("#.##", ViewBag.EnCulture))">
                         <span>@Html.DisplayFor(model => model.Away) %</span>
                       </div>
                     </div>
@@ -120,13 +120,13 @@
                   <div class="col-md-12">
                     <label>Kurzy (Bet365)</label>
                     <div class="progress">
-                      <div class="progress-bar @(Model.HomePercent > Model.DrawPercent && Model.HomePercent > Model.AwayPercent ? "progress-bar-success" : Model.HomePercent < Model.DrawPercent && Model.HomePercent < Model.AwayPercent ? "progress-bar-danger" : "progress-bar-warning")" style="width: @Model.HomePercent.ToString("##",ViewBag.EnCulture)%">
+                      <div class="progress-bar @(Model.HomePercent > Model.DrawPercent && Model.HomePercent > Model.AwayPercent ? "progress-bar-success" : Model.HomePercent < Model.DrawPercent && Model.HomePercent < Model.AwayPercent ? "progress-bar-danger" : "progress-bar-warning")" style="width: @Model.HomePercent.ToString("##",ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@((@Model.OneAndHalfMinus != 0 ? 100m/@Model.HomePercent : 0).ToString("#.##", ViewBag.EnCulture))" >
                         <span>@Html.DisplayFor(model => model.HomePercent) %</span>
                       </div>
-                      <div class="progress-bar @(Model.DrawPercent > Model.HomePercent && Model.DrawPercent > Model.AwayPercent ? "progress-bar-success" : Model.DrawPercent < Model.HomePercent && Model.DrawPercent < Model.AwayPercent ? "progress-bar-danger" : "progress-bar-warning")" style="width: @Model.DrawPercent.ToString("##",ViewBag.EnCulture)%">
+                      <div class="progress-bar @(Model.DrawPercent > Model.HomePercent && Model.DrawPercent > Model.AwayPercent ? "progress-bar-success" : Model.DrawPercent < Model.HomePercent && Model.DrawPercent < Model.AwayPercent ? "progress-bar-danger" : "progress-bar-warning")" style="width: @Model.DrawPercent.ToString("##",ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@((@Model.OneAndHalfMinus != 0 ? 100m/@Model.DrawPercent : 0).ToString("#.##", ViewBag.EnCulture))" >
                         <span>@Html.DisplayFor(model => model.DrawPercent) %</span>
                       </div>
-                      <div class="progress-bar @(Model.AwayPercent > Model.DrawPercent && Model.AwayPercent > Model.HomePercent ? "progress-bar-success" : Model.AwayPercent < Model.DrawPercent && Model.AwayPercent < Model.HomePercent ? "progress-bar-danger" : "progress-bar-warning")" style="width: @Model.AwayPercent.ToString("##",ViewBag.EnCulture)%">
+                      <div class="progress-bar @(Model.AwayPercent > Model.DrawPercent && Model.AwayPercent > Model.HomePercent ? "progress-bar-success" : Model.AwayPercent < Model.DrawPercent && Model.AwayPercent < Model.HomePercent ? "progress-bar-danger" : "progress-bar-warning")" style="width: @Model.AwayPercent.ToString("##",ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@((@Model.OneAndHalfMinus != 0 ? 100m/@Model.AwayPercent : 0).ToString("#.##", ViewBag.EnCulture))" >
                         <span>@Html.DisplayFor(model => model.AwayPercent) %</span>
                       </div>
                     </div>
@@ -187,19 +187,19 @@
                   <div class="col-md-12">
                     <label>1.5- / 1.5+</label>
                     <div class="progress input-group-lg">
-                      <div class="progress-bar @(Model.OneAndHalfMinus > Model.OneAndHalfPlus ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.OneAndHalfMinus.ToString("##", ViewBag.EnCulture)%">
+                      <div class="progress-bar @(Model.OneAndHalfMinus > Model.OneAndHalfPlus ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.OneAndHalfMinus.ToString("##", ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@((@Model.OneAndHalfMinus != 0 ? 100m/@Model.OneAndHalfMinus : 0).ToString("#.##", ViewBag.EnCulture))" >
                         <span>@Html.DisplayFor(model => model.OneAndHalfMinus) %</span>
                       </div>
-                      <div class="progress-bar @(Model.OneAndHalfPlus > Model.OneAndHalfMinus ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.OneAndHalfPlus.ToString("##",ViewBag.EnCulture)%">
+                      <div class="progress-bar @(Model.OneAndHalfPlus > Model.OneAndHalfMinus ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.OneAndHalfPlus.ToString("##",ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@((@Model.OneAndHalfMinus != 0 ? 100m/@Model.OneAndHalfPlus: 0).ToString("#.##", ViewBag.EnCulture))" >
                         <span>@Html.DisplayFor(model => model.OneAndHalfPlus) %</span>
                       </div>
                     </div>
                     <label>2.5- / 2.5+</label>
                     <div class="progress input-group-lg">
-                      <div class="progress-bar @(Model.TwoAndHalfMinus > Model.TwoAndHalfPlus ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.TwoAndHalfMinus.ToString("##",ViewBag.EnCulture)%">
+                      <div class="progress-bar @(Model.TwoAndHalfMinus > Model.TwoAndHalfPlus ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.TwoAndHalfMinus.ToString("##",ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@((@Model.OneAndHalfMinus != 0 ? 100m/@Model.TwoAndHalfMinus: 0).ToString("#.##", ViewBag.EnCulture))" >
                         <span>@Html.DisplayFor(model => model.TwoAndHalfMinus) %</span>
                       </div>
-                      <div class="progress-bar @(Model.TwoAndHalfPlus > Model.TwoAndHalfMinus ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.TwoAndHalfPlus.ToString("##",ViewBag.EnCulture)%">
+                      <div class="progress-bar @(Model.TwoAndHalfPlus > Model.TwoAndHalfMinus ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.TwoAndHalfPlus.ToString("##",ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@((@Model.OneAndHalfMinus != 0 ? 100m/@Model.TwoAndHalfPlus: 0).ToString("#.##", ViewBag.EnCulture))" >
                         <span>@Html.DisplayFor(model => model.TwoAndHalfPlus) %</span>
                       </div>
                     </div>

@@ -1,5 +1,6 @@
 ﻿using BetManager.Web.Controllers.Tips.Detail;
 using BetManager.Web.Controllers.Tips.List;
+using BetManager.Web.Controllers.Tips.UnderUpper;
 using BetManager.Web.Mvc;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,6 @@ namespace BetManager.Web.Controllers
     {
         public ActionResult Index(TipListFilterViewModel filter)
         {
-            //UpdateModel(filter);
             if (filter.DateFrom == null && filter.DateTo == null)
             {
                 filter.SetDefault(UserIdentity);
@@ -27,6 +27,17 @@ namespace BetManager.Web.Controllers
         public ActionResult Detail(int id)
         {
             var result = Handler.Get<DetailTipBuilder>().Build(id);
+            return View(result.Model);
+        }
+
+        public ActionResult UnderUpper(TipUnderUpperFilterViewModel filter)
+        {
+            if (filter.DateFrom == null && filter.DateTo == null)
+            {
+                filter.SetDefault(UserIdentity);
+            }
+            sessionHelper.Remember(filter);
+            var result = Handler.Get<TipUnderUpperBuilder>().Build(filter);
             return View(result.Model);
         }
     }

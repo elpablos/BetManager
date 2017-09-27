@@ -216,6 +216,10 @@
     <Compile Include="Controllers\Tips\List\TipListItemViewModel.cs" />
     <Compile Include="Controllers\Tips\List\TipListBuilder.cs" />
     <Compile Include="Controllers\Tips\List\TipListViewModel.cs" />
+    <Compile Include="Controllers\Tips\UnderUpper\TipUnderUpperBuilder.cs" />
+    <Compile Include="Controllers\Tips\UnderUpper\TipUnderUpperFilterViewModel.cs" />
+    <Compile Include="Controllers\Tips\UnderUpper\TipUnderUpperItemViewModel.cs" />
+    <Compile Include="Controllers\Tips\UnderUpper\TipUnderUpperViewModel.cs" />
     <Compile Include="Extensions\HtmlHelperExtensions.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -595,6 +599,9 @@
     <Content Include="Views\Admin\Index.cshtml" />
     <Content Include="Views\Admin\CreateJob.cshtml" />
     <Content Include="Views\Tip\_DetailGoal.cshtml" />
+    <Content Include="Views\Tip\_UnderUpperList.cshtml" />
+    <Content Include="Views\Tip\UnderUpper.cshtml" />
+    <Content Include="Views\Tip\_UnderUpperFilter.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

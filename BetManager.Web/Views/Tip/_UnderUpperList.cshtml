@@ -1,4 +1,4 @@
-﻿@model IEnumerable<BetManager.Web.Controllers.Tips.List.TipListItemViewModel>
+﻿@model IEnumerable<BetManager.Web.Controllers.Tips.UnderUpper.TipUnderUpperItemViewModel>
 
 
 <div class="row">
@@ -13,31 +13,24 @@
             @Html.DisplayNameFor(model => model.DateStart)
           </th>
           <th class="all">
-            @Html.DisplayNameFor(model => model.Home)
+            1.5 %
+            @*@Html.DisplayNameFor(model => model.OneAndHalfMinus)*@
+          </th>
+          <th class="never">
+            @Html.DisplayNameFor(model => model.OneAndHalfPlus)
           </th>
           <th class="all">
-            @Html.DisplayNameFor(model => model.Draw)
+            2.5 %
+            @*@Html.DisplayNameFor(model => model.TwoAndHalfMinus)*@
           </th>
-          <th class="all">
-            @Html.DisplayNameFor(model => model.Away)
-          </th>
-          <th class="min-desktop">
-            @Html.DisplayNameFor(model => model.FirstValue)
-          </th>
-          <th class="min-desktop">
-            @Html.DisplayNameFor(model => model.Xvalue)
-          </th>
-          <th class="min-desktop">
-            @Html.DisplayNameFor(model => model.SecondValue)
-          </th>
-          <th>
-            @Html.DisplayNameFor(model => model.Category)
-          </th>
-          <th class="min-tablet-l">
-            @Html.DisplayNameFor(model => model.PredictTip)
+          <th class="never">
+            @Html.DisplayNameFor(model => model.TwoAndHalfPlus)
           </th>
           <th class="min-tablet-p">
-            @Html.DisplayNameFor(model => model.Odd)
+            @Html.DisplayNameFor(model => model.Category)
+          </th>
+          <th class="min-tablet-p">
+            @Html.DisplayNameFor(model => model.Goals)
           </th>
           <th class="never">
             @Html.DisplayNameFor(model => model.WinnerCode)
@@ -56,31 +49,22 @@
                 @Html.DisplayFor(modelItem => item.DateStart)
               </td>
               <td>
-                @Html.DisplayFor(modelItem => item.Home)
+                @Html.DisplayFor(modelItem => item.OneAndHalfMinus)
               </td>
               <td>
-                @Html.DisplayFor(modelItem => item.Draw)
+                @Html.DisplayFor(modelItem => item.OneAndHalfPlus)
               </td>
               <td>
-                @Html.DisplayFor(modelItem => item.Away)
+                @Html.DisplayFor(modelItem => item.TwoAndHalfMinus)
               </td>
               <td>
-                @Html.DisplayFor(modelItem => item.FirstValue)
-              </td>
-              <td>
-                @Html.DisplayFor(modelItem => item.Xvalue)
-              </td>
-              <td>
-                @Html.DisplayFor(modelItem => item.SecondValue)
+                @Html.DisplayFor(modelItem => item.TwoAndHalfPlus)
               </td>
               <td>
                 @Html.DisplayFor(modelItem => item.Category)
               </td>
               <td>
-                @Html.DisplayFor(modelItem => item.PredictTip)
-              </td>
-              <td>
-                @Html.DisplayFor(modelItem => item.Odd)
+                @Html.DisplayFor(modelItem => item.Goals)
               </td>
               <td>
                 @Html.DisplayFor(modelItem => item.WinnerCode)

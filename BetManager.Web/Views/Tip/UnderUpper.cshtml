@@ -1,0 +1,113 @@
+﻿@model BetManager.Web.Controllers.Tips.UnderUpper.TipUnderUpperViewModel
+
+@{
+    ViewBag.Title = "Tipy nad/pod";
+}
+
+<div class="row">
+  <h2>@ViewBag.Title</h2>
+</div>
+@Html.Partial("_UnderUpperFilter", Model.Filter)
+
+@Html.Partial("_UnderUpperList", Model.Rows)
+
+@section scripts {
+  <script type="text/javascript">
+
+      var update_size = function () {
+          var table = $('#example');
+          table.width(table.parent().width());
+      }
+
+      $(window).resize(function () {
+          clearTimeout(window.refresh_size);
+          window.refresh_size = setTimeout(function () { update_size(); }, 250);
+      });
+
+      convertToFloat = function(num) {
+          return parseFloat(num.replace(',','.')) 
+      }
+
+      $(document).ready(function () {
+          $('#datepickerFrom').datetimepicker({
+              locale: 'cs',
+              format: 'L'
+          });
+
+          $('#datepickerTo').datetimepicker({
+              locale: 'cs',
+              format: 'L'
+          });
+
+          $('#example').DataTable({
+              responsive: true,
+              order: [[1, "asc"]],
+              "pagingType": "simple",
+              "AutoWidth": true,
+              columns: [
+                { data: "DisplayName" },
+                { data: "DateStart", render: function (d, t, r) { return moment(r.DateStart).format("YYYY-MM-DD HH:mm"); } },
+                { data: "OneAndHalfMinus", render: function (d, t, r) { return '<button type="button" class="btn" style="margin: 2px" data-toggle="tooltip" data-placement="top" title="' + (100.0 / convertToFloat(r.OneAndHalfMinus)).toFixed(2) + '" >' + r.OneAndHalfMinus + ' -</button>' + '<button type="button" class="btn" style="margin: 2px" data-toggle="tooltip" data-placement="top" title="' + (100.0 / convertToFloat(r.OneAndHalfPlus)).toFixed(2) + '" >' + r.OneAndHalfPlus + ' +</button>' } },
+                { data: "OneAndHalfPlus" }, // render: function (d, t, r) { return '<button type="button" class="btn btn-sm">' + r.OneAndHalfPlus + '</button>' } },
+                { data: "TwoAndHalfMinus", render: function (d, t, r) { return '<button type="button" class="btn p-2" style="margin: 2px" data-toggle="tooltip" data-placement="top" title="' + (100.0 / convertToFloat(r.TwoAndHalfMinus)).toFixed(2) + '" >' + r.TwoAndHalfMinus + ' -</button>' + '<button type="button" class="btn" style="margin: 2px" data-toggle="tooltip" data-placement="top" title="' + (100.0 / convertToFloat(r.TwoAndHalfPlus)).toFixed(2) + '" >' + r.TwoAndHalfPlus + ' +</button>' } },
+                { data: "TwoAndHalfPlus" }, // render: function (d, t, r) { return '<button type="button" class="btn btn-sm">' + r.TwoAndHalfPlus + '</button>' } },
+                { data: "Category" },
+                { data: "Goals" },
+                { data: "WinnerCode" },
+                { data: "ID" }
+              ],
+              createdRow: function (row, data, dataIndex) {
+
+                  if (data.WinnerCode > 0 && data.Goals) {
+
+                      if (((convertToFloat(data.OneAndHalfPlus) > convertToFloat(data.OneAndHalfMinus)) && (data.Goals >= 2))
+                          || ((convertToFloat(data.OneAndHalfPlus) < convertToFloat(data.OneAndHalfMinus)) && (data.Goals < 2)))
+                      {
+                          $('td', row).eq(2).find(":button").addClass('btn-success');
+                          $('td', row).eq(3).find(":button").addClass('btn-success');
+                      }
+                      else {
+                          $('td', row).eq(2).find(":button").addClass('btn-danger');
+                          $('td', row).eq(3).find(":button").addClass('btn-danger');
+                      }
+
+                      if (((convertToFloat(data.TwoAndHalfPlus) > convertToFloat(data.TwoAndHalfMinus)) && (data.Goals >= 3))
+                        || ((convertToFloat(data.TwoAndHalfPlus) < convertToFloat(data.TwoAndHalfMinus)) && (data.Goals < 3))) {
+                          $('td', row).eq(4).find(":button").addClass('btn-success');
+                          $('td', row).eq(5).find(":button").addClass('btn-success');
+                      }
+                      else {
+                          $('td', row).eq(4).find(":button").addClass('btn-danger');
+                          $('td', row).eq(5).find(":button").addClass('btn-danger');
+                      }
+                  }
+
+                  //// podbarveni radku
+                  //var isEqual = data.WinnerCode == data.PredictTip;
+                  //if (data.WinnerCode > 0 && data.PredictTip > 0) {
+                  //    if (isEqual) {
+                  //        $(row).addClass('success');
+                  //    }
+                  //    else {
+                  //        $(row).addClass('danger');
+                  //    }
+                  //}
+                  //// vyber tipu
+                  //var cssType = data.WinnerCode > 0 ? (isEqual ? 'btn-success' : 'btn-danger') : 'btn-info';
+                  //if (data.PredictTip == 1) {
+                  //    $('td', row).eq(2).find(":button").addClass(cssType);
+                  //}
+                  //else if (data.PredictTip == 3) {
+                  //    $('td', row).eq(3).find(":button").addClass(cssType);
+                  //}
+                  //else if (data.PredictTip == 2) {
+                  //    $('td', row).eq(4).find(":button").addClass(cssType);
+                  //}
+                  //else {
+                  //    // nic
+                  //}
+              }
+          });
+      });
+  </script>
+}

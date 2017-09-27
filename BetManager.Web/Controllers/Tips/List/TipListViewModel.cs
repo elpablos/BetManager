@@ -8,7 +8,6 @@ namespace BetManager.Web.Controllers.Tips.List
 {
     public class TipListViewModel
     {
-
         public TipListFilterViewModel Filter { get; set; }
 
         public ICollection<TipListItemViewModel> Rows { get; set; }

@@ -29,6 +29,12 @@ namespace BetManager.Core.DbModels.Tips
         [Display(Name = "Hosté")]
         public string AwayTeam { get; set; }
 
+        [Display(Name = "Domácí")]
+        public int? HomeScoreCurrent { get; set; }
+
+        [Display(Name = "Hosté")]
+        public int? AwayScoreCurrent { get; set; }
+
         [Display(Name = "Datum")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd hh:mm}", ApplyFormatInEditMode = true)]
         public DateTime DateStart { get; set; }

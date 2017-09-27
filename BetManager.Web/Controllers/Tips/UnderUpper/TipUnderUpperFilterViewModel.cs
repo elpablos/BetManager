@@ -6,12 +6,9 @@ using System.Linq;
 using System.Security.Claims;
 using System.Web;
 
-namespace BetManager.Web.Controllers.Tips.List
+namespace BetManager.Web.Controllers.Tips.UnderUpper
 {
-    /// <summary>
-    /// Filtr pro tipy
-    /// </summary>
-    public class TipListFilterViewModel
+    public class TipUnderUpperFilterViewModel
     {
         [PersistInSession]
         [Display(Name = "Datum od")]
@@ -29,7 +26,7 @@ namespace BetManager.Web.Controllers.Tips.List
         [Display(Name = "Kategorie")]
         public string Category { get; set; }
 
-        public TipListFilterViewModel()
+        public TipUnderUpperFilterViewModel()
         {
         }
 
@@ -37,14 +34,6 @@ namespace BetManager.Web.Controllers.Tips.List
         {
             DateFrom = DateTime.Now.AddDays(-1);
             DateTo = DateTime.Now.AddDays(1);
-            Odd = double.Parse(identity.Claims.First(x => x.Type == "Odd").Value);
-            Category = identity.Claims.First(x => x.Type == "Category").Value;
-        }
-
-        public void SetDefaultDashboard(ClaimsIdentity identity)
-        {
-            DateFrom = DateTime.Now.AddDays(-8);
-            DateTo = DateTime.Now.AddDays(-1);
             Odd = double.Parse(identity.Claims.First(x => x.Type == "Odd").Value);
             Category = identity.Claims.First(x => x.Type == "Category").Value;
         }
