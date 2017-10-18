@@ -137,6 +137,17 @@ namespace BetManager.Web.Controllers.Tips.Detail
         public decimal OneAndHalfPlusOdd { get; internal set; }
         public decimal OneAndHalfMinusOdd { get; internal set; }
 
+		public int HomeSeasonPoint { get; set; }
+        public decimal HomeSeasonPointPercent { get; set; }
+        public decimal HomeSeasonGivenPercent { get; set; }
+        public decimal HomeSeasonTakenPercent { get; set; }
+
+        public int AwaySeasonPoint { get; set; }
+        public decimal AwaySeasonPointPercent { get; set; }
+        public decimal AwaySeasonGivenPercent { get; set; }
+        public decimal AwaySeasonTakenPercent { get; set; }
+
+
         public DetailTipViewModel()
         {
             Poissons = new List<DetailTipPoissonViewModel>();

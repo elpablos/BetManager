@@ -271,6 +271,158 @@
   <div class="row">
     <div class="panel panel-default">
       <div class="panel-heading">
+        <a data-toggle="collapse" href="#panel-season-detail">
+          <h4 class="">Stav za celou sezónu</h4>
+        </a>
+      </div>
+      <div id="panel-season-detail" class="panel-body panel-collapse collapse in">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h5 class="">Domácí - @Html.DisplayFor(model => model.HomeTeam)</h5>
+              </div>
+              <div class="panel-body">
+                <div class="form-group">
+                  <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeSeasonForm)</label>
+                  <div class="col-md-7">
+                    <p class="form-control-static">@Html.DisplayFor(model => model.HomeSeasonForm) %</p>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeSeasonGiven)</label>
+                  <div class="col-md-7">
+                    <p class="form-control-static">@Html.DisplayFor(model => model.HomeSeasonGiven)</p>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeSeasonTaken)</label>
+                  <div class="col-md-7">
+                    <p class="form-control-static">@Html.DisplayFor(model => model.HomeSeasonTaken)</p>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeSeasonCount)</label>
+                  <div class="col-md-7">
+                    <p class="form-control-static">@Html.DisplayFor(model => model.HomeSeasonCount)</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h5 class="">@Html.DisplayFor(model => model.HomeTeam) vs @Html.DisplayFor(model => model.AwayTeam) (Kolo @Html.DisplayFor(model => model.AwaySeasonCount))</h5>
+              </div>
+              <div class="panel-body">
+                <div class="col-md-12">
+                  <label class="control-label">Střelené góly</label>
+                  <div class="row">
+                    <div class="col-md-6 col-sm-6 col-xs-6"">
+                      <div class="progress">
+                        <div class="progress-bar pull-right @(Model.HomeSeasonGivenPercent > Model.AwaySeasonGivenPercent ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.HomeSeasonGivenPercent.ToString("##", ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@(@Model.HomeSeasonGiven.ToString("#.##", ViewBag.EnCulture))">
+                          <span>@Html.DisplayFor(model => model.HomeSeasonGiven)</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6 col-sm-6 col-xs-6"">
+                      <div class="progress">
+                        <div class="progress-bar pull-left @(Model.HomeSeasonGivenPercent < Model.AwaySeasonGivenPercent ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.AwaySeasonGivenPercent.ToString("##", ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@(@Model.AwaySeasonGiven.ToString("#.##", ViewBag.EnCulture))">
+                          <span>@Html.DisplayFor(model => model.AwaySeasonGiven)</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <label class="control-label">Obdržené góly</label>
+                  <div class="row">
+                    <div class="col-md-6 col-sm-6 col-xs-6"">
+                      <div class="progress">
+                        <div class="progress-bar pull-right @(Model.HomeSeasonTakenPercent < Model.AwaySeasonTakenPercent ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.HomeSeasonTakenPercent.ToString("##", ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@(@Model.HomeSeasonTaken.ToString("#.##", ViewBag.EnCulture))">
+                          <span>@Html.DisplayFor(model => model.HomeSeasonTaken)</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6 col-sm-6 col-xs-6"">
+                      <div class="progress">
+                        <div class="progress-bar pull-left @(Model.HomeSeasonTakenPercent > Model.AwaySeasonTakenPercent ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.AwaySeasonTakenPercent.ToString("##", ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@(@Model.AwaySeasonTaken.ToString("#.##", ViewBag.EnCulture))">
+                          <span>@Html.DisplayFor(model => model.AwaySeasonTaken)</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <label class="control-label">Body</label>
+                  <div class="row">
+                    <div class="col-md-6 col-sm-6 col-xs-6"">
+                      <div class="progress">
+                        <div class="progress-bar pull-right @(Model.HomeSeasonPointPercent > Model.AwaySeasonPointPercent ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.HomeSeasonPointPercent.ToString("##", ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@(@Model.HomeSeasonPoint.ToString("#.##", ViewBag.EnCulture))">
+                          <span>@Html.DisplayFor(model => model.HomeSeasonPoint)</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6 col-sm-6 col-xs-6">
+                      <div class="progress">
+                        <div class="progress-bar pull-left @(Model.HomeSeasonPointPercent < Model.AwaySeasonPointPercent ? "progress-bar-success" : "progress-bar-danger")" style="width: @Model.AwaySeasonPointPercent.ToString("##", ViewBag.EnCulture)%" data-toggle="tooltip" data-placement="top" title="@(@Model.AwaySeasonPoint.ToString("#.##", ViewBag.EnCulture))">
+                          <span>@Html.DisplayFor(model => model.AwaySeasonPoint)</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h5 class="">Hosté - @Html.DisplayFor(model => model.AwayTeam)</h5>
+              </div>
+              <div class="panel-body">
+                <div class="form-group">
+                  <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwaySeasonForm)</label>
+                  <div class="col-md-7">
+                    <p class="form-control-static">@Html.DisplayFor(model => model.AwaySeasonForm) %</p>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwaySeasonGiven)</label>
+                  <div class="col-md-7">
+                    <p class="form-control-static">@Html.DisplayFor(model => model.AwaySeasonGiven)</p>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwaySeasonTaken)</label>
+                  <div class="col-md-7">
+                    <p class="form-control-static">@Html.DisplayFor(model => model.AwaySeasonTaken)</p>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwaySeasonCount)</label>
+                  <div class="col-md-7">
+                    <p class="form-control-static">@Html.DisplayFor(model => model.AwaySeasonCount)</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="panel panel-default">
+      <div class="panel-heading">
         <a data-toggle="collapse" href="#panel-7-detail">
           <h4 class="">Stav za posledních 7 zápasů</h4>
         </a>
@@ -330,93 +482,6 @@
                 <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwayLastTaken)</label>
                 <div class="col-md-7">
                   <p class="form-control-static">@Html.DisplayFor(model => model.AwayLastTaken)</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <a data-toggle="collapse" href="#panel-season-detail">
-          <h4 class="">Stav za celou sezónu</h4>
-        </a>
-      </div>
-      <div id="panel-season-detail" class="panel-body panel-collapse collapse in">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <h5 class="">Domácí - @Html.DisplayFor(model => model.HomeTeam)</h5>
-              </div>
-              <div class="panel-body">
-                <div class="form-group">
-                  <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeSeasonForm)</label>
-                  <div class="col-md-7">
-                    <p class="form-control-static">@Html.DisplayFor(model => model.HomeSeasonForm) %</p>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeSeasonGiven)</label>
-                  <div class="col-md-7">
-                    <p class="form-control-static">@Html.DisplayFor(model => model.HomeSeasonGiven)</p>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeSeasonTaken)</label>
-                  <div class="col-md-7">
-                    <p class="form-control-static">@Html.DisplayFor(model => model.HomeSeasonTaken)</p>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.HomeSeasonCount)</label>
-                  <div class="col-md-7">
-                    <p class="form-control-static">@Html.DisplayFor(model => model.HomeSeasonCount)</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-md-6">
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <h5 class="">Hosté - @Html.DisplayFor(model => model.AwayTeam)</h5>
-              </div>
-              <div class="panel-body">
-                <div class="form-group">
-                  <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwaySeasonForm)</label>
-                  <div class="col-md-7">
-                    <p class="form-control-static">@Html.DisplayFor(model => model.AwaySeasonForm) %</p>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwaySeasonGiven)</label>
-                  <div class="col-md-7">
-                    <p class="form-control-static">@Html.DisplayFor(model => model.AwaySeasonGiven)</p>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwaySeasonTaken)</label>
-                  <div class="col-md-7">
-                    <p class="form-control-static">@Html.DisplayFor(model => model.AwaySeasonTaken)</p>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label class="col-md-5 control-label">@Html.DisplayNameFor(model => model.AwaySeasonCount)</label>
-                  <div class="col-md-7">
-                    <p class="form-control-static">@Html.DisplayFor(model => model.AwaySeasonCount)</p>
-                  </div>
                 </div>
               </div>
             </div>
