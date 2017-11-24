@@ -61,19 +61,21 @@ namespace BetManager.Tester.Solving
 
                 var teams = engine.Evaluate("dcm$teams").AsList();
 
-                var res = engine.Evaluate("res <- doPrediction(ksi = 0.0065 / 3.5, currentDate = as.Date('2012-05-13'))").AsDataFrame();
-                engine.Evaluate("predict.result(res, 'Sparta Prague', 'FC Viktoria Plzen')");
+                //var res = engine.Evaluate("res <- doPrediction(ksi = 0.0065 / 3.5, currentDate = as.Date('2012-05-13'))").AsDataFrame();
+                //engine.Evaluate("predict.result(res, 'Sparta Prague', 'FC Viktoria Plzen')");
 
                 var par = engine.Evaluate("res$par").AsNumericMatrix();
 
                 foreach (var team in dixonManager.Teams)
                 {
                     team.HomeAttack = engine.Evaluate($"res$par['Attack.{team.DisplayName}']").AsNumeric().First();
-                    team.AwayAttack = -1 / engine.Evaluate($"res$par['Defence.{team.DisplayName}']").AsNumeric().First(); // -1?
+                    // team.AwayAttack = -1 / engine.Evaluate($"res$par['Defence.{team.DisplayName}']").AsNumeric().First(); // -1?
+                    team.AwayAttack = engine.Evaluate($"res$par['Defence.{team.DisplayName}']").AsNumeric().First(); // -1?
                 }
 
                 dixonManager.Rho = engine.Evaluate("res$par['RHO']").AsNumeric().First();
-                dixonManager.Gamma = 1+ engine.Evaluate("res$par['HOME']").AsNumeric().First(); // 1+?
+                // dixonManager.Gamma = 1+ engine.Evaluate("res$par['HOME']").AsNumeric().First(); // 1+?
+                dixonManager.Gamma = engine.Evaluate("res$par['HOME']").AsNumeric().First(); // 1+?
                 dixonManager.Summary = engine.Evaluate("res$value").AsNumeric().First();
             }
 

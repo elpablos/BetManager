@@ -36,7 +36,7 @@ namespace BetManager.Tester
 
             DateTime date = DateTime.Parse("2017-04-21");
             var solver = new RDXSolver();
-            solver.HasSaveToDb = true;
+            solver.HasSaveToDb = false;
             try
             {
                 while (date > DateTime.Parse("2016-08-12"))

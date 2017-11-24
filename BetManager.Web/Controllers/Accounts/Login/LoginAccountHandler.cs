@@ -20,6 +20,13 @@ namespace BetManager.Web.Controllers.Accounts.Login
         public ModelHandlerResult Handle(LoginAccountViewModel model)
         {
             var result = new ModelHandlerResult();
+
+            var test = _userManager.Insert(new Core.DbModels.Accounts.User
+            {
+                Password = model.Password,
+                UserName = model.UserName
+            });
+
             var check = _userManager.Login(new Core.DbModels.Accounts.User
             {
                 UserName = model.UserName,

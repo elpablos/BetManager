@@ -272,7 +272,7 @@ namespace BetManager.Solver.Managers
         {
             StringBuilder sb = new StringBuilder();
 
-            sb.AppendFormat("Gama;{0}\n", Gamma)
+            sb.AppendFormat("Gamma;{0}\n", Gamma)
                 .AppendFormat("Rho;{0}\n", Rho)
                 .AppendFormat("Ksi;{0}\n", Ksi)
                 .AppendFormat("LastElapsed;{0}\n", LastElapsed)
