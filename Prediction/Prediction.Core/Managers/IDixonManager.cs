@@ -1,8 +1,9 @@
-﻿using BetManager.Solver.Models;
+﻿using Prediction.Core.Models;
+using Prediction.Core.Solvers;
 using System;
 using System.Collections.Generic;
 
-namespace BetManager.Solver.Managers
+namespace Prediction.Core.Managers
 {
     /// <summary>
     /// Interface pro výpočet zápasů dle Dixon-Coles
@@ -18,6 +19,11 @@ namespace BetManager.Solver.Managers
         /// Týmy
         /// </summary>
         IList<GameTeam> Teams { get; }
+
+        /// <summary>
+        /// Theta
+        /// </summary>
+        IList<double> Thetas { get; }
 
         /// <summary>
         /// Ksi pro výpočet časové fce
@@ -48,6 +54,11 @@ namespace BetManager.Solver.Managers
         double Mi { get; set; }
 
         /// <summary>
+        /// Dalsi parametr 
+        /// </summary>
+        double Lambda { get; set; }
+
+        /// <summary>
         /// čas posledního doběhu
         /// </summary>
         TimeSpan LastElapsed { get; set; }
@@ -73,11 +84,17 @@ namespace BetManager.Solver.Managers
         string Description { get; set; }
 
         /// <summary>
-        /// Suma věrohodnostních funkcí nad zápasem
+        /// Datum predikce
         /// </summary>
-        /// <param name="dateActual"></param>
-        /// <returns></returns>
-        double Sum(DateTime dateActual);
+        DateTime DatePredict { get; set; }
+
+        int Id { get; set; }
+
+        SolverTypeEnum Type { get; set; }
+
+        double P { get; set; }
+
+        DateTime? KsiStart { get; set; }
 
         double SumMaximumLikehood();
         double HomeProbability(GameMatch match);

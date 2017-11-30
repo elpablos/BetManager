@@ -47,10 +47,12 @@
     <Compile Include="Managers\DixonManager.cs" />
     <Compile Include="Managers\IDixonManager.cs" />
     <Compile Include="Managers\MethodExtensions.cs" />
+    <Compile Include="Models\Factorial.cs" />
     <Compile Include="Models\GameMatch.cs" />
     <Compile Include="Models\GameTeam.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Solvers\DixonColesSolver.cs" />
+    <Compile Include="Solvers\DPSolver.cs" />
     <Compile Include="Solvers\IDixonColesSolver.cs" />
     <Compile Include="Solvers\WrapperSolver.cs" />
   </ItemGroup>

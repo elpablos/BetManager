@@ -75,7 +75,7 @@ namespace BetManager.Tester.Solving
                 }
             }
 
-            matches = matches.Where(x => x.Days >= 0)
+            matches = matches.Where(x => x.Days > 0)
                 .OrderBy(x => x.DateStart)
                 .ToList();
 
@@ -105,6 +105,7 @@ namespace BetManager.Tester.Solving
                 //else
                 {
                     dixonManager = PrepareData(idTournament, idSeason, idLastSeason, dateActual);
+                    dixonManager.PropLength = 15;
                     predictionType = "rSolverLastSeason";
                 }
 
@@ -119,7 +120,7 @@ namespace BetManager.Tester.Solving
 
                 IDixonColesSolver solver = null;
                 // solver = new RDixonColesSolver(dixonManager);
-                solver = new DixonColesSolver(dixonManager);
+                solver = new DPSolver(dixonManager);
                 Console.WriteLine("Start solving");
 
                 dixonManager.Summary = solver.Solve(dateActual);

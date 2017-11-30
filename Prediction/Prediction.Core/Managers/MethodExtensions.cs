@@ -1,7 +1,7 @@
-﻿using BetManager.Solver.Models;
+﻿using Prediction.Core.Models;
 using System;
 
-namespace BetManager.Solver.Managers
+namespace Prediction.Core.Managers
 {
     public static class MethodExtensions
     {
@@ -298,5 +298,7 @@ namespace BetManager.Solver.Managers
             }
 
         }
+
+        public static Func<int, int> Factorial = x => x < 0 ? -1 : x == 1 || x == 0 ? 1 : x * Factorial(x - 1);
     }
 }

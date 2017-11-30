@@ -1,11 +1,11 @@
-﻿using BetManager.Solver.Models;
+﻿using Prediction.Core.Models;
+using Prediction.Core.Solvers;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace BetManager.Solver.Managers
+namespace Prediction.Core.Managers
 {
     /// <summary>
     /// Výpočet zápasů dle Dixon-Coles
@@ -23,6 +23,11 @@ namespace BetManager.Solver.Managers
         /// Týmy
         /// </summary>
         public IList<GameTeam> Teams { get; private set; }
+
+        /// <summary>
+        /// Theta
+        /// </summary>
+        public IList<double> Thetas { get; private set; }
 
         /// <summary>
         /// Epsilon pro výpočet časové fce
@@ -43,6 +48,16 @@ namespace BetManager.Solver.Managers
         /// Dalsi parametr 
         /// </summary>
         public double Mi { get; set; }
+
+        /// <summary>
+        /// Dalsi parametr 
+        /// </summary>
+        public double Lambda { get; set; }
+
+        /// <summary>
+        /// Dalsi parametr 
+        /// </summary>
+        public double P { get; set; }
 
         /// <summary>
         /// Výhoda domácího
@@ -77,6 +92,17 @@ namespace BetManager.Solver.Managers
         /// </summary>
         public int PropLength { get; set; } = 10;
 
+        /// <summary>
+        /// Datum predikce
+        /// </summary>
+        public DateTime DatePredict { get; set; }
+
+        public SolverTypeEnum Type { get; set; }
+
+        public int Id { get; set; }
+
+        public DateTime? KsiStart { get; set; }
+
         #endregion
 
         /// <summary>
@@ -88,9 +114,8 @@ namespace BetManager.Solver.Managers
         {
             Matches = matches;
             Teams = teams;
+            Thetas = new List<double>();
         }
-
-        public static Func<int, int> Factorial = x => x < 0 ? -1 : x == 1 || x == 0 ? 1 : x * Factorial(x - 1);
 
         /// <summary>
         /// Poisson
@@ -98,7 +123,7 @@ namespace BetManager.Solver.Managers
         /// <param name="x">pocet golu</param>
         /// <param name="m">utok/obrana tymu</param>
         /// <returns></returns>
-        public static double Poisson(int x, double m) { return Math.Exp(-1 * m) * Math.Pow(m, x) / (Factorial(x) * 1.0); }
+        public static double Poisson(int x, double m) { return Math.Exp(-1 * m) * Math.Pow(m, x) / (MethodExtensions.Factorial(x) * 1.0); }
 
         /// <summary>
         /// Suma všech pravděpodobností v logaritmu
@@ -106,8 +131,16 @@ namespace BetManager.Solver.Managers
         /// <returns></returns>
         public virtual double SumMaximumLikehood()
         {
+            var matches = Matches;
+
+            // filtr na ksi
+            if (KsiStart.HasValue)
+            {
+                matches = Matches.Where(x => x.DateStart >= KsiStart).ToList();
+            }
+
             double ret = 0;
-            foreach (var match in Matches)
+            foreach (var match in matches)
             {
                 if (match.HomeScore < match.AwayScore)
                 {
@@ -127,7 +160,7 @@ namespace BetManager.Solver.Managers
             return ret;
         }
 
-        public virtual double HomeProbability(GameMatch match)
+        public virtual double AwayProbability(GameMatch match)
         {
             double ret = 0;
             var homeTeam = Teams.FirstOrDefault(x => x.Id == match.HomeTeamId);
@@ -143,8 +176,8 @@ namespace BetManager.Solver.Managers
                 for (int a = (h + 1); a < PropLength; a++)
                 {
                     ret +=
-                        Poisson(h, homeTeam.HomeAttack * awayTeam.AwayAttack * Gamma)
-                        * Poisson(a, awayTeam.HomeAttack * homeTeam.AwayAttack);
+                        Poisson(h, LambdaHome(homeTeam, awayTeam))
+                        * Poisson(a, LambdaAway(homeTeam, awayTeam));
                 }
             }
 
@@ -164,14 +197,14 @@ namespace BetManager.Solver.Managers
 
             for (int i = 0; i < PropLength; i++)
             {
-                ret += Poisson(i, homeTeam.HomeAttack * awayTeam.AwayAttack * Gamma)
-                    * Poisson(i, awayTeam.HomeAttack * homeTeam.AwayAttack);
+                ret += Poisson(i, LambdaHome(homeTeam, awayTeam))
+                    * Poisson(i, LambdaAway(homeTeam, awayTeam));
             }
 
             return ret;
         }
 
-        public virtual double AwayProbability(GameMatch match)
+        public virtual double HomeProbability(GameMatch match)
         {
             double ret = 0;
             var homeTeam = Teams.FirstOrDefault(x => x.Id == match.HomeTeamId);
@@ -187,118 +220,34 @@ namespace BetManager.Solver.Managers
                 for (int h = (a + 1); h < PropLength; h++)
                 {
                     ret +=
-                        Poisson(h, homeTeam.HomeAttack * awayTeam.AwayAttack * Gamma)
-                        * Poisson(a, awayTeam.HomeAttack * homeTeam.AwayAttack);
+                        Poisson(h, LambdaHome(homeTeam, awayTeam))
+                        * Poisson(a, LambdaAway(homeTeam, awayTeam));
                 }
             }
 
             return ret;
         }
 
-        /// <summary>
-        /// Suma věrohodnostních funkcí nad zápasem
-        /// </summary>
-        /// <param name="dateActual"></param>
-        /// <returns></returns>
-        public virtual double Sum(DateTime dateActual)
+        protected virtual double LambdaHome(GameTeam homeTeam, GameTeam awayTeam)
         {
-            double sum = 0;
-            Stopwatch watch = new Stopwatch();
-            watch.Start();
-            foreach (var match in Matches)
-            {
-                sum += Calculate(match, dateActual);
-            }
-            watch.Stop();
-            LastElapsed = watch.Elapsed;
-            return sum;
+            return homeTeam.HomeAttack * awayTeam.AwayAttack * Gamma;
         }
 
-        /// <summary>
-        /// Funkce závislost Tau
-        /// </summary>
-        /// <param name="match">zapas</param>
-        /// <param name="lambda">utok domacich</param>
-        /// <param name="mu">utok hosti</param>
-        /// <returns>zavislost na tau</returns>
-        protected virtual double DependenceTau(GameMatch match, double lambda, double mu)
+        protected virtual double LambdaAway(GameTeam homeTeam, GameTeam awayTeam)
         {
-            double ret = 1;
-            if (match.HomeScore == 0 && match.AwayScore == 0)
-                ret = 1 - lambda * mu * Rho;
-            else if (match.HomeScore == 0 && match.AwayScore == 1)
-                ret = 1 + lambda * Rho;
-            else if (match.HomeScore == 1 && match.AwayScore == 0)
-                ret = 1 + mu * Rho;
-            else if (match.HomeScore == 1 && match.AwayScore == 1)
-                ret = 1 - Rho;
-            return ret;
+            return awayTeam.HomeAttack * homeTeam.AwayAttack;
         }
-
-        /// <summary>
-        /// Výpočet logaritmické věrohodnostní funkce
-        /// (𝜙(𝑡 − 𝑡𝑘) ∙ (ln 𝜏𝜆𝑘,𝜇𝑘(𝑥𝑘, 𝑦𝑘) + 𝑥𝑘 ∙ ln 𝜆𝑘 − 𝜆𝑘 + 𝑦𝑘 ∙ ln 𝜇𝑘 − 𝜇𝑘))
-        /// 𝜆𝑘          parametr určující počet gólů domácích,
-        /// 𝜇𝑘          parametr určující počet gólů hostů,
-        /// 𝜏           funkce vyjadřující závislost mezi 𝑋𝑖𝑗 a 𝑌𝑖𝑗,
-        /// 𝑥𝑘          počet gólů domácího týmu 𝑖 v zápase 𝑘,
-        /// 𝑦𝑘          počet gólů hostujícího týmu 𝑗 v zápase 𝑘,
-        /// 𝜙(𝑡 − 𝑡𝑘)   funkce času
-        /// </summary>
-        /// <param name="match"></param>
-        /// <param name="dateActual"></param>
-        /// <returns></returns>
-        protected virtual double Calculate(GameMatch match, DateTime dateActual)
-        {
-            // home-attack
-            var lambda = (Rho * match.HomeTeam.HomeAttack * match.AwayTeam.AwayAttack * Gamma);
-            // away-attack
-            var mu = (Rho * match.HomeTeam.AwayAttack * match.AwayTeam.HomeAttack);
-
-            var result =
-
-            //(-ksi * days[match, h, a] / 365.25)
-            //* Model.Log
-            //(
-            // ((lambda * Model.Exp(-1 * lambda)) / factorial[homeScore[match, h, a]])
-            // *
-            // ((mu * Model.Exp(-1 * mu)) / factorial[awayScore[match, h, a]])
-            // );
-
-             Math.Exp(match.TimeFunc(dateActual, Ksi)) *
-            //Math.Log
-            (
-                ((lambda * Math.Exp(-1 * lambda)) / Factorial(match.HomeScore))
-                *
-                ((mu * Math.Exp(-1 * mu)) / Factorial(match.AwayScore))
-                );
-
-            // casova fce
-            //Math.Log(match.TimeFunc(dateActual, Ksi))
-            //    // ln fce zavislosti tau
-            //    * (
-            //    // Math.Log(DependenceTau(match, lambda, mu)) +
-            //    // pocet golu domaciho + ln predikce golu domaciho
-            //     match.HomeScore * Math.Log(lambda)
-            //    // minus predikce golu domaciho
-            //    - lambda
-            //    // pocet golu hosti + ln predikce golu hosti
-            //    + match.AwayScore * Math.Log(mu)
-            //    // minus predikce golu hosti
-            //    - mu
-            //    );
-            return result;
-        }
-
 
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
 
-            sb.AppendFormat("Gamma;{0}\n", Gamma)
+            sb.AppendFormat("Ksi;{0}\n", Ksi)
+                .AppendFormat("Gamma;{0}\n", Gamma)
                 .AppendFormat("Mi;{0}\n", Mi)
+                .AppendFormat("P;{0}\n", P)
+                .AppendFormat("Lambda;{0}\n", Lambda)
                 .AppendFormat("Rho;{0}\n", Rho)
-                .AppendFormat("Ksi;{0}\n", Ksi)
                 .AppendFormat("LastElapsed;{0}\n", LastElapsed)
                 .AppendFormat("MatchCount;{0}\n", Matches.Count)
                 .AppendFormat("Summary;{0}\n", Summary)
@@ -309,6 +258,15 @@ namespace BetManager.Solver.Managers
             foreach (var team in Teams)
             {
                 sb.AppendFormat("{3};{0};{1};{2}\n", team.DisplayName, team.HomeAttack, team.AwayAttack, team.Id);
+            }
+
+            if (Thetas.Count > 0)
+            {
+                sb.AppendLine().AppendLine("n;Theta");
+                for (int i = 0; i < Thetas.Count; i++)
+                {
+                    sb.AppendFormat("{0};{1}\n", i, Thetas[i]);
+                }
             }
 
             return sb.AppendLine().ToString();
