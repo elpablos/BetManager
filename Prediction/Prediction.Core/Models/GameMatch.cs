@@ -52,6 +52,11 @@ namespace Prediction.Core.Models
         /// </summary>
         public int Days { get; set; }
 
+        /// <summary>
+        /// Hodnota funkce času
+        /// </summary>
+        public double TimeValue { get; set; }
+
         #region Overrided methods
 
         public override bool Equals(object obj)

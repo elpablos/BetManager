@@ -184,7 +184,7 @@ order by DatePredict asc";
         {
             string query =
          @"
-insert into GamePrediction (Type, DatePredict, Ksi, Rho, Mi, Gamma, LastElapsed, Summary, MaximumLikehoodValue, Description) 
+insert into GamePrediction (Type, DatePredict, Ksi, Rho, Mi, Gamma, LastElapsed, Summary, MaximumLikehoodValue, Description, P, Lambda) 
 values (@Type, @DatePredict, @Ksi, @Rho, @Mi, @Gamma, @LastElapsed, @Summary, @MaximumLikehoodValue, @Description)";
             using (var trans = GetConnection.BeginTransaction())
             {
@@ -202,6 +202,8 @@ values (@Type, @DatePredict, @Ksi, @Rho, @Mi, @Gamma, @LastElapsed, @Summary, @M
                         cmd.Parameters.Add(new SQLiteParameter("Summary", DbType.Double));
                         cmd.Parameters.Add(new SQLiteParameter("MaximumLikehoodValue", DbType.Double));
                         cmd.Parameters.Add(new SQLiteParameter("Description", DbType.String));
+                        cmd.Parameters.Add(new SQLiteParameter("P", DbType.Double));
+                        cmd.Parameters.Add(new SQLiteParameter("Lambda", DbType.Double));
 
                         cmd.Parameters["Type"].Value = manager.Type;
                         cmd.Parameters["DatePredict"].Value = manager.DatePredict;
@@ -213,6 +215,8 @@ values (@Type, @DatePredict, @Ksi, @Rho, @Mi, @Gamma, @LastElapsed, @Summary, @M
                         cmd.Parameters["Summary"].Value = manager.Summary;
                         cmd.Parameters["MaximumLikehoodValue"].Value = manager.MaximumLikehoodValue;
                         cmd.Parameters["Description"].Value = manager.Description;
+                        cmd.Parameters["P"].Value = manager.P;
+                        cmd.Parameters["Lambda"].Value = manager.Lambda;
 
                         cmd.ExecuteNonQuery();
                     }
