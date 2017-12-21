@@ -9,17 +9,14 @@ namespace Prediction.Core.Solvers
     /// How to connect together
     /// https://msdn.microsoft.com/en-us/library/ff847512(v=vs.93).aspx
     /// </summary>
-    public class DixonColesSolver : IDixonColesSolver
+    public class DixonColesSolver : BaseSolver
     {
-        private readonly IDixonManager _DixonManager;
-        public string LastReport { get; private set; }
-
         public DixonColesSolver(IDixonManager dixonManager)
+            :base(dixonManager)
         {
-            _DixonManager = dixonManager;
         }
 
-        public double Solve(DateTime actualDate)
+        public override double Solve(DateTime actualDate)
         {
             Stopwatch watch = new Stopwatch();
 
@@ -116,7 +113,7 @@ namespace Prediction.Core.Solvers
             context.CheckModel();
 
             // solve
-            var solution = context.Solve(new HybridLocalSearchDirective());
+            var solution = context.Solve(Directive);
             LastReport = solution.GetReport().ToString();
 
             context.PropagateDecisions();
@@ -130,11 +127,6 @@ namespace Prediction.Core.Solvers
 
             // navrat
             return _DixonManager.Summary;
-        }
-
-        public void Dispose()
-        {
-            // throw new NotImplementedException();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.SolverFoundation.Services;
+using System;
 
 namespace Prediction.Core.Solvers
 {
@@ -6,5 +7,6 @@ namespace Prediction.Core.Solvers
     {
         string LastReport { get; }
         double Solve(DateTime actualDate);
+        HybridLocalSearchDirective Directive { get; }
     }
 }

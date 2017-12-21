@@ -14,6 +14,10 @@ namespace Prediction.Solver
         public DateTime? KsiStart { get; set; }
 
         public int PropLength { get; set; }
+
+        public int TimeLimit { get; set; } = -1;
+
+        public double EqualityTolerance { get; set; } = -1;
     }
 
     public class SolverInput

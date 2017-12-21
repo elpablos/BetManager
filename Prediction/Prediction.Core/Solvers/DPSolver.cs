@@ -1,6 +1,5 @@
-﻿using Prediction.Core.Managers;
-using Prediction.Core.Models;
-using Microsoft.SolverFoundation.Services;
+﻿using Microsoft.SolverFoundation.Services;
+using Prediction.Core.Managers;
 using System;
 using System.Diagnostics;
 
@@ -10,19 +9,28 @@ namespace Prediction.Core.Solvers
     /// How to connect together
     /// https://msdn.microsoft.com/en-us/library/ff847512(v=vs.93).aspx
     /// </summary>
-    public class DPSolver : IDixonColesSolver
+    public class DPSolver : BaseSolver
     {
-        private readonly IDixonManager _DixonManager;
-        public string LastReport { get; private set; }
-
         public DPSolver(IDixonManager dixonManager)
-        {
-            _DixonManager = dixonManager;
-        }
+            : base(dixonManager)
+        { }
 
-        public double Solve(DateTime actualDate)
+        public override double Solve(DateTime actualDate)
         {
             Stopwatch watch = new Stopwatch();
+
+            var matchList = FilterMatch();
+
+            //var fact = new System.Collections.Generic.List<Factorial>();
+            //for (int i = 0; i <= _DixonManager.PropLength; i++)
+            //{
+            //    fact.Add(new Factorial
+            //    {
+            //        Id = i,
+            //        Value = MethodExtensions.LogFactorial(i) // opt
+            //        // Value = MethodExtensions.Factorial(i) * 1.0 // non-opt
+            //    });
+            //}
 
             watch.Start();
 
@@ -38,38 +46,27 @@ namespace Prediction.Core.Solvers
 
             // parameters
             Parameter homeScore = new Parameter(Domain.IntegerNonnegative, "homeScore", matches, teams, teams);
-            homeScore.SetBinding(_DixonManager.Matches, "HomeScore", "Id", "HomeTeamId", "AwayTeamId");
+            homeScore.SetBinding(matchList, "HomeScore", "Id", "HomeTeamId", "AwayTeamId");
 
             Parameter awayScore = new Parameter(Domain.IntegerNonnegative, "awayScore", matches, teams, teams);
-            awayScore.SetBinding(_DixonManager.Matches, "AwayScore", "Id", "HomeTeamId", "AwayTeamId");
+            awayScore.SetBinding(matchList, "AwayScore", "Id", "HomeTeamId", "AwayTeamId");
 
-            Parameter days = new Parameter(Domain.IntegerNonnegative, "days", matches, teams, teams);
-            days.SetBinding(_DixonManager.Matches, "Days", "Id", "HomeTeamId", "AwayTeamId");
+            Parameter timeValues = new Parameter(Domain.RealNonnegative, "days", matches, teams, teams);
+            timeValues.SetBinding(matchList, "TimeValue", "Id", "HomeTeamId", "AwayTeamId");
 
             Parameter homeTeamId = new Parameter(Domain.IntegerNonnegative, "homeTeamId", matches);
-            homeTeamId.SetBinding(_DixonManager.Matches, "HomeTeamId", "Id");
+            homeTeamId.SetBinding(matchList, "HomeTeamId", "Id");
 
             Parameter awayTeamId = new Parameter(Domain.IntegerNonnegative, "awayTeamId", matches);
-            awayTeamId.SetBinding(_DixonManager.Matches, "AwayTeamId", "Id");
+            awayTeamId.SetBinding(matchList, "AwayTeamId", "Id");
 
-            var fact = new System.Collections.Generic.List<Factorial>();
-            for (int i = 0; i <= _DixonManager.PropLength; i++)
-            {
-                fact.Add(new Factorial
-                {
-                    Id = i,
-                    Value = MethodExtensions.LogFactorial(i) // opt
-                    // Value = MethodExtensions.Factorial(i) * 1.0 // non-opt
-                });
-            }
-
-            Parameter factorial = new Parameter(Domain.RealNonnegative, "factorial", facts);
-            factorial.SetBinding(fact, "Value", "Id");
+            //Parameter factorial = new Parameter(Domain.RealNonnegative, "factorial", facts);
+            //factorial.SetBinding(fact, "Value", "Id");
 
             Parameter ksi = new Parameter(Domain.Real, "ksi");
             ksi.SetBinding(_DixonManager.Ksi);
 
-            model.AddParameters(homeScore, awayScore, days, homeTeamId, awayTeamId, factorial, ksi);
+            model.AddParameters(homeScore, awayScore, timeValues, homeTeamId, awayTeamId, ksi); // factorial
 
             // decisions
             Decision attack = new Decision(Domain.RealRange(0, 2), "attack", teams);
@@ -111,21 +108,30 @@ namespace Prediction.Core.Solvers
                        // / factorial[awayScore[match, h, a]]));
 
                        // casova fce - opt (zlogaritmovano)
-                       var opt = (
-                                -lambda + (homeScore[match, h, a] * Model.Log(lambda))
-                            ) - factorial[homeScore[match, h, a]]
-                            +
-                            (
-                                -mu + (awayScore[match, h, a] * Model.Log(mu))
-                            ) - factorial[awayScore[match, h, a]];
+                       //var opt = (
+                       //         -lambda + (homeScore[match, h, a] * Model.Log(lambda))
+                       //     ) - factorial[homeScore[match, h, a]]
+                       //     +
+                       //     (
+                       //         -mu + (awayScore[match, h, a] * Model.Log(mu))
+                       //     ) - factorial[awayScore[match, h, a]];
+
+                       var fastopt =
+                       (
+                           -lambda + (homeScore[match, h, a] * Model.Log(lambda))
+                           - mu + (awayScore[match, h, a] * Model.Log(mu))
+                       );
 
                        return
                        // casova fce - opt
-                       Model.Exp(-ksi * days[match, h, a] / 365.25) *
-                       (
-                           opt
-                           // Model.Log(nonopt)
-                       );
+                       //Model.Exp(-ksi * days[match, h, a] / 365.25) *
+                       //timeValues[match, h, a] *
+                       //(
+                       //    opt
+                       //    // Model.Log(nonopt)
+                       //);
+                       timeValues[match, h, a] * fastopt;
+
                    }, a => awayTeamId[match] == a
                    ), h => homeTeamId[match] == h
                    ))));
@@ -133,7 +139,7 @@ namespace Prediction.Core.Solvers
             context.CheckModel();
 
             // solve
-            var solution = context.Solve(new HybridLocalSearchDirective());
+            var solution = context.Solve(Directive);
             LastReport = solution.GetReport().ToString();
 
             context.PropagateDecisions();
@@ -148,11 +154,6 @@ namespace Prediction.Core.Solvers
 
             // navrat
             return _DixonManager.Summary;
-        }
-
-        public void Dispose()
-        {
-            // throw new NotImplementedException();
         }
     }
 }

@@ -127,7 +127,7 @@ namespace BetManager.Solver.Managers
             return ret;
         }
 
-        public virtual double HomeProbability(GameMatch match)
+        public virtual double AwayProbability(GameMatch match)
         {
             double ret = 0;
             var homeTeam = Teams.FirstOrDefault(x => x.Id == match.HomeTeamId);
@@ -171,7 +171,7 @@ namespace BetManager.Solver.Managers
             return ret;
         }
 
-        public virtual double AwayProbability(GameMatch match)
+        public virtual double HomeProbability(GameMatch match)
         {
             double ret = 0;
             var homeTeam = Teams.FirstOrDefault(x => x.Id == match.HomeTeamId);

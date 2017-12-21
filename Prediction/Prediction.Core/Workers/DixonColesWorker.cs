@@ -18,6 +18,10 @@ namespace Prediction.Core.Workers
 
         public int PropLength { get; set; }
 
+        public double EqualityTolerance { get; set; }
+
+        public int TimeLimit { get; set; }
+
         public DixonColesWorker(IGamePredictionService predictionService)
         {
             this.predictionService = predictionService;
@@ -82,6 +86,9 @@ namespace Prediction.Core.Workers
                 case SolverTypeEnum.BPDI:
                     manager = new BPDIManager(matches, teams.ToList());
                     break;
+                case SolverTypeEnum.Maher:
+                    manager = new DixonManager(matches, teams.ToList());
+                    break;
                 default:
                     throw new NotImplementedException("Nebyl vybrán typ solveru!");
             }
@@ -100,6 +107,10 @@ namespace Prediction.Core.Workers
                 string predictionType = null;
 
                 dixonManager = PrepareData(inputs, dateActual, type);
+
+                // TODO donacteni posledni verze
+                // dixonManager = predictionService.GetById(9, dixonManager.Matches, dixonManager.Teams);
+
                 dixonManager.PropLength = PropLength;
                 dixonManager.KsiStart = KsiStart;
                 dixonManager.Ksi = ksi;
@@ -128,6 +139,9 @@ namespace Prediction.Core.Workers
                     case SolverTypeEnum.BPDI:
                         solver = new BPDISolver(dixonManager);
                         break;
+                    case SolverTypeEnum.Maher:
+                        solver = new MaherExtSolver(dixonManager);
+                        break;
                     default:
                         throw new NotImplementedException("Nebyl vybrán typ solveru!");
                 }
@@ -135,6 +149,11 @@ namespace Prediction.Core.Workers
                 predictionType = type.ToString();
 
                 Console.WriteLine("Start solving");
+
+                // tolerance solveru
+                solver.Directive.EqualityTolerance = EqualityTolerance;
+                solver.Directive.Arithmetic = Microsoft.SolverFoundation.Services.Arithmetic.Double;
+                solver.Directive.TimeLimit = TimeLimit;
 
                 dixonManager.Summary = solver.Solve(dateActual);
                 dixonManager.Description = solver.LastReport;

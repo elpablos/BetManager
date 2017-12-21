@@ -45,15 +45,17 @@ namespace Prediction.Solver
             worker.CanSaveToDb = input.CanSaveToDb;
             worker.KsiStart = input.KsiStart;
             worker.PropLength = input.PropLength;
+            worker.EqualityTolerance = input.EqualityTolerance;
+            worker.TimeLimit = input.TimeLimit;
 
             Stopwatch watch = new Stopwatch();
 
             watch.Start();
 
-            // worker.Solve(input.Inputs[0].Ksi, data, input.Inputs[0].DateStart, input.Inputs[0].Type);
+            worker.Solve(input.Inputs[0].Ksi, data, input.Inputs[0].DateStart, input.Inputs[0].Type);
 
-            var options = new ParallelOptions();
-            Parallel.ForEach(input.Inputs, options, x => worker.Solve(x.Ksi, data, x.DateStart, x.Type));
+            //var options = new ParallelOptions();
+            //Parallel.ForEach(input.Inputs, options, x => worker.Solve(x.Ksi, data, x.DateStart, x.Type));
 
             watch.Stop();
 

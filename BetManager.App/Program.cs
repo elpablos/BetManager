@@ -106,12 +106,12 @@ namespace BetManager.App
             //    }
             //}
 
-            DateTime date = DateTime.Parse("2017-11-27");
+            DateTime date = DateTime.Parse("2017-12-18");
             var solver = new DXSolver();
             solver.HasSaveToDb = true;
             try
             {
-                while (date >= DateTime.Parse("2017-11-27"))
+                while (date >= DateTime.Parse("2017-12-11"))
                 {
                     foreach (var item in Items)
                     {

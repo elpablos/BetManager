@@ -10,17 +10,14 @@ namespace Prediction.Core.Solvers
     /// How to connect together
     /// https://msdn.microsoft.com/en-us/library/ff847512(v=vs.93).aspx
     /// </summary>
-    public class BPDISolver : IDixonColesSolver
+    public class BPDISolver : BaseSolver
     {
-        private readonly IDixonManager _DixonManager;
-        public string LastReport { get; private set; }
-
         public BPDISolver(IDixonManager dixonManager)
+            :base(dixonManager)
         {
-            _DixonManager = dixonManager;
         }
 
-        public double Solve(DateTime actualDate)
+        public override double Solve(DateTime actualDate)
         {
             Stopwatch watch = new Stopwatch();
 
@@ -108,11 +105,11 @@ namespace Prediction.Core.Solvers
 
             if (maxThetas == 5)
             {
-                model.AddConstraint("limits", Model.Abs(Model.Sum(theta[0], theta[1], theta[2], theta[3], theta[4], theta[5]) - 1) <= 0.01);
+                model.AddConstraint("limits", Model.Sum(theta[0], theta[1], theta[2], theta[3], theta[4], theta[5]) == 1);
             }
             else
             {
-                model.AddConstraint("limits", Model.Abs(Model.Sum(theta[0], theta[1], theta[2], theta[3]) - 1) <= 0.01);
+                model.AddConstraint("limits", Model.Sum(theta[0], theta[1], theta[2], theta[3]) == 1);
             }
 
             Goal sum = model.AddGoal("sum", GoalKind.Maximize,
@@ -164,7 +161,7 @@ namespace Prediction.Core.Solvers
             context.CheckModel();
 
             // solve
-            var solution = context.Solve(new HybridLocalSearchDirective());
+            var solution = context.Solve(Directive);
             LastReport = solution.GetReport().ToString();
 
             context.PropagateDecisions();
@@ -187,11 +184,6 @@ namespace Prediction.Core.Solvers
 
             // navrat
             return _DixonManager.Summary;
-        }
-
-        public void Dispose()
-        {
-            // throw new NotImplementedException();
         }
     }
 }

@@ -8,27 +8,14 @@ using System.Collections.Generic;
 
 namespace Prediction.Core.Solvers
 {
-    public class GameTeamExtend : GameTeam
-    {
-        public double DefaultHomeAttack { get; set; }
-
-        public double DefaultAwayAttack { get; set; }
-
-        public int GoalGiven { get; set; }
-
-        public int GoalTaken { get; set; }
-
-        public double Summ { get; set; }
-    }
-
     /// <summary>
     /// How to connect together
     /// https://msdn.microsoft.com/en-us/library/ff847512(v=vs.93).aspx
     /// </summary>
-    public class MaherSolver : BaseSolver
+    public class MaherExtSolver : BaseSolver
     {
-        public MaherSolver(IDixonManager dixonManager)
-            :base(dixonManager)
+        public MaherExtSolver(IDixonManager dixonManager)
+            : base(dixonManager)
         {
         }
 
@@ -37,9 +24,16 @@ namespace Prediction.Core.Solvers
             Stopwatch watch = new Stopwatch();
 
             var extendTeams = new List<GameTeamExtend>();
+
+            var removed = _DixonManager.Teams.Where(x => x.Id > 14).ToList();
+
+            foreach (var rem in removed)
+            {
+                _DixonManager.Teams.Remove(rem);
+            }
+
             foreach (var team in _DixonManager.Teams)
             {
-                if (team.Id > 14) continue;
                 var extendTeam = new GameTeamExtend
                 {
                     Id = team.Id,
@@ -48,8 +42,10 @@ namespace Prediction.Core.Solvers
                     HomeAttack = 1.0, // team.HomeAttack,
                     AwayAttack = 1.0, // team.AwayAttack,
                     DisplayName = team.DisplayName,
+                    // vstrelene goly
                     GoalGiven = _DixonManager.Matches.Where(x => x.HomeTeamId == team.Id).Sum(x => x.HomeScore)
                     + _DixonManager.Matches.Where(x => x.AwayTeamId == team.Id).Sum(x => x.AwayScore),
+                    // obdrzene goly
                     GoalTaken = _DixonManager.Matches.Where(x => x.HomeTeamId == team.Id).Sum(x => x.AwayScore)
                     + _DixonManager.Matches.Where(x => x.AwayTeamId == team.Id).Sum(x => x.HomeScore),
                 };
@@ -111,45 +107,53 @@ namespace Prediction.Core.Solvers
                 Decision defence = new Decision(Domain.RealNonnegative, "defence", teams);
                 defence.SetBinding(extendTeams, "AwayAttack", "Id");
 
-                model.AddDecisions(attack, defence);
+                Decision summ = new Decision(Domain.RealNonnegative, "summ", teams);
+                summ.SetBinding(extendTeams, "Summ", "Id");
+
+                model.AddDecisions(attack, defence, summ);
 
                 // constraints
+
+                // 1) podm utok = obrana suma(pro vsechny tymy(alpha)) == suma(pro vsechny tymy(beta))
                 model.AddConstraint("homeAttackCount",
                     Model.Sum(Model.ForEach(teams, t => attack[t])) == Model.Sum(Model.ForEach(teams, t => defence[t])));
 
+                // 2) podm alpha pro vsechny tymy(pocet_vstrelenych_golu_tymu / 1 + ksi)
+                // * suma(pro vsechny tymy VYJMA aktualniho(beta_vychozi))) == alpha
                 model.AddConstraint("alpha",
                     Model.ForEach(teams, team =>
-                        ((GoalGiven[team] / ((1.0 + ksi) * Model.Sum(Model.ForEachWhere(teams, t => DefaultAwayAttack[t], x => x != team)))) == attack[team]
-                        )));
+                    (
+                        (GoalGiven[team] / ((1.0 + ksi)
+                            * Model.Sum(Model.ForEachWhere(teams, t => DefaultAwayAttack[t], x => x != team)))
+                        ) == attack[team]
+                    )));
 
+                // 3) podm beta pro vsechny tymy(pocet_obdrzenych_golu_tymu / 1 + ksi) 
+                //  * suma(pro vsechny tymy VYJMA aktualniho(alpha_vychozi))) == beta
                 model.AddConstraint("beta",
                     Model.ForEach(teams, team =>
-                        ((GoalTaken[team] / ((1.0 + ksi) * Model.Sum(Model.ForEachWhere(teams, t => DefaultHomeAttack[t], x => x != team)))) == defence[team]
-                        )));
+                    (
+                        (GoalTaken[team] / ((1.0 + ksi)
+                            * Model.Sum(Model.ForEachWhere(teams, t => DefaultHomeAttack[t], x => x != team)))
+                        ) == defence[team]
+                    )));
 
+                // 4) podm gamma ~ pomocny soucet
+                // alpha * sum(beta vyjma aktualniho tymu) * 2 == summ
+                model.AddConstraint("gamma",
+                    Model.ForEach(teams, team =>
+                    (
+                        (attack[team]
+                        * Model.Sum(Model.ForEachWhere(teams, t => defence[t], x => x != team))
+                        * 2.0
+                        ) == summ[team]
+                    )));
+
+                // TODO nefunguje
+                // model.AddConstraint("delta", Model.Sum(Model.ForEach(teams, t => summ[t])) == homeGoalCount);
 
                 Goal sum = model.AddGoal("sum", GoalKind.Minimize,
-                Model.Abs(Model.Sum(
-                     Model.ForEach(teams, teamz =>
-                     {
-                         // soucet vsech bet_odhad ALE bez pocitaneho tymu
-                         var suma = Model.Sum(Model.ForEachWhere(teams, team =>
-                         {
-                             // suma alpha_vychozi bez pocitaneho tymu
-                             var sumaDefaultHome = Model.Sum(Model.ForEachWhere(teams, t => DefaultHomeAttack[t], x => x != team));
-
-                             // pocet obdrzenych golu tymu / ((1+ksi) * suma alpha_vychozi BEZ aktualniho tymu
-                             return (GoalTaken[team] / ((1.0 + ksi) * sumaDefaultHome));
-                         }, x => x != teamz)); // suma vsech vyjma aktualniho pocitanyho tymu
-
-                         return Model.ForEachWhere(teams, team =>
-                         {
-                             var sumaDefaultAway = Model.Sum(Model.ForEachWhere(teams, t => DefaultAwayAttack[t], x => x != team));
-                             var alpha_odhad = (GoalGiven[team] / ((1.0 + ksi) * sumaDefaultAway));
-
-                             return (alpha_odhad * suma) * 2.0; // 
-                         }, x => x == teamz); // pouze aktualni pocitany tym
-                     })) - homeGoalCount)); // 
+                    Model.Abs(Model.Sum(Model.ForEach(teams, teamz => summ[teamz])))); //  - homeGoalCount
 
                 context.CheckModel();
 
@@ -158,7 +162,6 @@ namespace Prediction.Core.Solvers
                 LastReport = solution.GetReport().ToString();
 
                 context.PropagateDecisions();
-
                 _DixonManager.Summary = sum.ToDouble();
 
                 Console.WriteLine("Round {0} - {1}\t{2}\n", i + 1, watch.Elapsed, _DixonManager.Summary);
@@ -174,7 +177,7 @@ namespace Prediction.Core.Solvers
             }
 
             _DixonManager.LastElapsed = watch.Elapsed;
-            _DixonManager.Gamma = 1.0;
+            _DixonManager.Gamma = _DixonManager.Ksi;
             _DixonManager.Mi = 0;
             _DixonManager.Lambda = _DixonManager.Teams.Sum(x => x.HomeAttack);
             _DixonManager.Rho = _DixonManager.Teams.Sum(x => x.HomeAttack);
