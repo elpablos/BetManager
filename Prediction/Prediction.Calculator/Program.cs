@@ -41,6 +41,8 @@ namespace Prediction.Calculator
             calc.Ksi = input.Ksi;
             var result = calc.Calculate(data);
 
+            System.IO.File.WriteAllText("calc-output.csv", calc.Csv);
+
             Console.WriteLine("Result: {0}", result);
 
             watch.Stop();

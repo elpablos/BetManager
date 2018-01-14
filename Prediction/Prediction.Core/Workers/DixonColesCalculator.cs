@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Prediction.Core.Solvers;
+using System.Text;
 
 namespace Prediction.Core.Workers
 {
@@ -15,6 +16,7 @@ namespace Prediction.Core.Workers
         public SolverTypeEnum? Type { get; set; }
         public int PropLength { get; set; }
         public double Ksi { get; set; }
+        public string Csv { get; private set; }
 
         public DixonColesCalculator(IGamePredictionService predictionService)
         {
@@ -23,6 +25,8 @@ namespace Prediction.Core.Workers
 
         public double Calculate(ICollection<DataInput> inputs)
         {
+            var sb = new StringBuilder();
+
             double result = 0;
             var teams = new HashSet<GameTeam>();
 
@@ -49,7 +53,7 @@ namespace Prediction.Core.Workers
 
                 #region Prepare data
 
-                var filteredInputs = inputs.Where(x => (x.DateStart.Date - predict.DatePredict.Date).Days == 0).ToList();
+                var filteredInputs = inputs.Where(x => (x.DateStart.Date - predict.DatePredict.Date).Days >= 0 && (x.DateStart.Date - predict.DatePredict.Date).Days < 7).ToList();
                 foreach (var input in filteredInputs)
                 {
                     var match = new GameMatch
@@ -75,8 +79,20 @@ namespace Prediction.Core.Workers
                 var dixonManager = predictionService.GetById(predict.Id, matches, teams.ToList());
                 dixonManager.KsiStart = KsiStart;
                 dixonManager.PropLength = PropLength;
+
+                foreach (var match in matches)
+                {
+                    match.HomeProp = dixonManager.HomeProbability(match);
+                    match.DrawProp = dixonManager.DrawProbability(match);
+                    match.AwayProp = dixonManager.AwayProbability(match);
+
+                    sb.AppendLine(match.ToString());
+                }
+
                 result += dixonManager.SumMaximumLikehood();
             }
+
+            Csv = sb.ToString();
 
             return result;
         }

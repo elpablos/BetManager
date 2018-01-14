@@ -185,7 +185,7 @@ order by DatePredict asc";
             string query =
          @"
 insert into GamePrediction (Type, DatePredict, Ksi, Rho, Mi, Gamma, LastElapsed, Summary, MaximumLikehoodValue, Description, P, Lambda) 
-values (@Type, @DatePredict, @Ksi, @Rho, @Mi, @Gamma, @LastElapsed, @Summary, @MaximumLikehoodValue, @Description)";
+values (@Type, @DatePredict, @Ksi, @Rho, @Mi, @Gamma, @LastElapsed, @Summary, @MaximumLikehoodValue, @Description, @P, @Lambda)";
             using (var trans = GetConnection.BeginTransaction())
             {
                 try

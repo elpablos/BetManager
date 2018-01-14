@@ -39,6 +39,24 @@ namespace Prediction.Solver
                 }
             }
 
+            var collection = new System.Collections.Generic.List<SolverInput>();
+            var i = input.Inputs[0];
+            DateTime time = i.DateStart;
+            while (time < DateTime.Parse("2017-12-11"))
+            {
+                var inp = new SolverInput
+                {
+                    DateStart = time,
+                    Ksi = i.Ksi,
+                    Type = i.Type
+                };
+
+                time = time.AddDays(7);
+                collection.Add(inp);
+            }
+
+            input.Inputs = collection.ToArray();
+
             var data = matchService.GetAll();
 
             var worker = new DixonColesWorker(predictionService);
@@ -52,10 +70,11 @@ namespace Prediction.Solver
 
             watch.Start();
 
-            worker.Solve(input.Inputs[0].Ksi, data, input.Inputs[0].DateStart, input.Inputs[0].Type);
+            // worker.Solve(input.Inputs[0].Ksi, data, input.Inputs[0].DateStart, input.Inputs[0].Type);
 
-            //var options = new ParallelOptions();
-            //Parallel.ForEach(input.Inputs, options, x => worker.Solve(x.Ksi, data, x.DateStart, x.Type));
+            var options = new ParallelOptions();
+            options.MaxDegreeOfParallelism = 2;
+            Parallel.ForEach(input.Inputs, options, x => worker.Solve(x.Ksi, data, x.DateStart, x.Type));
 
             watch.Stop();
 

@@ -34,6 +34,8 @@ namespace Prediction.Core.Workers
 
             foreach (var input in inputs)
             {
+                if ((dateActual - input.DateStart).Days <= 0) continue;
+
                 // home team
                 teams.Add(new GameTeam
                 {
@@ -158,9 +160,21 @@ namespace Prediction.Core.Workers
                 dixonManager.Summary = solver.Solve(dateActual);
                 dixonManager.Description = solver.LastReport;
                 Console.WriteLine("solved");
-                dixonManager.MaximumLikehoodValue = dixonManager.SumMaximumLikehood();
-                Console.WriteLine("Maximum likehood counted");
+                dixonManager.MaximumLikehoodValue = 0;
+                try
+                {
+                    dixonManager.MaximumLikehoodValue = dixonManager.SumMaximumLikehood();
+                    Console.WriteLine("Maximum likehood counted");
 
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Maximum likehood err: "+ ex.Message);
+                    System.IO.File.AppendAllText(@"Data\errz.txt",
+                        string.Format("Message: {0}\nTrace: {1}\nInnerMessage: {2}",
+                        ex.Message, ex.StackTrace, ex.InnerException?.Message));
+                }
+            
                 var result = dixonManager.ToString();
                 Console.WriteLine(result);
                 string filename = @"Data\"+ dateActual.ToString("yyyyMMdd-") + "result-ksi-" + ksi + "-" + predictionType + ".csv";

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace Prediction.Core.Models
 {
@@ -57,6 +58,12 @@ namespace Prediction.Core.Models
         /// </summary>
         public double TimeValue { get; set; }
 
+        public double HomeProp { get; set; }
+
+        public double DrawProp { get; set; }
+
+        public double AwayProp { get; set; }
+
         #region Overrided methods
 
         public override bool Equals(object obj)
@@ -72,6 +79,22 @@ namespace Prediction.Core.Models
         public override int GetHashCode()
         {
             return Id.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.Append(Id).Append(";")
+                .Append(HomeTeamId).Append(";")
+                .Append(AwayTeamId).Append(";")
+                .Append(HomeScore).Append(";")
+                .Append(AwayScore).Append(";")
+                .Append(DateStart).Append(";")
+                .Append(HomeProp).Append(";")
+                .Append(DrawProp).Append(";")
+                .Append(AwayProp).Append(";");
+
+            return sb.ToString();
         }
 
         #endregion
