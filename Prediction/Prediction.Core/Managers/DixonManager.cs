@@ -253,11 +253,11 @@ namespace Prediction.Core.Managers
                 .AppendFormat("Summary;{0}\n", Summary)
                 .AppendFormat("MaximumLikehoodValue;{0}\n", MaximumLikehoodValue)
                 .AppendLine()
-                .AppendLine("Id;DisplayName;HomeAttack;AwayAttack");
+                .AppendLine("Id;DisplayName;HomeAttack;AwayAttack;Gamma");
 
             foreach (var team in Teams)
             {
-                sb.AppendFormat("{3};{0};{1};{2}\n", team.DisplayName, team.HomeAttack, team.AwayAttack, team.Id);
+                sb.AppendFormat("{3};{0};{1};{2};{4}\n", team.DisplayName, team.HomeAttack, team.AwayAttack, team.Id, team.Gamma);
             }
 
             if (Thetas.Count > 0)

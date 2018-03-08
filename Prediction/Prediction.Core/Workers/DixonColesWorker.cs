@@ -91,6 +91,18 @@ namespace Prediction.Core.Workers
                 case SolverTypeEnum.Maher:
                     manager = new DixonManager(matches, teams.ToList());
                     break;
+                case SolverTypeEnum.DPG:
+                    manager = new DPManager(matches, teams.ToList());
+                    break;
+                case SolverTypeEnum.BPG:
+                    manager = new BPManager(matches, teams.ToList());
+                    break;
+                case SolverTypeEnum.DPGDI:
+                    manager = new DPDIManager(matches, teams.ToList());
+                    break;
+                case SolverTypeEnum.BPGDI:
+                    manager = new BPDIManager(matches, teams.ToList());
+                    break;
                 default:
                     throw new NotImplementedException("Nebyl vybrán typ solveru!");
             }
@@ -143,6 +155,18 @@ namespace Prediction.Core.Workers
                         break;
                     case SolverTypeEnum.Maher:
                         solver = new MaherExtSolver(dixonManager); // MaherSolver
+                        break;
+                    case SolverTypeEnum.DPG:
+                        solver = new DPGSolver(dixonManager);
+                        break;
+                    case SolverTypeEnum.BPG:
+                        solver = new BPGSolver(dixonManager);
+                        break;
+                    case SolverTypeEnum.DPGDI:
+                        solver = new DPGDISolver(dixonManager);
+                        break;
+                    case SolverTypeEnum.BPGDI:
+                        solver = new BPGDISolver(dixonManager);
                         break;
                     default:
                         throw new NotImplementedException("Nebyl vybrán typ solveru!");

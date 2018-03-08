@@ -88,10 +88,14 @@
     <Compile Include="Services\IGameMatchService.cs" />
     <Compile Include="Services\IGamePredictionService.cs" />
     <Compile Include="Solvers\BaseSolver.cs" />
+    <Compile Include="Solvers\BPGDISolver.cs" />
     <Compile Include="Solvers\BPDISolver.cs" />
+    <Compile Include="Solvers\BPGSolver.cs" />
     <Compile Include="Solvers\DixonColesSolver.cs" />
     <Compile Include="Solvers\BPSolver.cs" />
+    <Compile Include="Solvers\DPGDISolver.cs" />
     <Compile Include="Solvers\DPDISolver.cs" />
+    <Compile Include="Solvers\DPGSolver.cs" />
     <Compile Include="Solvers\MaherExtSolver.cs" />
     <Compile Include="Solvers\MaherSolver.cs" />
     <Compile Include="Solvers\SolverTypeEnum.cs" />

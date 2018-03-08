@@ -363,6 +363,18 @@ order by Ind";
                 case SolverTypeEnum.BPDI:
                     manager = new BPDIManager(matches, teams);
                     break;
+                case SolverTypeEnum.DPG:
+                    manager = new DPManager(matches, teams);
+                    break;
+                case SolverTypeEnum.BPG:
+                    manager = new BPManager(matches, teams);
+                    break;
+                case SolverTypeEnum.DPGDI:
+                    manager = new DPDIManager(matches, teams);
+                    break;
+                case SolverTypeEnum.BPGDI:
+                    manager = new BPDIManager(matches, teams);
+                    break;
                 default:
                     throw new NotImplementedException("Nebyl vybrán typ solveru!");
             }

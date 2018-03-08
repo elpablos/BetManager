@@ -25,6 +25,11 @@
         /// </summary>
         public double AwayAttack { get; set; } = 1.0;
 
+        /// <summary>
+        /// Síla doma
+        /// </summary>
+        public double Gamma { get; set; } = 1.0;
+
         #region Overrided methods
 
         public override bool Equals(object obj)

@@ -8,5 +8,9 @@
         DPDI = 4,
         BPDI = 8,
         Maher = 16,
+        DPG = 32,
+        BPG = 64,
+        DPGDI = 128,
+        BPGDI = 256
     }
 }

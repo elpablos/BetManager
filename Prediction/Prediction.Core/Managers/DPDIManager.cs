@@ -65,7 +65,7 @@ namespace Prediction.Core.Managers
 
         protected override double LambdaHome(GameTeam homeTeam, GameTeam awayTeam)
         {
-            return homeTeam.HomeAttack * awayTeam.AwayAttack * Gamma * Mi;
+            return homeTeam.HomeAttack * awayTeam.AwayAttack * homeTeam.Gamma * Gamma * Mi;
         }
 
         protected override double LambdaAway(GameTeam homeTeam, GameTeam awayTeam)
