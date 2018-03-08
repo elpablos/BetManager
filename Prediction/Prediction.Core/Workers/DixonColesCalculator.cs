@@ -53,7 +53,11 @@ namespace Prediction.Core.Workers
 
                 #region Prepare data
 
-                var filteredInputs = inputs.Where(x => (x.DateStart.Date - predict.DatePredict.Date).Days >= 0 && (x.DateStart.Date - predict.DatePredict.Date).Days < 7).ToList();
+                // moje
+                // var filteredInputs = inputs.Where(x => (x.DateStart.Date - predict.DatePredict.Date).Days >= 0 && (x.DateStart.Date - predict.DatePredict.Date).Days < 7).ToList();
+
+                // pro ifcu
+                var filteredInputs = inputs.Where(x => (x.DateStart.Date - predict.DatePredict.Date).Days == 0).ToList();
                 foreach (var input in filteredInputs)
                 {
                     var match = new GameMatch

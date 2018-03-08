@@ -80,48 +80,76 @@ namespace Prediction.Core.Solvers
                 var awayScore = _DixonManager.Matches.Sum(x => x.AwayScore);
                 _DixonManager.Ksi = awayScore * 1.0 / homeScore;
 
+                for (int itr = 0; itr < 10; itr++)
+                {
+                    foreach (var t in extendTeams)
+                    {
+                        t.HomeAttack = t.GoalGiven /((1 + _DixonManager.Ksi) * (extendTeams.Sum(x => x.DefaultAwayAttack) - t.DefaultAwayAttack));
+                        t.AwayAttack = t.GoalTaken / ((1 + _DixonManager.Ksi) * (extendTeams.Sum(x => x.DefaultHomeAttack) - t.DefaultHomeAttack));
+                    }
+                }
+
                 // parameters
+
+                // EXCEL pocet golu domaci
                 Parameter homeGoalCount = new Parameter(Domain.IntegerNonnegative, "homeGoalCount");
                 homeGoalCount.SetBinding(homeScore);
 
+                // EXCEL pocet golu hoste
                 Parameter awayGoalCount = new Parameter(Domain.IntegerNonnegative, "awayGoalCount");
                 awayGoalCount.SetBinding(awayScore);
 
+                // EXCEL k^2
                 Parameter ksi = new Parameter(Domain.Real, "ksi");
                 ksi.SetBinding(_DixonManager.Ksi);
 
-                Parameter DefaultHomeAttack = new Parameter(Domain.RealNonnegative, "DefaultHomeAttack", teams);
-                DefaultHomeAttack.SetBinding(extendTeams, "DefaultHomeAttack", "Id");
-
-                Parameter DefaultAwayAttack = new Parameter(Domain.RealNonnegative, "DefaultAwayAttack", teams);
-                DefaultAwayAttack.SetBinding(extendTeams, "DefaultAwayAttack", "Id");
-
+                // EXCEL vstrelene goly
                 Parameter GoalGiven = new Parameter(Domain.IntegerNonnegative, "GoalGiven", teams);
                 GoalGiven.SetBinding(extendTeams, "GoalGiven", "Id");
 
+                // EXCEL obdrzene goly
                 Parameter GoalTaken = new Parameter(Domain.IntegerNonnegative, "GoalTaken", teams);
                 GoalTaken.SetBinding(extendTeams, "GoalTaken", "Id");
 
-                model.AddParameters(homeGoalCount, awayGoalCount, GoalGiven, GoalTaken, DefaultHomeAttack, DefaultAwayAttack, ksi);
+                model.AddParameters(homeGoalCount, awayGoalCount, GoalGiven, GoalTaken, ksi);
 
                 // decisions
+
+                // EXCEL - alpha odhad
                 Decision attack = new Decision(Domain.RealNonnegative, "attack", teams);
                 attack.SetBinding(extendTeams, "HomeAttack", "Id");
 
+                // EXCEL - beta odhad
                 Decision defence = new Decision(Domain.RealNonnegative, "defence", teams);
                 defence.SetBinding(extendTeams, "AwayAttack", "Id");
 
-                model.AddDecisions(attack, defence);
+                // EXCEL - alpha vychozi
+                Decision DefaultHomeAttack = new Decision(Domain.RealNonnegative, "DefaultHomeAttack", teams);
+                DefaultHomeAttack.SetBinding(extendTeams, "DefaultHomeAttack", "Id");
+
+                // EXCEL - beta vychozi
+                Decision DefaultAwayAttack = new Decision(Domain.RealNonnegative, "DefaultAwayAttack", teams);
+                DefaultAwayAttack.SetBinding(extendTeams, "DefaultAwayAttack", "Id");
+
+                model.AddDecisions(attack, defence, DefaultHomeAttack, DefaultAwayAttack);
 
                 // constraints
+
+                // EXCEL - alpha_odhad = beta_odhad
                 model.AddConstraint("homeAttackCount",
                     Model.Sum(Model.ForEach(teams, t => attack[t])) == Model.Sum(Model.ForEach(teams, t => defence[t])));
 
+                // EXCEL - alpha_vychozi = beta_vychozi
+                model.AddConstraint("homeDefaultAttackCount",
+                    Model.Sum(Model.ForEach(teams, t => DefaultHomeAttack[t])) == Model.Sum(Model.ForEach(teams, t => DefaultAwayAttack[t])));
+
+                // EXCEL - alpha_odhad = sum(pocet_vstrelenych_golu/((1+k^2)+(suma(beta_vychozi vyjma daneho tymu)))
                 model.AddConstraint("alpha",
                     Model.ForEach(teams, team =>
                         ((GoalGiven[team] / ((1.0 + ksi) * Model.Sum(Model.ForEachWhere(teams, t => DefaultAwayAttack[t], x => x != team)))) == attack[team]
                         )));
 
+                // EXCEL - beta_odhad = sum(pocet_obdrzenych_golu/((1+k^2)+(suma(alpha_vychozi vyjma daneho tymu)))
                 model.AddConstraint("beta",
                     Model.ForEach(teams, team =>
                         ((GoalTaken[team] / ((1.0 + ksi) * Model.Sum(Model.ForEachWhere(teams, t => DefaultHomeAttack[t], x => x != team)))) == defence[team]

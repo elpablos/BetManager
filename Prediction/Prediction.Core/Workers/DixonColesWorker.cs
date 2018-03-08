@@ -142,7 +142,7 @@ namespace Prediction.Core.Workers
                         solver = new BPDISolver(dixonManager);
                         break;
                     case SolverTypeEnum.Maher:
-                        solver = new MaherExtSolver(dixonManager);
+                        solver = new MaherExtSolver(dixonManager); // MaherSolver
                         break;
                     default:
                         throw new NotImplementedException("Nebyl vybrán typ solveru!");

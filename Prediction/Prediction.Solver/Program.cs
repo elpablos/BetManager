@@ -39,23 +39,23 @@ namespace Prediction.Solver
                 }
             }
 
-            var collection = new System.Collections.Generic.List<SolverInput>();
-            var i = input.Inputs[0];
-            DateTime time = i.DateStart;
-            while (time < DateTime.Parse("2017-12-11"))
-            {
-                var inp = new SolverInput
-                {
-                    DateStart = time,
-                    Ksi = i.Ksi,
-                    Type = i.Type
-                };
+            //var collection = new System.Collections.Generic.List<SolverInput>();
+            //var i = input.Inputs[0];
+            //DateTime time = i.DateStart;
+            //while (time < DateTime.Parse("2017-12-11"))
+            //{
+            //    var inp = new SolverInput
+            //    {
+            //        DateStart = time,
+            //        Ksi = i.Ksi,
+            //        Type = i.Type
+            //    };
 
-                time = time.AddDays(7);
-                collection.Add(inp);
-            }
+            //    time = time.AddDays(7);
+            //    collection.Add(inp);
+            //}
 
-            input.Inputs = collection.ToArray();
+            //input.Inputs = collection.ToArray();
 
             var data = matchService.GetAll();
 

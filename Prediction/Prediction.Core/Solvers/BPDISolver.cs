@@ -21,6 +21,18 @@ namespace Prediction.Core.Solvers
         {
             Stopwatch watch = new Stopwatch();
 
+            var matchList = FilterMatch();
+            var fact = new System.Collections.Generic.List<Factorial>();
+            for (int i = 0; i <= _DixonManager.PropLength; i++)
+            {
+                fact.Add(new Factorial
+                {
+                    Id = i,
+                    // Value = MethodExtensions.LogFactorial(i) // opt
+                    Value = MethodExtensions.Factorial(i) * 1.0 // non-opt
+                });
+            }
+
             watch.Start();
 
             // solver init
@@ -36,30 +48,19 @@ namespace Prediction.Core.Solvers
 
             // parameters
             Parameter homeScore = new Parameter(Domain.IntegerNonnegative, "homeScore", matches, teams, teams);
-            homeScore.SetBinding(_DixonManager.Matches, "HomeScore", "Id", "HomeTeamId", "AwayTeamId");
+            homeScore.SetBinding(matchList, "HomeScore", "Id", "HomeTeamId", "AwayTeamId");
 
             Parameter awayScore = new Parameter(Domain.IntegerNonnegative, "awayScore", matches, teams, teams);
-            awayScore.SetBinding(_DixonManager.Matches, "AwayScore", "Id", "HomeTeamId", "AwayTeamId");
+            awayScore.SetBinding(matchList, "AwayScore", "Id", "HomeTeamId", "AwayTeamId");
 
             Parameter days = new Parameter(Domain.IntegerNonnegative, "days", matches, teams, teams);
-            days.SetBinding(_DixonManager.Matches, "Days", "Id", "HomeTeamId", "AwayTeamId");
+            days.SetBinding(matchList, "Days", "Id", "HomeTeamId", "AwayTeamId");
 
             Parameter homeTeamId = new Parameter(Domain.IntegerNonnegative, "homeTeamId", matches);
-            homeTeamId.SetBinding(_DixonManager.Matches, "HomeTeamId", "Id");
+            homeTeamId.SetBinding(matchList, "HomeTeamId", "Id");
 
             Parameter awayTeamId = new Parameter(Domain.IntegerNonnegative, "awayTeamId", matches);
-            awayTeamId.SetBinding(_DixonManager.Matches, "AwayTeamId", "Id");
-
-            var fact = new System.Collections.Generic.List<Factorial>();
-            for (int i = 0; i <= _DixonManager.PropLength; i++)
-            {
-                fact.Add(new Factorial
-                {
-                    Id = i,
-                    // Value = MethodExtensions.LogFactorial(i) // opt
-                    Value = MethodExtensions.Factorial(i) * 1.0 // non-opt
-                });
-            }
+            awayTeamId.SetBinding(matchList, "AwayTeamId", "Id");
 
             Parameter factorial = new Parameter(Domain.RealNonnegative, "factorial", facts);
             factorial.SetBinding(fact, "Value", "Id");
