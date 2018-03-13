@@ -115,13 +115,13 @@ namespace Prediction.Core.Solvers
 
                 // decisions
 
-                // EXCEL - alpha odhad
-                Decision attack = new Decision(Domain.RealNonnegative, "attack", teams);
-                attack.SetBinding(extendTeams, "HomeAttack", "Id");
+                //// EXCEL - alpha odhad
+                //Decision attack = new Decision(Domain.RealNonnegative, "attack", teams);
+                //attack.SetBinding(extendTeams, "HomeAttack", "Id");
 
-                // EXCEL - beta odhad
-                Decision defence = new Decision(Domain.RealNonnegative, "defence", teams);
-                defence.SetBinding(extendTeams, "AwayAttack", "Id");
+                //// EXCEL - beta odhad
+                //Decision defence = new Decision(Domain.RealNonnegative, "defence", teams);
+                //defence.SetBinding(extendTeams, "AwayAttack", "Id");
 
                 // EXCEL - alpha vychozi
                 Decision DefaultHomeAttack = new Decision(Domain.RealNonnegative, "DefaultHomeAttack", teams);
@@ -131,29 +131,29 @@ namespace Prediction.Core.Solvers
                 Decision DefaultAwayAttack = new Decision(Domain.RealNonnegative, "DefaultAwayAttack", teams);
                 DefaultAwayAttack.SetBinding(extendTeams, "DefaultAwayAttack", "Id");
 
-                model.AddDecisions(attack, defence, DefaultHomeAttack, DefaultAwayAttack);
+                model.AddDecisions(DefaultHomeAttack, DefaultAwayAttack); // attack, defence, 
 
                 // constraints
 
-                // EXCEL - alpha_odhad = beta_odhad
-                model.AddConstraint("homeAttackCount",
-                    Model.Sum(Model.ForEach(teams, t => attack[t])) == Model.Sum(Model.ForEach(teams, t => defence[t])));
+                //// EXCEL - alpha_odhad = beta_odhad
+                //model.AddConstraint("homeAttackCount",
+                //    Model.Sum(Model.ForEach(teams, t => attack[t])) == Model.Sum(Model.ForEach(teams, t => defence[t])));
 
-                // EXCEL - alpha_vychozi = beta_vychozi
-                model.AddConstraint("homeDefaultAttackCount",
-                    Model.Sum(Model.ForEach(teams, t => DefaultHomeAttack[t])) == Model.Sum(Model.ForEach(teams, t => DefaultAwayAttack[t])));
+                //// EXCEL - alpha_vychozi = beta_vychozi
+                //model.AddConstraint("homeDefaultAttackCount",
+                //    Model.Sum(Model.ForEach(teams, t => DefaultHomeAttack[t])) == Model.Sum(Model.ForEach(teams, t => DefaultAwayAttack[t])));
 
-                // EXCEL - alpha_odhad = sum(pocet_vstrelenych_golu/((1+k^2)+(suma(beta_vychozi vyjma daneho tymu)))
-                model.AddConstraint("alpha",
-                    Model.ForEach(teams, team =>
-                        ((GoalGiven[team] / ((1.0 + ksi) * Model.Sum(Model.ForEachWhere(teams, t => DefaultAwayAttack[t], x => x != team)))) == attack[team]
-                        )));
+                //// EXCEL - alpha_odhad = sum(pocet_vstrelenych_golu/((1+k^2)+(suma(beta_vychozi vyjma daneho tymu)))
+                //model.AddConstraint("alpha",
+                //    Model.ForEach(teams, team =>
+                //        ((GoalGiven[team] / ((1.0 + ksi) * Model.Sum(Model.ForEachWhere(teams, t => DefaultAwayAttack[t], x => x != team)))) == attack[team]
+                //        )));
 
-                // EXCEL - beta_odhad = sum(pocet_obdrzenych_golu/((1+k^2)+(suma(alpha_vychozi vyjma daneho tymu)))
-                model.AddConstraint("beta",
-                    Model.ForEach(teams, team =>
-                        ((GoalTaken[team] / ((1.0 + ksi) * Model.Sum(Model.ForEachWhere(teams, t => DefaultHomeAttack[t], x => x != team)))) == defence[team]
-                        )));
+                //// EXCEL - beta_odhad = sum(pocet_obdrzenych_golu/((1+k^2)+(suma(alpha_vychozi vyjma daneho tymu)))
+                //model.AddConstraint("beta",
+                //    Model.ForEach(teams, team =>
+                //        ((GoalTaken[team] / ((1.0 + ksi) * Model.Sum(Model.ForEachWhere(teams, t => DefaultHomeAttack[t], x => x != team)))) == defence[team]
+                //        )));
 
 
                 Goal sum = model.AddGoal("sum", GoalKind.Minimize,
@@ -177,7 +177,7 @@ namespace Prediction.Core.Solvers
 
                              return (alpha_odhad * suma) * 2.0; // 
                          }, x => x == teamz); // pouze aktualni pocitany tym
-                     })) - homeGoalCount)); // 
+                     })))); //  - homeGoalCount
 
                 context.CheckModel();
 

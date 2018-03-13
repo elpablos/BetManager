@@ -50,6 +50,7 @@ CREATE TABLE GamePredictionTeam
     TeamId INTEGER,
     HomeAttack NUMERIC,
     AwayAttack NUMERIC,
+    Gamma NUMERIC,
     FOREIGN KEY (TeamId) REFERENCES GameTeam(Id),
     FOREIGN KEY (PredictionId) REFERENCES GamePrediction(Id)
 );
@@ -83,7 +84,7 @@ CREATE TABLE GamePredictionTheta
 select Id, Type, DatePredict, Ksi, Rho, Mi, Gamma, LastElapsed, Summary, MaximumLikehoodValue, Description, P, Lambda
 from GamePrediction
 where Ksi=@Ksi
-    and Type is null or Type=@Type
+    and (Type is null or Type=@Type)
 order by DatePredict asc";
             using (var q = new SQLiteCommand(query, GetConnection))
             {
@@ -229,8 +230,8 @@ values (@Type, @DatePredict, @Ksi, @Rho, @Mi, @Gamma, @LastElapsed, @Summary, @M
 
                     query =
                         @"
-insert into GamePredictionTeam (PredictionId, TeamId, HomeAttack, AwayAttack) 
-values (@PredictionId, @TeamId, @HomeAttack, @AwayAttack)";
+insert into GamePredictionTeam (PredictionId, TeamId, HomeAttack, AwayAttack, Gamma) 
+values (@PredictionId, @TeamId, @HomeAttack, @AwayAttack, @Gamma)";
 
                     foreach (var team in manager.Teams)
                     {
@@ -240,11 +241,13 @@ values (@PredictionId, @TeamId, @HomeAttack, @AwayAttack)";
                             cmd.Parameters.Add(new SQLiteParameter("TeamId", DbType.Int32));
                             cmd.Parameters.Add(new SQLiteParameter("HomeAttack", DbType.Double));
                             cmd.Parameters.Add(new SQLiteParameter("AwayAttack", DbType.Double));
+                            cmd.Parameters.Add(new SQLiteParameter("Gamma", DbType.Double));
 
                             cmd.Parameters["PredictionId"].Value = manager.Id;
                             cmd.Parameters["TeamId"].Value = team.Id;
                             cmd.Parameters["HomeAttack"].Value = team.HomeAttack;
                             cmd.Parameters["AwayAttack"].Value = team.AwayAttack;
+                            cmd.Parameters["Gamma"].Value = team.Gamma;
 
                             cmd.ExecuteNonQuery();
                         }
@@ -304,7 +307,7 @@ from GamePrediction where Id = @Id";
             }
 
             query = @"
-select Id, PredictionId, TeamId, HomeAttack, AwayAttack 
+select Id, PredictionId, TeamId, HomeAttack, AwayAttack, Gamma 
 from GamePredictionTeam
 where PredictionId = @PredictionId";
 
@@ -319,6 +322,7 @@ where PredictionId = @PredictionId";
                     var team = manager.Teams.FirstOrDefault(x => x.Id == reader.GetInt32(2));
                     team.HomeAttack = reader.GetDouble(3);
                     team.AwayAttack = reader.GetDouble(4);
+                    team.Gamma = reader.GetDouble(5);
                 }
             }
 

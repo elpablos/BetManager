@@ -40,14 +40,19 @@ namespace Prediction.Calculator
             calc.PropLength = input.PropLength;
             calc.Ksi = input.Ksi;
             var result = calc.Calculate(data);
-
-            System.IO.File.WriteAllText("calc-output.csv", calc.Csv);
-
-            Console.WriteLine("Result: {0}", result);
-
             watch.Stop();
 
-            Console.WriteLine("Complete - Elapsed;{0}\n", watch.Elapsed);
+            string outputFile = inputFile.Replace(".xml", ".csv").Replace("input", "output");
+            string resultFile = inputFile.Replace(".xml", "-result.txt");
+            string resultText = string.Empty;
+
+            System.IO.File.WriteAllText(outputFile, calc.Csv);
+
+            resultText = string.Format("Result: {0}", result) + Environment.NewLine;
+            resultText += string.Format("Complete - Elapsed;{0}\n", watch.Elapsed) + Environment.NewLine;
+
+            Console.WriteLine(resultText);
+            System.IO.File.WriteAllText(resultFile, resultText);
         }
     }
 }

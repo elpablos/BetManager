@@ -73,7 +73,7 @@ namespace Prediction.Solver
             // worker.Solve(input.Inputs[0].Ksi, data, input.Inputs[0].DateStart, input.Inputs[0].Type);
 
             var options = new ParallelOptions();
-            options.MaxDegreeOfParallelism = 2;
+            // options.MaxDegreeOfParallelism = 2;
             Parallel.ForEach(input.Inputs, options, x => worker.Solve(x.Ksi, data, x.DateStart, x.Type));
 
             watch.Stop();
