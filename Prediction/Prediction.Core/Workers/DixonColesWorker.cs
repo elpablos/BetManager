@@ -154,7 +154,7 @@ namespace Prediction.Core.Workers
                         solver = new BPDISolver(dixonManager);
                         break;
                     case SolverTypeEnum.Maher:
-                        solver = new MaherExtSolver(dixonManager); // MaherSolver
+                        solver = new MaherExtSolver(dixonManager); // MaherExtSolver
                         break;
                     case SolverTypeEnum.DPG:
                         solver = new DPGSolver(dixonManager);

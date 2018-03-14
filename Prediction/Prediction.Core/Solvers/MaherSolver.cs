@@ -70,8 +70,8 @@ namespace Prediction.Core.Solvers
 
                 foreach (var team in extendTeams)
                 {
-                    team.DefaultHomeAttack = team.HomeAttack;
-                    team.DefaultAwayAttack = team.AwayAttack;
+                    team.HomeAttack = team.DefaultHomeAttack;
+                    team.AwayAttack = team.DefaultAwayAttack;
                 }
 
                 Set teams = new Set(Domain.Integer, "Teams");
@@ -80,13 +80,13 @@ namespace Prediction.Core.Solvers
                 var awayScore = _DixonManager.Matches.Sum(x => x.AwayScore);
                 _DixonManager.Ksi = awayScore * 1.0 / homeScore;
 
-                for (int itr = 0; itr < 10; itr++)
+                var sumDefaultAwayAttack = extendTeams.Sum(x => x.DefaultAwayAttack);
+                var sumDefaultHomeAttack = extendTeams.Sum(x => x.DefaultHomeAttack);
+
+                foreach (var t in extendTeams)
                 {
-                    foreach (var t in extendTeams)
-                    {
-                        t.HomeAttack = t.GoalGiven /((1 + _DixonManager.Ksi) * (extendTeams.Sum(x => x.DefaultAwayAttack) - t.DefaultAwayAttack));
-                        t.AwayAttack = t.GoalTaken / ((1 + _DixonManager.Ksi) * (extendTeams.Sum(x => x.DefaultHomeAttack) - t.DefaultHomeAttack));
-                    }
+                    t.HomeAttack = t.GoalGiven / ((1 + _DixonManager.Ksi) * (sumDefaultAwayAttack - t.DefaultAwayAttack) * 2);
+                    t.AwayAttack = t.GoalTaken / ((1 + _DixonManager.Ksi) * (sumDefaultHomeAttack - t.DefaultHomeAttack) * 2);
                 }
 
                 // parameters
@@ -135,6 +135,13 @@ namespace Prediction.Core.Solvers
 
                 // constraints
 
+                model.AddConstraint("const",
+                    Model.Sum(Model.ForEach(teams, team => ((GoalGiven[team] / ((1.0 + ksi) * Model.Sum(Model.ForEachWhere(teams, t => DefaultAwayAttack[t], x => x != team)) * 2)))))
+                    ==
+                    Model.Sum(Model.ForEach(teams, team => ((GoalTaken[team] / ((1.0 + ksi) * Model.Sum(Model.ForEachWhere(teams, t => DefaultHomeAttack[t], x => x != team)) * 2)))))
+                    );
+
+
                 //// EXCEL - alpha_odhad = beta_odhad
                 //model.AddConstraint("homeAttackCount",
                 //    Model.Sum(Model.ForEach(teams, t => attack[t])) == Model.Sum(Model.ForEach(teams, t => defence[t])));
@@ -167,17 +174,17 @@ namespace Prediction.Core.Solvers
                              var sumaDefaultHome = Model.Sum(Model.ForEachWhere(teams, t => DefaultHomeAttack[t], x => x != team));
 
                              // pocet obdrzenych golu tymu / ((1+ksi) * suma alpha_vychozi BEZ aktualniho tymu
-                             return (GoalTaken[team] / ((1.0 + ksi) * sumaDefaultHome));
+                             return (GoalTaken[team] / ((1.0 + ksi) * sumaDefaultHome * 2));
                          }, x => x != teamz)); // suma vsech vyjma aktualniho pocitanyho tymu
 
                          return Model.ForEachWhere(teams, team =>
                          {
                              var sumaDefaultAway = Model.Sum(Model.ForEachWhere(teams, t => DefaultAwayAttack[t], x => x != team));
-                             var alpha_odhad = (GoalGiven[team] / ((1.0 + ksi) * sumaDefaultAway));
+                             var alpha_odhad = (GoalGiven[team] / ((1.0 + ksi) * sumaDefaultAway * 2));
 
                              return (alpha_odhad * suma) * 2.0; // 
                          }, x => x == teamz); // pouze aktualni pocitany tym
-                     })))); //  - homeGoalCount
+                     })) - homeGoalCount)); //  
 
                 context.CheckModel();
 
@@ -197,7 +204,7 @@ namespace Prediction.Core.Solvers
             foreach (var team in extendTeams)
             {
                 var originalTeam = _DixonManager.Teams.FirstOrDefault(x => x.Id == team.Id);
-                originalTeam.HomeAttack = team.HomeAttack;
+                originalTeam.HomeAttack = team.DefaultHomeAttack;
                 originalTeam.AwayAttack = team.AwayAttack;
             }
 
